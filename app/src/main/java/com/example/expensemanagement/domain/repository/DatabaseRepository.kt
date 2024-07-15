@@ -22,6 +22,7 @@ interface DatabaseRepository {
 
     fun getTransByFundAndPar(fundId: Int, parId: Int): Flow<List<TransactionDto>>
 
+    fun getParticipantByName(participantName: String): Flow<ParticipantDto>
     fun getAllParticipants(): Flow<List<ParticipantDto>>
 
     fun getAllTransactions(): Flow<List<TransactionDto>>

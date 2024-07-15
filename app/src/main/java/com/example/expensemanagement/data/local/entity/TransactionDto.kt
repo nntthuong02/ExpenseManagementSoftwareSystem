@@ -8,7 +8,7 @@ import com.example.expensemanagement.domain.models.Transaction
 import java.util.Date
 
 @Entity(
-    tableName = "transaction",
+    tableName = "transaction_table",
     foreignKeys = [ForeignKey(
         entity = ParticipantDto::class,
         parentColumns = arrayOf("_id"),
