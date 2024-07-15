@@ -7,5 +7,7 @@ interface DatastoreRepository {
     suspend fun readOnboardingKey(): Flow<Boolean>
     suspend fun writeCurrency(currency: String)
     suspend fun readCurrency(): Flow<String>
+    suspend fun writeGroupKey(completed: Boolean)
+    suspend fun readGroupKey(): Flow<Boolean>
     suspend fun eraseDatastore()
 }
