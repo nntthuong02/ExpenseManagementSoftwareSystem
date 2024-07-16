@@ -1,79 +1,77 @@
 package com.example.expensemanagement.data.repository
 
-import com.example.expensemanagement.data.ParticipantDao
-import com.example.expensemanagement.data.TransactionDao
+import com.example.expensemanagement.data.DatabaseDao
 import com.example.expensemanagement.data.local.entity.ParticipantDto
 import com.example.expensemanagement.data.local.entity.TransactionDto
 import com.example.expensemanagement.domain.repository.DatabaseRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class TransactionRepositoryImpl @Inject constructor(
-    private val transactionDao: TransactionDao,
-    private val participantDao: ParticipantDao
+class DatabaseRepositoryImpl @Inject constructor(
+    private val databaseDao: DatabaseDao
 ): DatabaseRepository{
     override suspend fun insertTransaction(trans: TransactionDto) {
-        transactionDao.insertTransaction(trans)
+        databaseDao.insertTransaction(trans)
     }
 
     override suspend fun insertParticipant(participant: ParticipantDto) {
-        participantDao.insertParticipant(participant)
+        databaseDao.insertParticipant(participant)
     }
 
     override suspend fun markAllAsPaid() {
-        transactionDao.markAllAsPaid()
+        databaseDao.markAllAsPaid()
     }
 
     override fun getTransactionByDate(entryDate: String): Flow<List<TransactionDto>> {
-        return transactionDao.getTransactionByDate(entryDate)
+        return databaseDao.getTransactionByDate(entryDate)
     }
 
     override fun getTransactionByParticipant(participantId: Int): Flow<List<TransactionDto>> {
-        return transactionDao.getTransactionByParticipant(participantId)
+        return databaseDao.getTransactionByParticipant(participantId)
     }
 
     override fun getTransIsNotPaidById(transId: Int): Flow<List<TransactionDto>> {
-        return transactionDao.getTransIsNotPaidById(transId)
+        return databaseDao.getTransIsNotPaidById(transId)
     }
 
     override fun getTransByFund(fundId: Int): Flow<List<TransactionDto>> {
-        return transactionDao.getTransByFund(fundId)
+        return databaseDao.getTransByFund(fundId)
     }
 
     override fun getTransByFundAndPar(fundId: Int, parId: Int): Flow<List<TransactionDto>> {
-        return transactionDao.getTransByFundAndPar(fundId, parId)
+        return databaseDao.getTransByFundAndPar(fundId, parId)
     }
 
     override fun getParticipantByName(participantName: String): Flow<ParticipantDto> {
-        return participantDao.getParticipantByName(participantName)
+        return databaseDao.getParticipantByName(participantName)
     }
 
     override fun getAllParticipants(): Flow<List<ParticipantDto>> {
-        return participantDao.getAllParticipants()
+        return databaseDao.getAllParticipants()
     }
 
     override fun getAllTransactions(): Flow<List<TransactionDto>> {
-        return transactionDao.getAllTransaction()
+        return databaseDao.getAllTransaction()
     }
 
     override fun eraseTransaction() {
-        return transactionDao.eraseTransaction()
+        return databaseDao.eraseTransaction()
     }
 
     override fun getCurrentDayTransaction(): Flow<List<TransactionDto>> {
-        return transactionDao.getCurrentDayExpTransaction()
+        return databaseDao.getCurrentDayExpTransaction()
     }
 
     override fun getWeeklyTransaction(): Flow<List<TransactionDto>> {
-        return transactionDao.getWeeklyExpTransaction()
+        return databaseDao.getWeeklyExpTransaction()
     }
 
     override fun getMonthlyTransaction(): Flow<List<TransactionDto>> {
-        return transactionDao.getMonthlyExpTransaction()
+        return databaseDao.getMonthlyExpTransaction()
     }
 
     override fun getTransactionByType(transactionType: String): Flow<List<TransactionDto>> {
-        return transactionDao.getTransactionByType(transactionType)
+        return databaseDao.getTransactionByType(transactionType)
     }
 
 }

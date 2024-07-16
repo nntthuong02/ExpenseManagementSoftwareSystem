@@ -9,9 +9,6 @@ import com.example.expensemanagement.data.local.entity.TransactionDto
 
 @TypeConverters(DateConverter::class)
 @Database(entities = [TransactionDto::class, ParticipantDto::class], version = 1, exportSchema = true)
-abstract class TransactionDatabase: RoomDatabase(){
-    abstract fun transactionDao(): TransactionDao
-
-    abstract fun 
-
+abstract class AppDatabase: RoomDatabase(){
+    abstract fun databaseDao(): DatabaseDao
 }

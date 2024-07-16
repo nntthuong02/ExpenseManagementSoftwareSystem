@@ -5,12 +5,13 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.expensemanagement.common.TransactionType
+import com.example.expensemanagement.data.local.entity.ParticipantDto
 import com.example.expensemanagement.data.local.entity.TransactionDto
 import kotlinx.coroutines.flow.Flow
 
 
 @Dao
-interface TransactionDao {
+interface DatabaseDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTransaction(transaction: TransactionDto)
@@ -57,4 +58,13 @@ interface TransactionDao {
 
     @Query("SELECT * FROM TRANSACTION_TABLE WHERE transactionType = :transactionType")
     fun getTransactionByType(transactionType: String): Flow<List<TransactionDto>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertParticipant(participants: ParticipantDto)
+
+    @Query("SELECT * FROM PARTICIPANT WHERE participant = :participant")
+    fun getParticipantByName(participant: String) : Flow<ParticipantDto>
+
+    @Query("SELECT * FROM PARTICIPANT")
+    fun getAllParticipants() : Flow<List<ParticipantDto>>
 }
