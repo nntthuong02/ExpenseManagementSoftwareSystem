@@ -80,7 +80,7 @@ interface DatabaseDao {
     @Query("SELECT * FROM GROUP_TABLE")
     fun getAllGroups(): Flow<List<GroupDto>>
 
-    @Query("SELECT * FROM TRANSACTION_TABLE WHERE _ID = :groupId")
+    @Query("SELECT * FROM GROUP_TABLE WHERE _ID = :groupId")
     fun getGroupById(groupId: Int): Flow<GroupDto>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -89,7 +89,7 @@ interface DatabaseDao {
     @Query("SELECT * FROM FUND_TABLE")
     fun getAllFunds(): Flow<List<FundDto>>
 
-    @Query("SELECT * FROM TRANSACTION_TABLE WHERE _ID = :fundId")
+    @Query("SELECT * FROM FUND_TABLE WHERE _ID = :fundId")
     fun getFundById(fundId: Int): Flow<FundDto>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -98,6 +98,6 @@ interface DatabaseDao {
     @Query("SELECT * FROM PARTICIPANTFUND_TABLE")
     fun getAllParticipantFunds(): Flow<List<ParticipantFundDto>>
 
-    @Query("SELECT * FROM TRANSACTION_TABLE WHERE _ID = :parFundId")
+    @Query("SELECT * FROM PARTICIPANTFUND_TABLE WHERE _ID = :parFundId")
     fun getParticipantFundById(parFundId: Int): Flow<ParticipantFundDto>
 }

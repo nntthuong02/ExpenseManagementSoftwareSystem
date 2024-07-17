@@ -4,9 +4,16 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.expensemanagement.data.local.entity.FundDto
+import com.example.expensemanagement.data.local.entity.GroupDto
+import com.example.expensemanagement.data.local.entity.ParticipantDto
+import com.example.expensemanagement.data.local.entity.ParticipantFundDto
 import com.example.expensemanagement.domain.models.CurrencyModel
 import com.example.expensemanagement.domain.usecase.GetCurrency
+import com.example.expensemanagement.domain.usecase.write_database.InsertNewFund
+import com.example.expensemanagement.domain.usecase.write_database.InsertNewGroup
 import com.example.expensemanagement.domain.usecase.write_database.InsertNewParticipant
+import com.example.expensemanagement.domain.usecase.write_database.InsertNewParticipantFund
 import com.example.expensemanagement.domain.usecase.write_datastore.EditCurrencyUseCase
 import com.example.expensemanagement.domain.usecase.write_datastore.EditOnboardingKeyUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,6 +26,9 @@ class CurrencyViewModel @Inject constructor(
     private val editOnboardingUseCase: EditOnboardingKeyUseCase,
     private val editCurrencyUseCase: EditCurrencyUseCase,
     private val insertNewParticipant: InsertNewParticipant,
+    private val insertNewGroup: InsertNewGroup,
+    private val insertNewFund: InsertNewFund,
+    private val insertNewParticipantFund: InsertNewParticipantFund,
     getCurrency: GetCurrency
 ): ViewModel(){
     var countryCurrencies = mutableStateOf(emptyMap<Char, List<CurrencyModel>>())
@@ -42,14 +52,10 @@ class CurrencyViewModel @Inject constructor(
 
     fun createEntity() {
         viewModelScope.launch(IO) {
-//            insertParticipantsUseCase.invoke(
-////                listOf(
-////                    ParticipantDto(1, ParticipantName.DAT.title, 0.0, 0.0, 0.0),
-////                    ParticipantDto(2, ParticipantName.QUAN.title, 0.0, 0.0, 0.0),
-////                    ParticipantDto(3, ParticipantName.THUONG.title, 0.0, 0.0, 0.0),
-////                    ParticipantDto(4, ParticipantName.TUAN.title, 0.0, 0.0, 0.0)
-////                )
-////            )
+            insertNewGroup.invoke(GroupDto(1, "My Group"))
+            insertNewFund.invoke(FundDto(1, "My Fund", 0.0, 1))
+            insertNewParticipant.invoke((ParticipantDto(1, "I", 0.0, 0.0, 0.0)))
+            insertNewParticipantFund.invoke(ParticipantFundDto(1, 1,1))
         }
     }
 
