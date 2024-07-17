@@ -6,7 +6,10 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.RewriteQueriesToDropUnusedColumns
 import com.example.expensemanagement.common.TransactionType
+import com.example.expensemanagement.data.local.entity.FundDto
+import com.example.expensemanagement.data.local.entity.GroupDto
 import com.example.expensemanagement.data.local.entity.ParticipantDto
+import com.example.expensemanagement.data.local.entity.ParticipantFundDto
 import com.example.expensemanagement.data.local.entity.TransactionDto
 import kotlinx.coroutines.flow.Flow
 
@@ -70,4 +73,31 @@ interface DatabaseDao {
 
     @Query("SELECT * FROM PARTICIPANT_TABLE")
     fun getAllParticipants() : Flow<List<ParticipantDto>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertGroup(group: GroupDto)
+
+    @Query("SELECT * FROM GROUP_TABLE")
+    fun getAllGroups(): Flow<List<GroupDto>>
+
+    @Query("SELECT * FROM TRANSACTION_TABLE WHERE _ID = :groupId")
+    fun getGroupById(groupId: Int): Flow<GroupDto>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertFund(fund: FundDto)
+
+    @Query("SELECT * FROM FUND_TABLE")
+    fun getAllFunds(): Flow<List<FundDto>>
+
+    @Query("SELECT * FROM TRANSACTION_TABLE WHERE _ID = :fundId")
+    fun getFundById(fundId: Int): Flow<FundDto>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertParticipantFund(parFund: ParticipantFundDto)
+
+    @Query("SELECT * FROM PARTICIPANTFUND_TABLE")
+    fun getAllParticipantFunds(): Flow<List<ParticipantFundDto>>
+
+    @Query("SELECT * FROM TRANSACTION_TABLE WHERE _ID = :parFundId")
+    fun getParticipantFundById(parFundId: Int): Flow<ParticipantFundDto>
 }

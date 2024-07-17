@@ -1,6 +1,9 @@
 package com.example.expensemanagement.domain.repository
 
+import com.example.expensemanagement.data.local.entity.FundDto
+import com.example.expensemanagement.data.local.entity.GroupDto
 import com.example.expensemanagement.data.local.entity.ParticipantDto
+import com.example.expensemanagement.data.local.entity.ParticipantFundDto
 import com.example.expensemanagement.data.local.entity.TransactionDto
 import kotlinx.coroutines.flow.Flow
 
@@ -23,6 +26,7 @@ interface DatabaseRepository {
     fun getTransByFundAndPar(fundId: Int, parId: Int): Flow<List<TransactionDto>>
 
     fun getParticipantByName(participantName: String): Flow<ParticipantDto>
+
     fun getAllParticipants(): Flow<List<ParticipantDto>>
 
     fun getAllTransactions(): Flow<List<TransactionDto>>
@@ -36,4 +40,22 @@ interface DatabaseRepository {
     fun getMonthlyTransaction(): Flow<List<TransactionDto>>
 
     fun getTransactionByType(transactionType: String): Flow<List<TransactionDto>>
+
+    suspend fun insertGroup(group: GroupDto)
+
+    fun getAllGroups(): Flow<List<GroupDto>>
+
+    fun getGroupById(groupId: Int): Flow<GroupDto>
+
+    suspend fun insertFund(fund: FundDto)
+
+    fun getAllFunds(): Flow<List<FundDto>>
+
+    fun getFundById(fundId: Int): Flow<FundDto>
+
+    suspend fun insertParticipantFund(parFund: ParticipantFundDto)
+
+    fun getAllParticipantFunds(): Flow<List<ParticipantFundDto>>
+
+    fun getParticipantFundById(parFundId: Int): Flow<ParticipantFundDto>
 }

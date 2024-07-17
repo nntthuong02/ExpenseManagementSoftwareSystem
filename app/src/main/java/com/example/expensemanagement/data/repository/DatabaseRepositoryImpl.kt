@@ -1,7 +1,10 @@
 package com.example.expensemanagement.data.repository
 
 import com.example.expensemanagement.data.DatabaseDao
+import com.example.expensemanagement.data.local.entity.FundDto
+import com.example.expensemanagement.data.local.entity.GroupDto
 import com.example.expensemanagement.data.local.entity.ParticipantDto
+import com.example.expensemanagement.data.local.entity.ParticipantFundDto
 import com.example.expensemanagement.data.local.entity.TransactionDto
 import com.example.expensemanagement.domain.repository.DatabaseRepository
 import kotlinx.coroutines.flow.Flow
@@ -72,6 +75,42 @@ class DatabaseRepositoryImpl @Inject constructor(
 
     override fun getTransactionByType(transactionType: String): Flow<List<TransactionDto>> {
         return databaseDao.getTransactionByType(transactionType)
+    }
+
+    override suspend fun insertGroup(group: GroupDto) {
+        return databaseDao.insertGroup(group)
+    }
+
+    override fun getAllGroups(): Flow<List<GroupDto>> {
+        return databaseDao.getAllGroups()
+    }
+
+    override fun getGroupById(groupId: Int): Flow<GroupDto> {
+        return databaseDao.getGroupById(groupId)
+    }
+
+    override suspend fun insertFund(fund: FundDto) {
+        return databaseDao.insertFund(fund)
+    }
+
+    override fun getAllFunds(): Flow<List<FundDto>> {
+        return databaseDao.getAllFunds()
+    }
+
+    override fun getFundById(fundId: Int): Flow<FundDto> {
+        return databaseDao.getFundById(fundId)
+    }
+
+    override suspend fun insertParticipantFund(parFund: ParticipantFundDto) {
+        return databaseDao.insertParticipantFund(parFund)
+    }
+
+    override fun getAllParticipantFunds(): Flow<List<ParticipantFundDto>> {
+        return databaseDao.getAllParticipantFunds()
+    }
+
+    override fun getParticipantFundById(parFundId: Int): Flow<ParticipantFundDto> {
+        return databaseDao.getParticipantFundById(parFundId)
     }
 
 }
