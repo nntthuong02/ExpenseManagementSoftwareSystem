@@ -18,14 +18,14 @@ import com.example.expensemanagement.presentation.onboarding.OnboardingScreen
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    startDestination: String = Route.OnboardingScreen.route
+    startDestination: String
 ) {
     NavHost(navController = navController, startDestination = startDestination) {
         composable(route = Route.OnboardingScreen.route) {
             OnboardingScreen(navController = navController)
         }
         composable(route = Route.CurrencyScreen.route) {
-            Text("CurrencyScreen")
+            CurrencyScreen(navController = rememberNavController())
         }
         composable(route = Route.HomeScreen.route) {
             Text("HomeScreen")
