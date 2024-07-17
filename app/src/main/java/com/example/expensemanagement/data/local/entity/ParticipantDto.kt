@@ -5,12 +5,12 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.expensemanagement.domain.models.Participant
 
-@Entity(tableName = "participant")
+@Entity(tableName = "participant_table")
 data class ParticipantDto(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
     val participantId: Int,
-    @ColumnInfo(name = "participant")
+    @ColumnInfo(name = "participantName")
     val participantName: String,
     @ColumnInfo(name = "income")
     val income: Double,

@@ -3,6 +3,7 @@ package com.example.expensemanagement.data.local.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.example.expensemanagement.domain.models.Transaction
 import java.util.Date
@@ -14,7 +15,8 @@ import java.util.Date
         parentColumns = arrayOf("_id"),
         childColumns = arrayOf("participantId"),
         onDelete = ForeignKey.CASCADE
-    )]
+    )],
+    indices = [Index(value = ["participantId"], unique = true)]
 )
 data class TransactionDto(
     @PrimaryKey(autoGenerate = true)

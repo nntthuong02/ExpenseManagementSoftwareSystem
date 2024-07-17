@@ -61,12 +61,12 @@ object ExpenseModule {
     @Singleton
     fun provideAppEntryUseCase(
         datastoreRepository: DatastoreRepository,
-        transactionRepository: DatabaseRepository
+        databaseRepository: DatabaseRepository
     ) = AppEntryUseCase(
         getOnboardingKeyUseCase = GetOnboardingKeyUseCase(datastoreRepository),
         editOnboardingKeyUseCase = EditOnboardingKeyUseCase(datastoreRepository),
         editCurrencyUseCase = EditCurrencyUseCase(datastoreRepository),
         getCurrencyUseCase = GetCurrencyUseCase(datastoreRepository),
-        getAllParticipants = GetAllParticipants(transactionRepository)
+        getAllParticipants = GetAllParticipants(databaseRepository)
     )
 }

@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.expensemanagement.domain.models.Group
 
-@Entity(tableName = "group")
+@Entity(tableName = "group_table")
 data class GroupDto(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")

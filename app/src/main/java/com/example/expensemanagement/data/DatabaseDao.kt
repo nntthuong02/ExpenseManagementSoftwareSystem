@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.RewriteQueriesToDropUnusedColumns
 import com.example.expensemanagement.common.TransactionType
 import com.example.expensemanagement.data.local.entity.ParticipantDto
 import com.example.expensemanagement.data.local.entity.TransactionDto
@@ -28,16 +29,18 @@ interface DatabaseDao {
     @Query("SELECT * FROM TRANSACTION_TABLE WHERE _id = :transId")
     fun getTransIsNotPaidById(transId: Int): Flow<List<TransactionDto>>
 
+    @RewriteQueriesToDropUnusedColumns
     @Query("SELECT * " +
             "FROM TRANSACTION_TABLE AS T " +
-            "INNER JOIN PARTICIPANT AS P ON P._id = T.participantId " +
-            "INNER JOIN PARTICIPANTFUND AS PF ON P._ID = PF.PARTICIPANTID " +
+            "INNER JOIN PARTICIPANT_TABLE AS P ON P._id = T.participantId " +
+            "INNER JOIN PARTICIPANTFUND_TABLE AS PF ON P._ID = PF.PARTICIPANTID " +
             "WHERE PF._id = :fundId")
     fun getTransByFund(fundId: Int): Flow<List<TransactionDto>>
+    @RewriteQueriesToDropUnusedColumns
     @Query("SELECT * " +
             "FROM TRANSACTION_TABLE AS T " +
-            "INNER JOIN PARTICIPANT AS P ON P._id = T.participantId " +
-            "INNER JOIN PARTICIPANTFUND AS PF ON P._ID = PF.PARTICIPANTID " +
+            "INNER JOIN PARTICIPANT_TABLE AS P ON P._id = T.participantId " +
+            "INNER JOIN PARTICIPANTFUND_TABLE AS PF ON P._ID = PF.PARTICIPANTID " +
             "WHERE PF._id = :fundId AND P._id = :parId")
     fun getTransByFundAndPar(fundId: Int, parId: Int): Flow<List<TransactionDto>>
 
@@ -62,9 +65,9 @@ interface DatabaseDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertParticipant(participants: ParticipantDto)
 
-    @Query("SELECT * FROM PARTICIPANT WHERE participant = :participant")
+    @Query("SELECT * FROM PARTICIPANT_TABLE WHERE participantName = :participant")
     fun getParticipantByName(participant: String) : Flow<ParticipantDto>
 
-    @Query("SELECT * FROM PARTICIPANT")
+    @Query("SELECT * FROM PARTICIPANT_TABLE")
     fun getAllParticipants() : Flow<List<ParticipantDto>>
 }
