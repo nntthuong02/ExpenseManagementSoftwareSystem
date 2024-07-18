@@ -1,6 +1,5 @@
 package com.example.expensemanagement.presentation.transaction_screen.component
 
-import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -26,7 +25,7 @@ import com.example.expensemanagement.presentation.common.TabButton
 import com.example.expensemanagement.presentation.transaction_screen.TransactionViewModel
 
 @Composable
-fun TabButton(
+fun TabTransactionType(
     tabs: Array<TabButton> = TabButton.values(),
     cornerRadius: Dp = 24.dp,
     onButtonClick: () -> Unit = { },
@@ -96,5 +95,5 @@ fun TabButton(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun TabButtonPreview() {
-    TabButton()
+    TabTransactionType()
 }

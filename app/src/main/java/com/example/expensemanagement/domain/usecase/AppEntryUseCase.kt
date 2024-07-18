@@ -1,6 +1,8 @@
 package com.example.expensemanagement.domain.usecase
 
 import com.example.expensemanagement.domain.usecase.read_database.GetAllParticipants
+import com.example.expensemanagement.domain.usecase.read_database.GetFundByGroupId
+import com.example.expensemanagement.domain.usecase.read_database.GetParticipantByFundId
 import com.example.expensemanagement.domain.usecase.read_datastore.GetCurrencyUseCase
 import com.example.expensemanagement.domain.usecase.read_datastore.GetOnboardingKeyUseCase
 import com.example.expensemanagement.domain.usecase.write_datastore.EditCurrencyUseCase
@@ -11,5 +13,7 @@ data class AppEntryUseCase(
     val editOnboardingKeyUseCase: EditOnboardingKeyUseCase,
     val editCurrencyUseCase: EditCurrencyUseCase,
     val getCurrencyUseCase: GetCurrencyUseCase,
-    val getAllParticipants: GetAllParticipants
+    val getAllParticipants: GetAllParticipants,
+    val getFundByGroupId: GetFundByGroupId,
+    val getParticipantByFundId: GetParticipantByFundId
 )

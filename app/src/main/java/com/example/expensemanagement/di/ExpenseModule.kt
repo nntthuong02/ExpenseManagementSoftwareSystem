@@ -10,6 +10,8 @@ import com.example.expensemanagement.domain.repository.DatabaseRepository
 import com.example.expensemanagement.domain.repository.DatastoreRepository
 import com.example.expensemanagement.domain.usecase.AppEntryUseCase
 import com.example.expensemanagement.domain.usecase.read_database.GetAllParticipants
+import com.example.expensemanagement.domain.usecase.read_database.GetFundByGroupId
+import com.example.expensemanagement.domain.usecase.read_database.GetParticipantByFundId
 import com.example.expensemanagement.domain.usecase.read_datastore.GetCurrencyUseCase
 import com.example.expensemanagement.domain.usecase.read_datastore.GetOnboardingKeyUseCase
 import com.example.expensemanagement.domain.usecase.write_datastore.EditCurrencyUseCase
@@ -67,6 +69,8 @@ object ExpenseModule {
         editOnboardingKeyUseCase = EditOnboardingKeyUseCase(datastoreRepository),
         editCurrencyUseCase = EditCurrencyUseCase(datastoreRepository),
         getCurrencyUseCase = GetCurrencyUseCase(datastoreRepository),
-        getAllParticipants = GetAllParticipants(databaseRepository)
+        getAllParticipants = GetAllParticipants(databaseRepository),
+        getFundByGroupId = GetFundByGroupId(databaseRepository),
+        getParticipantByFundId = GetParticipantByFundId(databaseRepository)
     )
 }

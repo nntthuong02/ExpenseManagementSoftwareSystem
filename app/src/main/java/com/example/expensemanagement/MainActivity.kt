@@ -64,6 +64,7 @@ class MainActivity : ComponentActivity() {
                 Log.d("test appEntryUseCase", it.toString())
             }
         }
+
         Log.d("currency", currencyViewModel.countryCurrencies.value.toString())
 //        val currencies = getCurrency.invoke()
 //        currencies.forEach {
