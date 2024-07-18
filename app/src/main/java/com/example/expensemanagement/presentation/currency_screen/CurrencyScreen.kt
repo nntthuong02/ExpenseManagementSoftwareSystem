@@ -209,12 +209,6 @@ fun CurrencyScreen(
                             Log.d("MyApp", "createParticipants executed")
                             currencyViewModel.saveOnboardingState(completed = true)
                             Log.d("saveOnboardingState", "saveOnboardingState executed")
-                            //Them cancle button trong tuong lai
-//                        coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
-//                            if (!sheetState.isVisible) {
-//                                showBottomSheet = false
-//                            }
-//                        }
                         }) {
                         Text("Commit Currency")
                     }

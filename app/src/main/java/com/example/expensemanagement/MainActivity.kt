@@ -28,6 +28,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.expensemanagement.domain.usecase.AppEntryUseCase
 import com.example.expensemanagement.domain.usecase.GetCurrency
 import com.example.expensemanagement.presentation.currency_screen.CurrencyViewModel
+import com.example.expensemanagement.presentation.main.MainViewModel
 import com.example.expensemanagement.presentation.navigation.MainScreen
 import com.example.expensemanagement.presentation.navigation.NavGraph
 import com.example.expensemanagement.presentation.navigation.Route
@@ -51,6 +52,8 @@ class MainActivity : ComponentActivity() {
     //3
     val currencyViewModel by viewModels<CurrencyViewModel>()
     /*Test*/
+    @Inject
+    lateinit var mainViewModel: MainViewModel
     @OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,8 +75,10 @@ class MainActivity : ComponentActivity() {
                 Box(
                     modifier = Modifier.background(color = MaterialTheme.colorScheme.background)
                 ) {
-                    val navController = rememberNavController()
-                    MainScreen(startDestination = Route.HomeScreen.route)
+                    val destination by mainViewModel.startDestination.collectAsState()
+                    MainScreen(
+                        startDestination = destination,
+                    )
                 }
 
             }

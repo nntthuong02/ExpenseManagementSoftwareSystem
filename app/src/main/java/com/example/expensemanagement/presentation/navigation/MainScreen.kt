@@ -33,8 +33,22 @@ fun MainScreen(
     startDestination: String
 ) {
     val navController = rememberNavController()
+    val initialDestinations = listOf(
+        Route.OnboardingScreen.route,
+        Route.CurrencyScreen.route
+    )
+    val bottomNavBarState = remember { mutableStateOf(false) }
+    val navBarEntry by navController.currentBackStackEntryAsState()
+    //Kiem tra co phai dich den bat dau
+    bottomNavBarState.value = !initialDestinations.contains(navBarEntry?.destination?.route)
     Scaffold(
         bottomBar = {
+            AnimatedVisibility(
+                //an hien thanh dieu huong
+                visible = bottomNavBarState.value,
+                enter = slideInVertically(initialOffsetY = { it }),
+                exit = slideOutVertically(targetOffsetY = { it })
+            ) {
             BottomNavBar(
                 items = provideBottomNavItems(), navController
             )
@@ -46,6 +60,7 @@ fun MainScreen(
                     restoreState = true
                 }
             }
+        }
         }
     ) {
         Box(
