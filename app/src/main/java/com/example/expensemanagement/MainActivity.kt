@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -27,6 +28,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.expensemanagement.domain.usecase.AppEntryUseCase
 import com.example.expensemanagement.domain.usecase.GetCurrency
 import com.example.expensemanagement.presentation.currency_screen.CurrencyViewModel
+import com.example.expensemanagement.presentation.navigation.MainScreen
 import com.example.expensemanagement.presentation.navigation.NavGraph
 import com.example.expensemanagement.presentation.navigation.Route
 import com.example.expensemanagement.presentation.onboarding.OnboardingScreen
@@ -49,7 +51,7 @@ class MainActivity : ComponentActivity() {
     //3
     val currencyViewModel by viewModels<CurrencyViewModel>()
     /*Test*/
-    @OptIn(ExperimentalFoundationApi::class)
+    @OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
@@ -71,7 +73,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.background(color = MaterialTheme.colorScheme.background)
                 ) {
                     val navController = rememberNavController()
-                    NavGraph(navController = navController, startDestination = Route.OnboardingScreen.route)
+                    MainScreen(startDestination = Route.HomeScreen.route)
                 }
 
             }

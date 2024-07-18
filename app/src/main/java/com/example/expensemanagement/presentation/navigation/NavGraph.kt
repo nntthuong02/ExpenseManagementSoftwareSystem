@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.expensemanagement.presentation.currency_screen.CurrencyScreen
+import com.example.expensemanagement.presentation.home.HomeScreen
 import com.example.expensemanagement.presentation.onboarding.OnboardingScreen
 
 @ExperimentalFoundationApi
@@ -28,7 +29,7 @@ fun NavGraph(
             CurrencyScreen(navController = rememberNavController())
         }
         composable(route = Route.HomeScreen.route) {
-            Text("HomeScreen")
+            HomeScreen()
         }
         composable(route = Route.TransactionScreen.route) {
             Text("TransactionScreen")
@@ -43,12 +44,15 @@ fun NavGraph(
             Text("ParticipantScreen")
         }
         composable(
-            route = "${Route.ParticipantDetailScreen.route}"
+            route = Route.ParticipantDetailScreen.route
         ) {
             Text("ParticipantDetailScreen")
         }
         composable(route = Route.SettingScreen.route) {
             Text("SettingScreen")
+        }
+        composable(route = Route.PayScreen.route){
+            Text("PayScreen")
         }
     }
 }
