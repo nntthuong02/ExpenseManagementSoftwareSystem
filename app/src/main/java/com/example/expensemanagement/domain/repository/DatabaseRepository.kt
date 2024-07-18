@@ -27,6 +27,8 @@ interface DatabaseRepository {
 
     fun getParticipantByName(participantName: String): Flow<ParticipantDto>
 
+    fun getParticipantByFundId(fundId: Int): Flow<List<ParticipantDto>>
+
     fun getAllParticipants(): Flow<List<ParticipantDto>>
 
     fun getAllTransactions(): Flow<List<TransactionDto>>
@@ -52,6 +54,8 @@ interface DatabaseRepository {
     fun getAllFunds(): Flow<List<FundDto>>
 
     fun getFundById(fundId: Int): Flow<FundDto>
+
+    fun getFundByGroupId(groupId: Int): Flow<List<FundDto>>
 
     suspend fun insertParticipantFund(parFund: ParticipantFundDto)
 

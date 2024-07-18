@@ -74,6 +74,12 @@ interface DatabaseDao {
     @Query("SELECT * FROM PARTICIPANT_TABLE")
     fun getAllParticipants() : Flow<List<ParticipantDto>>
 
+    @Query("SELECT P._id, P.participantName, P.balance, P.expense, P.income " +
+            "FROM PARTICIPANT_TABLE AS P " +
+            "INNER JOIN PARTICIPANTFUND_TABLE AS PF ON PF.PARTICIPANTID = P._ID " +
+            "WHERE PF.fundId = :fundId")
+    fun getParticipantByFundId(fundId: Int): Flow<List<ParticipantDto>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertGroup(group: GroupDto)
 
@@ -91,6 +97,9 @@ interface DatabaseDao {
 
     @Query("SELECT * FROM FUND_TABLE WHERE _ID = :fundId")
     fun getFundById(fundId: Int): Flow<FundDto>
+
+    @Query("SELECT * FROM FUND_TABLE WHERE FUND_TABLE.groupId = :groupId ")
+    fun getFundByGroupId(groupId: Int): Flow<List<FundDto>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertParticipantFund(parFund: ParticipantFundDto)

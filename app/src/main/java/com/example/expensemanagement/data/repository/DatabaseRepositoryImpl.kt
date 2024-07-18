@@ -49,6 +49,10 @@ class DatabaseRepositoryImpl @Inject constructor(
         return databaseDao.getParticipantByName(participantName)
     }
 
+    override fun getParticipantByFundId(fundId: Int): Flow<List<ParticipantDto>> {
+        return databaseDao.getParticipantByFundId(fundId)
+    }
+
     override fun getAllParticipants(): Flow<List<ParticipantDto>> {
         return databaseDao.getAllParticipants()
     }
@@ -99,6 +103,10 @@ class DatabaseRepositoryImpl @Inject constructor(
 
     override fun getFundById(fundId: Int): Flow<FundDto> {
         return databaseDao.getFundById(fundId)
+    }
+
+    override fun getFundByGroupId(groupId: Int): Flow<List<FundDto>> {
+        return databaseDao.getFundByGroupId(groupId)
     }
 
     override suspend fun insertParticipantFund(parFund: ParticipantFundDto) {

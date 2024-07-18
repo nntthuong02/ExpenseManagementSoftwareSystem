@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.expensemanagement.presentation.currency_screen.CurrencyScreen
 import com.example.expensemanagement.presentation.home.HomeScreen
 import com.example.expensemanagement.presentation.onboarding.OnboardingScreen
+import com.example.expensemanagement.presentation.transaction_screen.TransactionScreen
 
 @ExperimentalFoundationApi
 @ExperimentalComposeUiApi
@@ -32,7 +33,7 @@ fun NavGraph(
             HomeScreen()
         }
         composable(route = Route.TransactionScreen.route) {
-            Text("TransactionScreen")
+            TransactionScreen()
         }
         composable(route = Route.InsightScreen.route) {
             Text("InsightScreen")
