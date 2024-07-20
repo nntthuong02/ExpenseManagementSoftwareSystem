@@ -13,12 +13,9 @@ import javax.inject.Inject
 class DatabaseRepositoryImpl @Inject constructor(
     private val databaseDao: DatabaseDao
 ): DatabaseRepository{
+    //Transaction
     override suspend fun insertTransaction(trans: TransactionDto) {
         databaseDao.insertTransaction(trans)
-    }
-
-    override suspend fun insertParticipant(participant: ParticipantDto) {
-        databaseDao.insertParticipant(participant)
     }
 
     override suspend fun markAllAsPaid() {
@@ -45,24 +42,20 @@ class DatabaseRepositoryImpl @Inject constructor(
         return databaseDao.getTransByFundAndPar(fundId, parId)
     }
 
-    override fun getParticipantByName(participantName: String): Flow<ParticipantDto> {
-        return databaseDao.getParticipantByName(participantName)
-    }
-
-    override fun getParticipantByFundId(fundId: Int): Flow<List<ParticipantDto>> {
-        return databaseDao.getParticipantByFundId(fundId)
-    }
-
-    override fun getAllParticipants(): Flow<List<ParticipantDto>> {
-        return databaseDao.getAllParticipants()
-    }
-
     override fun getAllTransactions(): Flow<List<TransactionDto>> {
         return databaseDao.getAllTransaction()
     }
 
-    override fun eraseTransaction() {
-        return databaseDao.eraseTransaction()
+    suspend override fun eraseAllTransaction() {
+        return databaseDao.eraseAllTransaction()
+    }
+
+    override suspend fun eraseTransactionById(transId: Int) {
+        return databaseDao.eraseTransactionById(transId)
+    }
+
+    override suspend fun updateTransaction(trans: TransactionDto) {
+        return databaseDao.updateTransaction(trans)
     }
 
     override fun getCurrentDayTransaction(): Flow<List<TransactionDto>> {
@@ -81,6 +74,7 @@ class DatabaseRepositoryImpl @Inject constructor(
         return databaseDao.getTransactionByType(transactionType)
     }
 
+    //Group
     override suspend fun insertGroup(group: GroupDto) {
         return databaseDao.insertGroup(group)
     }
@@ -93,6 +87,16 @@ class DatabaseRepositoryImpl @Inject constructor(
         return databaseDao.getGroupById(groupId)
     }
 
+    override suspend fun updateGroup(group: GroupDto) {
+        return databaseDao.updateGroup(group)
+    }
+
+    override suspend fun eraseGroupById(groupId: Int) {
+        return databaseDao.eraseGroupById(groupId)
+    }
+
+
+    //Fund
     override suspend fun insertFund(fund: FundDto) {
         return databaseDao.insertFund(fund)
     }
@@ -109,6 +113,15 @@ class DatabaseRepositoryImpl @Inject constructor(
         return databaseDao.getFundByGroupId(groupId)
     }
 
+    override suspend fun updateFund(fund: FundDto) {
+        return databaseDao.updateFund(fund)
+    }
+
+    override suspend fun eraseFundById(fundId: Int) {
+        return databaseDao.eraseFundById(fundId)
+    }
+
+    //ParticipantFund
     override suspend fun insertParticipantFund(parFund: ParticipantFundDto) {
         return databaseDao.insertParticipantFund(parFund)
     }
@@ -121,4 +134,40 @@ class DatabaseRepositoryImpl @Inject constructor(
         return databaseDao.getParticipantFundById(parFundId)
     }
 
+    override suspend fun updateParticipantFund(parFund: ParticipantFundDto) {
+        return databaseDao.updateParticipantFund(parFund)
+    }
+
+    override suspend fun eraseParFundById(parFundId: Int) {
+        return databaseDao.eraseParFundById(parFundId)
+    }
+
+
+
+    //Participant
+    override suspend fun insertParticipant(participant: ParticipantDto) {
+        databaseDao.insertParticipant(participant)
+    }
+    override suspend fun updateParticipant(participant: ParticipantDto) {
+        return databaseDao.updateParticipant(participant)
+    }
+
+    override suspend fun eraseParticipantById(parId: Int) {
+        return databaseDao.eraseParticipantById(parId)
+    }
+    override fun getParticipantByName(participantName: String): Flow<ParticipantDto> {
+        return databaseDao.getParticipantByName(participantName)
+    }
+
+    override fun getParticipantById(participantId: Int): Flow<ParticipantDto> {
+        return databaseDao.getParticipantById(participantId)
+    }
+
+    override fun getParticipantByFundId(fundId: Int): Flow<List<ParticipantDto>> {
+        return databaseDao.getParticipantByFundId(fundId)
+    }
+
+    override fun getAllParticipants(): Flow<List<ParticipantDto>> {
+        return databaseDao.getAllParticipants()
+    }
 }

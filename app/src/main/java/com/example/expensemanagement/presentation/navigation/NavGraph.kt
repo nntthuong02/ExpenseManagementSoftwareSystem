@@ -33,7 +33,7 @@ fun NavGraph(
             HomeScreen()
         }
         composable(route = Route.TransactionScreen.route) {
-            TransactionScreen()
+            TransactionScreen(navController)
         }
         composable(route = Route.InsightScreen.route) {
             Text("InsightScreen")

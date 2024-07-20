@@ -20,19 +20,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.expensemanagement.R
+import com.example.expensemanagement.domain.models.Fund
+import com.example.expensemanagement.domain.models.Participant
 import com.example.expensemanagement.presentation.transaction_screen.TransactionViewModel
 
 @Composable
 fun ParticipantTag(
-    participantName: String,
+    participant: Participant,
+    onParSelected: (Participant) -> Unit,
     transactionViewModel: TransactionViewModel = hiltViewModel()
 ) {
-    val selectedParticipant by transactionViewModel._participantName.collectAsState()
-    val isSelected = selectedParticipant == participantName
+    val selectedParticipant by transactionViewModel.selectedParticipant.collectAsState()
+    val isSelected = selectedParticipant == participant
 
     TextButton(
         onClick = {
-            transactionViewModel.selectParticipant(participantName)
+            transactionViewModel.selectParticipant(participant)
+            onParSelected(selectedParticipant!!)
         },
         shape = RoundedCornerShape(12.dp),
         contentPadding = PaddingValues(
@@ -53,12 +57,12 @@ fun ParticipantTag(
                 id = if (isSelected)
                     R.drawable.check_24px else R.drawable.person_24px
             ),
-            contentDescription = participantName,
+            contentDescription = participant.participantName,
         )
 
         Spacer(modifier = Modifier.width(5.dp))
         Text(
-            text = participantName,
+            text = participant.participantName,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
         )
@@ -69,5 +73,6 @@ fun ParticipantTag(
 @Preview(showBackground = true)
 @Composable
 fun ParticipantTagPreview() {
-    ParticipantTag(participantName = "Thuong")
+    val participant = Participant(1, "Thuong", 0.0, 0.0, 0.0)
+    ParticipantTag(participant = participant, onParSelected = {})
 }

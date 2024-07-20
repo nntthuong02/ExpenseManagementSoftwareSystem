@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 
 interface DatabaseRepository {
+    //Transaction
     suspend fun insertTransaction(trans: TransactionDto)
 
     suspend fun insertParticipant(participant: ParticipantDto)
@@ -25,15 +26,11 @@ interface DatabaseRepository {
 
     fun getTransByFundAndPar(fundId: Int, parId: Int): Flow<List<TransactionDto>>
 
-    fun getParticipantByName(participantName: String): Flow<ParticipantDto>
+    suspend fun eraseAllTransaction()
 
-    fun getParticipantByFundId(fundId: Int): Flow<List<ParticipantDto>>
+    suspend fun eraseTransactionById(transId: Int)
 
-    fun getAllParticipants(): Flow<List<ParticipantDto>>
-
-    fun getAllTransactions(): Flow<List<TransactionDto>>
-
-    fun eraseTransaction()
+    suspend fun updateTransaction(trans: TransactionDto)
 
     fun getCurrentDayTransaction(): Flow<List<TransactionDto>>
 
@@ -43,11 +40,17 @@ interface DatabaseRepository {
 
     fun getTransactionByType(transactionType: String): Flow<List<TransactionDto>>
 
+    //Group
     suspend fun insertGroup(group: GroupDto)
 
     fun getAllGroups(): Flow<List<GroupDto>>
 
     fun getGroupById(groupId: Int): Flow<GroupDto>
+
+    suspend fun updateGroup(group: GroupDto)
+
+    suspend fun eraseGroupById(groupId: Int)
+    //Fund
 
     suspend fun insertFund(fund: FundDto)
 
@@ -57,9 +60,33 @@ interface DatabaseRepository {
 
     fun getFundByGroupId(groupId: Int): Flow<List<FundDto>>
 
+    suspend fun updateFund(fund: FundDto)
+
+    suspend fun eraseFundById(fundId: Int)
+
+    //ParticipantFund
     suspend fun insertParticipantFund(parFund: ParticipantFundDto)
 
     fun getAllParticipantFunds(): Flow<List<ParticipantFundDto>>
 
     fun getParticipantFundById(parFundId: Int): Flow<ParticipantFundDto>
+
+    suspend fun updateParticipantFund(parFund: ParticipantFundDto)
+
+    suspend fun eraseParFundById(parFundId: Int)
+
+
+    //Participant
+    fun getParticipantByName(participantName: String): Flow<ParticipantDto>
+
+    fun getParticipantById(participantId: Int): Flow<ParticipantDto>
+
+    fun getParticipantByFundId(fundId: Int): Flow<List<ParticipantDto>>
+
+    fun getAllParticipants(): Flow<List<ParticipantDto>>
+
+    fun getAllTransactions(): Flow<List<TransactionDto>>
+
+    suspend fun updateParticipant(participant: ParticipantDto)
+    suspend fun eraseParticipantById(parId: Int)
 }
