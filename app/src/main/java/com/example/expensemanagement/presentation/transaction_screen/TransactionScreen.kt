@@ -16,6 +16,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -50,6 +51,7 @@ import com.example.expensemanagement.presentation.transaction_screen.component.F
 import com.example.expensemanagement.presentation.transaction_screen.component.ParDropdownMenu
 import com.example.expensemanagement.presentation.transaction_screen.component.ParticipantTag
 import com.example.expensemanagement.presentation.transaction_screen.component.TabTransactionType
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
@@ -277,7 +279,7 @@ fun TransactionScreen(
                 if (titleFieldValue.text.isEmpty() || transactionFieldValue.text.isEmpty()) {
                     // Hiển thị Snackbar thông báo lỗi
                     coroutineScope.launch {
-                        snackbarHostState.showSnackbar("Please enter both title and amount.")
+                        snackbarHostState.showSnackbar("Please enter both title and amount")
                     }
                 } else {
                     transactionViewModel.apply {
@@ -333,6 +335,12 @@ fun TransactionScreen(
                     }
                     transactionViewModel.setTransactionTitle("")
                     transactionViewModel.setTransaction("")
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = "Saved successfully",
+                            duration = SnackbarDuration.Long
+                        )
+                    }
 //                navController.navigate("${Route.HomeScreen.route}")
                     //xu ly xoa het du lieu dang hien thi sau khi nhan "Save"
                 }

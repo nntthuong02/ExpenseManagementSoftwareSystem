@@ -24,25 +24,26 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.expensemanagement.presentation.insight_screen.component.FundItem
+import com.example.expensemanagement.presentation.insight_screen.component.ParticipantItem
 import com.example.expensemanagement.presentation.navigation.Route
 import com.example.expensemanagement.presentation.transaction_screen.TransactionViewModel
 
 
 @Composable
-fun InsightScreen(
+fun ParticipantScreen(
     navController: NavHostController,
+    fundId: Int,
     insightViewModel: InsightViewModel = hiltViewModel()
 ) {
-//    Text(text = "InsightScreen")
-    val funds by insightViewModel.fundByGroup.collectAsState()
-//    val parByFundId by insightViewModel.parByFund.collectAsState()
+//    Text(text = "ParticipantScreen")
+    val parByFundId by insightViewModel.parByFund.collectAsState()
     val currency by insightViewModel.selectedCurrencyCode.collectAsState()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Log.d("InsightScreen Test", " ok")
+        Log.d("ParticipantScreen Test", " ok")
         LazyColumn {
             item {
                 Row(
@@ -50,7 +51,7 @@ fun InsightScreen(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "List Fund",
+                        text = "List Participant",
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.W700),
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier
@@ -65,13 +66,21 @@ fun InsightScreen(
                 }
 
             }
-            itemsIndexed(funds) { index, fund ->
-                FundItem(fund, currency) {fundId ->
-                    Log.d("test lazyColumn", "${fund.fundId}")
-                    navController.navigate("${Route.ParticipantScreen.route}/$fundId")
-                    Log.d("test Route.ParticipantScreen", "${fundId}")
+            parByFundId.keys.forEach { key ->
+                if(key == fundId){
+                    val participants = parByFundId[key]
+                    if (participants != null){
+                        itemsIndexed(participants) { index, par ->
+                            ParticipantItem(par, currency) {parId ->
+                                Log.d("test lazyColumn", "${par.participantId}")
+                                navController.navigate("${Route.TransactionDetailScreen.route}/$parId")
+                                Log.d("test Route.ParticipantScreen", "${fundId}")
+                            }
+                        }
+                    }
                 }
             }
+
         }
         //LazyColumn
 
@@ -80,6 +89,6 @@ fun InsightScreen(
 
 @Preview(showSystemUi = true)
 @Composable
-fun InsightScreenPreview(){
-    InsightScreen(navController = rememberNavController())
+fun ParticipantScreenPreview(){
+    ParticipantScreen(navController = rememberNavController(), 1)
 }

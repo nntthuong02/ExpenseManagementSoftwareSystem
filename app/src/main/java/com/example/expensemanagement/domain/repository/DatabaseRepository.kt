@@ -12,10 +12,9 @@ interface DatabaseRepository {
     //Transaction
     suspend fun insertTransaction(trans: TransactionDto)
 
-    suspend fun insertParticipant(participant: ParticipantDto)
-
     suspend fun markAllAsPaid()
 
+    fun getTransactionById(trans: Int): Flow<TransactionDto>
     fun getTransactionByDate(entryDate: String): Flow<List<TransactionDto>>
 
     fun getTransactionByParticipant(participantId: Int): Flow<List<TransactionDto>>
@@ -77,6 +76,7 @@ interface DatabaseRepository {
 
 
     //Participant
+    suspend fun insertParticipant(participant: ParticipantDto)
     fun getParticipantByName(participantName: String): Flow<ParticipantDto>
 
     fun getParticipantById(participantId: Int): Flow<ParticipantDto>

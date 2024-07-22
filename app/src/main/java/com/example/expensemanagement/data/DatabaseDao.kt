@@ -27,6 +27,9 @@ interface DatabaseDao {
     @Query("SELECT * FROM TRANSACTION_TABLE WHERE dateOfEntry = :entryDate")
     fun getTransactionByDate(entryDate: String) : Flow<List<TransactionDto>>
 
+    @Query("SELECT * FROM TRANSACTION_TABLE WHERE _id = :trans")
+    fun getTransactionById(trans: Int): Flow<TransactionDto>
+
     @Query("SELECT * FROM TRANSACTION_TABLE WHERE participantId = :parId")
     fun getTransactionByParticipant(parId: Int): Flow<List<TransactionDto>>
 

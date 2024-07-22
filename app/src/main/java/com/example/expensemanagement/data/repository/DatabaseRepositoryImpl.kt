@@ -22,6 +22,10 @@ class DatabaseRepositoryImpl @Inject constructor(
         databaseDao.markAllAsPaid()
     }
 
+    override fun getTransactionById(trans: Int): Flow<TransactionDto> {
+        return databaseDao.getTransactionById(trans)
+    }
+
     override fun getTransactionByDate(entryDate: String): Flow<List<TransactionDto>> {
         return databaseDao.getTransactionByDate(entryDate)
     }

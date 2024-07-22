@@ -35,11 +35,11 @@ import com.example.expensemanagement.ui.theme.Adonis
 fun ParticipantItem(
     participant: Participant,
     currency: String,
-    onItemClick: (String) -> Unit
+    onItemClick: (Int) -> Unit
 ) {
     Card(
         onClick = {
-            onItemClick(participant.participantName)
+            onItemClick(participant.participantId)
         },
         colors = CardDefaults.cardColors(Color.DarkGray.copy(alpha= 0.1f)),
 //       elevation = CardDefaults.cardElevation(5.dp),
@@ -78,7 +78,7 @@ fun ParticipantItem(
                         letterSpacing = 0.2.sp
                     )
                 ){
-                    append(currency)
+                    append(currency + "  ")
                 }
                 withStyle(
                     SpanStyle(

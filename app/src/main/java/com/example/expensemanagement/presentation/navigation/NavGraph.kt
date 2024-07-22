@@ -15,6 +15,8 @@ import androidx.navigation.navArgument
 import com.example.expensemanagement.presentation.currency_screen.CurrencyScreen
 import com.example.expensemanagement.presentation.home.HomeScreen
 import com.example.expensemanagement.presentation.insight_screen.InsightScreen
+import com.example.expensemanagement.presentation.insight_screen.ParticipantScreen
+import com.example.expensemanagement.presentation.insight_screen.TransactionDetailScreen
 import com.example.expensemanagement.presentation.onboarding.OnboardingScreen
 import com.example.expensemanagement.presentation.transaction_screen.TransactionScreen
 
@@ -57,7 +59,7 @@ fun NavGraph(
                 }
             )) { backStackEntry  ->
             val fundId = backStackEntry.arguments?.getInt("fundId") ?: 1
-            Text("ParticipantScreen with fundId = $fundId")
+            ParticipantScreen(navController = navController, fundId = backStackEntry.arguments!!.getInt("fundId"))
         }
 
         composable(
@@ -69,8 +71,8 @@ fun NavGraph(
 //                    nullable = true
                 }
             )
-        ) {
-            Text("TransactionDetailScreen")
+        ) {backStackEntry ->
+            TransactionDetailScreen(navController = navController, participantId = backStackEntry.arguments?.getInt("parId") ?: 1)
         }
         composable(route = Route.SettingScreen.route) {
             Text("SettingScreen")
