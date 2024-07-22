@@ -23,7 +23,15 @@ import com.example.expensemanagement.domain.models.ParticipantFund
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["participantId"], unique = true), Index(value = ["fundId"], unique = true)],
+    indices = [
+        Index(
+            value = ["participantId"],
+//            unique = true
+        ),
+        Index(
+            value = ["fundId"],
+//            unique = true
+        )],
 )
 data class ParticipantFundDto(
     @PrimaryKey(autoGenerate = true)

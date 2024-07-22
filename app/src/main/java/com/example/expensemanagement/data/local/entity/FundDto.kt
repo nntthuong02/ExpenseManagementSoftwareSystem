@@ -15,7 +15,10 @@ import com.example.expensemanagement.domain.models.Fund
         childColumns = arrayOf("groupId"),
         onDelete = ForeignKey.CASCADE
     )],
-    indices = [Index(value = ["groupId"], unique = true)]
+    indices = [
+        Index(value = ["groupId"],
+//            unique = true
+        )]
 )
 data class FundDto(
     @PrimaryKey(autoGenerate = true)

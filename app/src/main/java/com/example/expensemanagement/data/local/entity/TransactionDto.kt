@@ -16,12 +16,15 @@ import java.util.Date
         childColumns = arrayOf("participantId"),
         onDelete = ForeignKey.CASCADE
     )],
-    indices = [Index(value = ["participantId"], unique = true)]
+    indices = [
+        Index(value = ["participantId"],
+//        unique = true
+    )]
 )
 data class TransactionDto(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    val transactionId: Int,
+    val transactionId: Int = 0,
     @ColumnInfo(name = "title")
     val title: String,
     @ColumnInfo(name = "timestamp")

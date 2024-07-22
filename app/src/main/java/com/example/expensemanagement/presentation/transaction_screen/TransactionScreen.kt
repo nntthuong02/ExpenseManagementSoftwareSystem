@@ -86,7 +86,9 @@ fun TransactionScreen(
 //    val isPaid by remember { mutableStateOf(transactionViewModel.isPaidT) }
     var selectedFund by remember { mutableStateOf<Fund?>(null) }
     var selectedPar by remember { mutableStateOf<Participant?>(null) }
-    val funds by transactionViewModel.fundByGroupIdDto.collectAsState()
+    val funds by transactionViewModel.fundByGroupId.collectAsState()
+//    val funds by transactionViewModel.fundByGroupIdDto.collectAsState()
+
     //
 //    val selectedParticipantName by transactionViewModel._participantName.collectAsState()
     val participantByFundId by transactionViewModel.participantByFundId.collectAsState()
@@ -267,6 +269,9 @@ fun TransactionScreen(
     }
         SnackbarHost(hostState = snackbarHostState)
         Log.d("test selectedPar", selectedPar.toString())
+        Button(onClick = { transactionViewModel.createEntity()}) {
+        Text(text = "create")
+    }
         Button(
             onClick = {
                 if (titleFieldValue.text.isEmpty() || transactionFieldValue.text.isEmpty()) {
@@ -344,9 +349,7 @@ fun TransactionScreen(
 
     }
 
-//    Button(onClick = { transactionViewModel.createEntity()}) {
-//        Text(text = "create")
-//    }
+
 
 }
 

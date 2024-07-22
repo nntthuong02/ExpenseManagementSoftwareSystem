@@ -5,12 +5,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.unit.ExperimentalUnitApi
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.expensemanagement.presentation.currency_screen.CurrencyScreen
 import com.example.expensemanagement.presentation.home.HomeScreen
+import com.example.expensemanagement.presentation.insight_screen.InsightScreen
 import com.example.expensemanagement.presentation.onboarding.OnboardingScreen
 import com.example.expensemanagement.presentation.transaction_screen.TransactionScreen
 
@@ -27,27 +31,46 @@ fun NavGraph(
             OnboardingScreen(navController = navController)
         }
         composable(route = Route.CurrencyScreen.route) {
-            CurrencyScreen(navController = rememberNavController())
+            CurrencyScreen(navController = navController)
         }
         composable(route = Route.HomeScreen.route) {
             HomeScreen()
         }
         composable(route = Route.TransactionScreen.route) {
-            TransactionScreen(navController)
+            TransactionScreen(navController = navController)
         }
         composable(route = Route.InsightScreen.route) {
-            Text("InsightScreen")
+            //navController = rememberNavController() -> navController = navController
+            //khong dung navController = rememberNavController() khi muon navigate den man hinh khac
+            InsightScreen(navController = navController)
         }
-        composable(route = Route.InsightScreen.route) {
-            Text("InsightScreen")
-        }
-        composable(route = Route.ParticipantScreen.route) {
-            Text("ParticipantScreen")
-        }
+//        composable(route = Route.ParticipantScreen.route) {
+//            Text("ParticipantScreen")
+//        }
         composable(
-            route = Route.ParticipantDetailScreen.route
+            route = "${Route.ParticipantScreen.route}/{fundId}",
+            arguments = listOf(
+                navArgument("fundId"){
+                    type = NavType.IntType
+                    defaultValue = 1
+//                    nullable = true
+                }
+            )) { backStackEntry  ->
+            val fundId = backStackEntry.arguments?.getInt("fundId") ?: 1
+            Text("ParticipantScreen with fundId = $fundId")
+        }
+
+        composable(
+            route = "${Route.TransactionDetailScreen.route}/{parId}",
+            arguments = listOf(
+                navArgument("parId"){
+                    type = NavType.IntType
+                    defaultValue = 1
+//                    nullable = true
+                }
+            )
         ) {
-            Text("ParticipantDetailScreen")
+            Text("TransactionDetailScreen")
         }
         composable(route = Route.SettingScreen.route) {
             Text("SettingScreen")

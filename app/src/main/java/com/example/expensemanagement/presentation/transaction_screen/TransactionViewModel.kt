@@ -65,7 +65,7 @@ class TransactionViewModel @Inject constructor(
 ): ViewModel(){
     var tabButton = MutableStateFlow(TabButton.EXPENSE)
         private set
-    //chỉnh sửa biến thành List<FundDto> và sửa các hàm dùng biến này
+    //chỉnh sửa biến thành List<FundDto>(hoac nguoc lai) và sửa các hàm dùng biến này
     //Giảm bớt biến không cần thiết
     private val _fundByGroupId = MutableStateFlow<List<Fund>>(emptyList())
     val fundByGroupId: StateFlow<List<Fund>> = _fundByGroupId
@@ -113,10 +113,10 @@ class TransactionViewModel @Inject constructor(
         private set
 
     init {
-        val currentDate = getDateUseCase()
-        formattedDate.value = getFormattedDateUseCase(currentTime.value)
-        date.value = currentDate
-        currencyFormat()
+//        val currentDate = getDateUseCase()
+//        formattedDate.value = getFormattedDateUseCase(currentTime.value)
+//        date.value = currentDate
+        fetchSelectedCurrency()
         // Load the funds (you would fetch from repository/database here)
         viewModelScope.launch(IO) {
             getFundByGroupId(1).collect { listFundDto ->
@@ -175,7 +175,7 @@ class TransactionViewModel @Inject constructor(
         isPaidT.value = isPaid
     }
 
-    private fun currencyFormat() {
+    private fun fetchSelectedCurrency() {
         viewModelScope.launch(IO) {
             getCurrencyUseCase().collect { selectedCurrency ->
                 selectedCurrencyCode.value = selectedCurrency

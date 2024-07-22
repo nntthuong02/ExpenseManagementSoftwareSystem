@@ -8,7 +8,7 @@ sealed class Route(val route: String) {
     object TransactionScreen: Route("transaction")
     object InsightScreen: Route("insight")
     object ParticipantScreen: Route("participant")
-    object ParticipantDetailScreen: Route("detail")
+    object TransactionDetailScreen: Route("detail")
     object SettingScreen: Route("setting")
     object PayScreen: Route("pay")
 }
