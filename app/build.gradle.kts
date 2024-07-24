@@ -86,6 +86,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     /************************************/
     implementation("androidx.compose.ui:ui:${rootProject.extra["ui_version"]}")
+//    implementation("androidx.compose.material3:material3:1.3.0-beta04")
 //    implementation("androidx.compose.material3:material3-android:1.2.1")
 //    implementation("androidx.compose.foundation:foundation:1.6.7")
     //Constraintlayout

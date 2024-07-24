@@ -38,6 +38,7 @@ import com.example.expensemanagement.presentation.common.Category
 import java.util.Date
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionItem(
     transaction: Transaction,
@@ -46,7 +47,7 @@ fun TransactionItem(
 ) {
     val category = getCategory(transaction.category)
     val currencyCode by insightViewModel.selectedCurrencyCode.collectAsState()
-    val transById by insightViewModel.transactionById.collectAsState()
+
 
     Card(
         onClick = { onItemClick(transaction.transactionId) },

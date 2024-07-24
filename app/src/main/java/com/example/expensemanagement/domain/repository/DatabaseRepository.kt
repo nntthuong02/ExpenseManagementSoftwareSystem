@@ -6,6 +6,7 @@ import com.example.expensemanagement.data.local.entity.ParticipantDto
 import com.example.expensemanagement.data.local.entity.ParticipantFundDto
 import com.example.expensemanagement.data.local.entity.TransactionDto
 import kotlinx.coroutines.flow.Flow
+import java.util.Date
 
 
 interface DatabaseRepository {
@@ -30,6 +31,8 @@ interface DatabaseRepository {
     suspend fun eraseTransactionById(transId: Int)
 
     suspend fun updateTransaction(trans: TransactionDto)
+
+    suspend fun updateTransactionDetails(id: Int, title: String, date: Date, amount: Double, category: String, transactionType: String, parId: Int)
 
     fun getCurrentDayTransaction(): Flow<List<TransactionDto>>
 
@@ -69,6 +72,8 @@ interface DatabaseRepository {
     fun getAllParticipantFunds(): Flow<List<ParticipantFundDto>>
 
     fun getParticipantFundById(parFundId: Int): Flow<ParticipantFundDto>
+
+    fun getParFundByParAndFund(parId: Int, fundId: Int): Flow<ParticipantFundDto>
 
     suspend fun updateParticipantFund(parFund: ParticipantFundDto)
 

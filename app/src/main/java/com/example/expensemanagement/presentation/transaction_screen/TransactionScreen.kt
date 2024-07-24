@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -45,6 +46,8 @@ import com.example.expensemanagement.common.Constants
 import com.example.expensemanagement.domain.models.Fund
 import com.example.expensemanagement.domain.models.Participant
 import com.example.expensemanagement.presentation.common.TabButton
+import com.example.expensemanagement.presentation.insight_screen.component.ChooseDate
+
 import com.example.expensemanagement.presentation.navigation.Route
 import com.example.expensemanagement.presentation.transaction_screen.component.Category
 import com.example.expensemanagement.presentation.transaction_screen.component.FundDropdownMenu
@@ -74,29 +77,21 @@ fun TransactionScreen(
 //    transactionStatus: Int?,
     transactionViewModel: TransactionViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val selectedTransaction by transactionViewModel.tabButton.collectAsState()
-//    val transactionType = TransactionType.values()[transactionTag!!]
-    val scope = rememberCoroutineScope()
     val title by remember { mutableStateOf(transactionViewModel.transactionTitle) }
     val titleFieldValue = TextFieldValue(title.collectAsState().value)
     val transaction by remember { mutableStateOf(transactionViewModel.transactionAmount) }
     val transactionFieldValue = TextFieldValue(transaction.collectAsState().value)
-    val currencyCode by transactionViewModel.selectedCurrencyCode.collectAsState()
-    val selectedFundId by transactionViewModel.selectedFundId.collectAsState()
-//    val number by remember { mutableStateOf(transactionViewModel.numberOfTeamT) }
-//    val numberFieldValue = TextFieldValue(number.collectAsState().value)
-//    val isPaid by remember { mutableStateOf(transactionViewModel.isPaidT) }
     var selectedFund by remember { mutableStateOf<Fund?>(null) }
     var selectedPar by remember { mutableStateOf<Participant?>(null) }
     val funds by transactionViewModel.fundByGroupId.collectAsState()
-//    val funds by transactionViewModel.fundByGroupIdDto.collectAsState()
-
-    //
-//    val selectedParticipantName by transactionViewModel._participantName.collectAsState()
     val participantByFundId by transactionViewModel.participantByFundId.collectAsState()
     Log.d("TransactionScreen", "ok")
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+    val selectedDate by transactionViewModel.selectedDate.collectAsState()
+    val openDialog = remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -107,8 +102,29 @@ fun TransactionScreen(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Button(onClick = {
+                    openDialog.value = true
+                }){
+                    Text(text = transactionViewModel.convertDate(selectedDate))
+                }
+//                Text(text = convertDate(selectedDate))
+            }
+            if (openDialog.value){
+                ChooseDate(
+                    onDismiss = {
+                        openDialog.value = false
+                    },
+                    onConfirm = {
+                        transactionViewModel.selectDate(it)
+                    }
+                )
+            }
 
-            TabTransactionType()
+            TabTransactionType(transactionId = 0)
             Spacer(modifier = Modifier.padding(5.dp))
             //Set Transaction title
             TextField(
@@ -154,43 +170,14 @@ fun TransactionScreen(
                     )
             )
             Spacer(modifier = Modifier.padding(5.dp))
+            Text(text = "Fund Name: ")
             FundDropdownMenu(
                 onFundSelected = { fund ->
                     selectedFund = fund
                 })
-            //ParticipantTag
-    //        LazyRow(
-    //            horizontalArrangement = Arrangement.SpaceBetween,
-    //            verticalAlignment = Alignment.CenterVertically,
-    //            modifier = Modifier
-    //                .padding(
-    //                    horizontal = 5.dp,
-    //                    vertical = 5.dp
-    //                )
-    //                .align(Alignment.Start)
-    //        ) {
-    //            participantByFundId.keys.forEach { key ->
-    //                if (key == selectedFund?.fundId) {
-    //                    val participants = participantByFundId[key]
-    //                    if (participants != null) {
-    //                        itemsIndexed(participants) { index, participant ->
-    //                            ParDropdownMenu(
-    //                                onParSelected = {
-    //                                    selectedPar = it
-    //                                }
-    //                            )
-    //                        }
-    //                    }
-    //                }
-    //            }
-    ////            participantByFundId.entries.forEach { key ->
-    ////                println("Key: $key, Value: ${participantByFundId[key]}")
-    ////            }
-    //
-    //        }
             Spacer(modifier = Modifier.padding(5.dp))
             Log.d("testParDropdownMenu1", "ok")
-
+            Text(text = "Participant Name: ")
             participantByFundId.keys.forEach { key ->
                 Log.d("testParDropdownMenu2", "ok")
                 if (key == selectedFund?.fundId) {
@@ -203,13 +190,6 @@ fun TransactionScreen(
                                 selectedPar = it
                             })
                         }
-    //                        itemsIndexed(participants) { index, participant ->
-    //                            ParDropdownMenu(
-    //                                onParSelected = {
-    //                                    selectedPar = it
-    //                                }
-    //                            )
-    //                        }
                     }
                 }
             }
@@ -271,9 +251,9 @@ fun TransactionScreen(
     }
         SnackbarHost(hostState = snackbarHostState)
         Log.d("test selectedPar", selectedPar.toString())
-        Button(onClick = { transactionViewModel.createEntity()}) {
-        Text(text = "create")
-    }
+//        Button(onClick = { transactionViewModel.createEntity()}) {
+//        Text(text = "create")
+//        }
         Button(
             onClick = {
                 if (titleFieldValue.text.isEmpty() || transactionFieldValue.text.isEmpty()) {
@@ -284,18 +264,20 @@ fun TransactionScreen(
                 } else {
                     transactionViewModel.apply {
                         setCurrentTime(Calendar.getInstance().time)
-                        Log.d("Test transactionType", "$selectedTransaction")
+                        Log.d("Test transactionType", "$Constants.INCOME")
 
                         if (selectedTransaction == TabButton.INCOME) {
                             addNewTransaction(
 //                                0,
-                                date.value,
+                                selectedDate,
+                                "",
                                 transactionAmount.value.toDouble(),
                                 category.value.title,
                                 Constants.INCOME,
                                 transactionTitle.value,
                                 isPaid = false,
-                                selectedPar?.participantId ?: 0
+                                selectedPar?.participantId ?: 0,
+                                selectedFund?.fundId ?: 0
                             ) {
                                 Log.d("test income transaction", "income success")
                                 navController.navigateUp()
@@ -319,13 +301,15 @@ fun TransactionScreen(
 
                             addNewTransaction(
 //                                0,
-                                date.value,
+                                selectedDate,
+                                "",
                                 transactionAmount.value.toDouble(),
                                 category.value.title,
                                 Constants.EXPENSE,
                                 transactionTitle.value,
                                 isPaid = false,
-                                selectedPar?.participantId ?: 0
+                                selectedPar?.participantId ?: 0,
+                                selectedFund?.fundId ?: 0
                             ) {
                                 Log.d("test expense transaction", "expense success")
                                 navController.navigateUp()
@@ -335,12 +319,13 @@ fun TransactionScreen(
                     }
                     transactionViewModel.setTransactionTitle("")
                     transactionViewModel.setTransaction("")
-                    coroutineScope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = "Saved successfully",
-                            duration = SnackbarDuration.Long
-                        )
-                    }
+                    Toast.makeText(context, "Saved successfully!", Toast.LENGTH_LONG).show()
+//                    coroutineScope.launch {
+//                        snackbarHostState.showSnackbar(
+//                            message = "Saved successfully",
+//                            duration = SnackbarDuration.Short
+//                        )
+//                    }
 //                navController.navigate("${Route.HomeScreen.route}")
                     //xu ly xoa het du lieu dang hien thi sau khi nhan "Save"
                 }
@@ -354,22 +339,18 @@ fun TransactionScreen(
 
             Text(text = "Save")
         }
-
     }
-
-
-
 }
 
-fun showToast(context: Context?, message: String) {
-    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-}
+//fun showToast(context: Context?, message: String) {
+//    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+//}
 
-@Preview(showSystemUi = true)
-@Composable
-fun TransactionScreenPreview(){
-    TransactionScreen(
-        navController = rememberNavController(),
-    )
-}
+//@Preview(showSystemUi = true)
+//@Composable
+//fun TransactionScreenPreview(){
+//    TransactionScreen(
+//        navController = rememberNavController(),
+//    )
+//}
 

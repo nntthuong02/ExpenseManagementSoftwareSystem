@@ -11,16 +11,22 @@ import com.example.expensemanagement.domain.usecase.read_database.GetAllFunds
 import com.example.expensemanagement.domain.usecase.read_database.GetAllGroups
 import com.example.expensemanagement.domain.usecase.read_database.GetAllParticipants
 import com.example.expensemanagement.domain.usecase.read_database.GetFundByGroupId
+import com.example.expensemanagement.domain.usecase.read_database.GetFundById
 import com.example.expensemanagement.domain.usecase.read_database.GetParticipantByFundId
+import com.example.expensemanagement.domain.usecase.read_database.GetParticipantById
 import com.example.expensemanagement.domain.usecase.read_database.GetTransactionById
 import com.example.expensemanagement.domain.usecase.read_database.GetTransactionByParticipant
 import com.example.expensemanagement.domain.usecase.read_datastore.GetCurrencyUseCase
+import com.example.expensemanagement.domain.usecase.write_database.EraseTransactionById
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
 import java.util.Date
 import javax.inject.Inject
 
@@ -31,7 +37,10 @@ class InsightViewModel @Inject constructor(
     private val getAllGroups: GetAllGroups,
     private val getFundByGroupId: GetFundByGroupId,
     private val getTransactionByParticipant: GetTransactionByParticipant,
-    private val getTransactionById: GetTransactionById
+    private val getTransactionById: GetTransactionById,
+    private val getFundById: GetFundById,
+    private val getParticipantById: GetParticipantById,
+    private val eraseTransactionById: EraseTransactionById
 ): ViewModel() {
 //    var transactions = MutableStateFlow(mapOf<String, List<Transaction>>())
 //        private set
@@ -56,6 +65,29 @@ class InsightViewModel @Inject constructor(
     private val _parList = MutableStateFlow<List<Participant>>(emptyList())
     val parList: StateFlow<List<Participant>> = _parList
 
+    private val _transList = MutableStateFlow<List<Transaction>>(emptyList())
+    val transList: StateFlow<List<Transaction>> = _transList
+
+//    private val _selectedDate = MutableStateFlow(Date())
+//    val selectedDate: StateFlow<Date> = _selectedDate
+    private val _fundById = MutableStateFlow<Fund?>(null)
+    val fundById: StateFlow<Fund?> = _fundById
+
+    private val _parById = MutableStateFlow<Participant?>(null)
+    val parById: StateFlow<Participant?> = _parById
+
+    var selectedDate = MutableStateFlow(Date())
+        private set
+
+    var fundAmount = MutableStateFlow(0.0)
+        private set
+    var expense = MutableStateFlow(0.0)
+        private set
+    var income = MutableStateFlow(0.0)
+        private set
+
+    var balance = MutableStateFlow(0.0)
+        private set
     init {
         fetchSelectedCurrency()
         viewModelScope.launch(IO){
@@ -80,12 +112,30 @@ class InsightViewModel @Inject constructor(
             }
         }
     }
-    fun getFormattedDate(date: Date): String {
-        val dayOfWeek = DateFormat.format("EEE", date)
-        val day = DateFormat.format("dd", date)
-        val monthAbbr = DateFormat.format("MMM", date)
-
-        return "$dayOfWeek $day, $monthAbbr"
+//    fun getFormattedDate(date: Date): String {
+//        val dayOfWeek = DateFormat.format("EEE", date)
+//        val day = DateFormat.format("dd", date)
+//        val monthAbbr = DateFormat.format("MMM", date)
+//
+//        return "$dayOfWeek $day, $monthAbbr"
+//    }
+    fun getFormattedDate(date: Date): String{
+        return SimpleDateFormat("yyyy-MM-dd").format(date)
+    }
+    fun setFundAmount(amount: Double){
+        fundAmount.value = amount
+    }
+    fun setExpense(amount: Double){
+        expense.value = amount
+    }
+    fun setIncome(amount: Double){
+        income.value = amount
+    }
+    fun setBalance(amount: Double){
+        balance.value = amount
+    }
+    fun selectDate(date: Date){
+        selectedDate.value = date
     }
     fun getTransaction(participantId: Int){
         viewModelScope.launch(IO) {
@@ -93,7 +143,8 @@ class InsightViewModel @Inject constructor(
                 it.let{ listTransDto ->
                     val newTrans = listTransDto.map{ transDto ->
                         transDto.toTransaction()
-                    }.reversed()
+                    }.sortedByDescending { trans -> trans.date }
+                    _transList.value = newTrans
                     _transactionByParId.value = newTrans.groupBy { trans ->
                         getFormattedDate(trans.date)
                     }
@@ -101,14 +152,64 @@ class InsightViewModel @Inject constructor(
             }
         }
     }
-
-    fun getTransById(transId: Int){
+    fun eraseTransaction(
+        transId: Int,
+    ){
         viewModelScope.launch(IO){
-            getTransactionById(transId).collect{
+            eraseTransactionById(transId)
+            Log.d("eraseTransactionById", "ok")
+        }
+    }
+
+//    fun getTransById(transId: Int){
+//        viewModelScope.launch(IO){
+//            getTransactionById(transId).collect{
+//                _transactionById.value = it.toTransaction()
+//                Log.d("getTransById", _transactionById.value.toString())
+//            }
+//        }
+//    }
+fun getTransById(transId: Int) {
+    viewModelScope.launch(IO) {
+        getTransactionById(transId).collect { transactionDto ->
+            transactionDto?.let {
                 _transactionById.value = it.toTransaction()
+                Log.d("getTransById", _transactionById.value.toString())
+            } ?: run {
+                Log.e("getTransById", "TransactionDto is null for transactionId: $transId")
             }
         }
     }
+}
+
+    override fun onCleared() {
+        super.onCleared()
+        Log.d("InsightViewModel onCleared", "ViewModel is being cleared")
+    }
+    fun getParByFund(fundId: Int){
+        viewModelScope.launch(IO){
+            getParticipantByFundId(fundId).collect { participantDtoList ->
+                _parList.value = participantDtoList.map { it.toParticipant() }
+            }
+        }
+    }
+
+    fun getFundByFundId(fundId: Int){
+        viewModelScope.launch(IO){
+            getFundById(fundId).collect{
+                _fundById.value = it.toFund()
+            }
+        }
+    }
+
+    fun getParById(parId: Int){
+        viewModelScope.launch(IO){
+            getParticipantById(parId).collect{
+                _parById.value = it.toParticipant()
+            }
+        }
+    }
+
     private fun fetchSelectedCurrency(){
         viewModelScope.launch(IO) {
             getCurrencyUseCase().collect{ selectedCurrency ->

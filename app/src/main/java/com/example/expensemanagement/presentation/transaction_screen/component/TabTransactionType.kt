@@ -1,5 +1,6 @@
 package com.example.expensemanagement.presentation.transaction_screen.component
 
+import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -21,7 +23,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.expensemanagement.common.Constants
 import com.example.expensemanagement.presentation.common.TabButton
+import com.example.expensemanagement.presentation.insight_screen.InsightViewModel
 import com.example.expensemanagement.presentation.transaction_screen.TransactionViewModel
 
 @Composable
@@ -29,9 +33,30 @@ fun TabTransactionType(
     tabs: Array<TabButton> = TabButton.values(),
     cornerRadius: Dp = 24.dp,
     onButtonClick: () -> Unit = { },
-    transactionViewModel: TransactionViewModel = hiltViewModel()
+    transactionId: Int,
+    transactionViewModel: TransactionViewModel = hiltViewModel(),
+    insightViewModel: InsightViewModel = hiltViewModel()
 ) {
     val selectedTab by transactionViewModel.tabButton.collectAsState()
+    val transactionById by insightViewModel.transactionById.collectAsState()
+    LaunchedEffect(transactionId) {
+        if (transactionId != 0) {
+            insightViewModel.getTransById(transactionId)
+            Log.d("transactionId transactionType", transactionId.toString())
+            Log.d("transactionById transactionType", transactionById.toString())
+            transactionById?.let { trans ->
+                Log.d("transactionById let", trans.transactionType)
+                if (trans.transactionType == Constants.INCOME) {
+                    Log.d("transactionType transactionType", trans.transactionType)
+                    transactionViewModel.selectTabButton(TabButton.INCOME)
+                } else {
+                    Log.d("transactionType transactionType", trans.transactionType)
+                    transactionViewModel.selectTabButton(TabButton.EXPENSE)
+                }
+            }
+        }
+    }
+
     Surface(
         modifier = Modifier.padding(
             start = 5.dp,
@@ -95,5 +120,5 @@ fun TabTransactionType(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun TabButtonPreview() {
-    TabTransactionType()
+    TabTransactionType(transactionId = 1)
 }

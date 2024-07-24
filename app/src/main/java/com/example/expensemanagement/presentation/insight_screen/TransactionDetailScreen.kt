@@ -25,11 +25,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.expensemanagement.presentation.insight_screen.component.TransactionItem
+import com.example.expensemanagement.presentation.navigation.Route
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TransactionDetailScreen(
     participantId: Int,
+    fundId: Int,
     navController: NavHostController,
     insightViewModel: InsightViewModel = hiltViewModel()
 ) {
@@ -71,15 +73,11 @@ fun TransactionDetailScreen(
             item {
                 Text(
                     text = "Transactions",
+                    textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground,
-                    style = MaterialTheme.typography.displayMedium.copy(fontWeight = FontWeight.Normal),
+                    style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Normal),
                 )
 
-//                Text(
-//                    text = participantName!!,
-//                    style = MaterialTheme.typography.displayMedium.copy(fontSize = 20.sp, fontWeight = FontWeight.W700),
-//                    color = MaterialTheme.colorScheme.onBackground
-//                )
             }
             Log.d("test ParticipantDetail", "test1")
             transactionsByParId.forEach { (date, transactionList) ->
@@ -105,8 +103,8 @@ fun TransactionDetailScreen(
                 itemsIndexed(transactionList) { index, transaction ->
                     TransactionItem(
                         transaction = transaction,
-                        onItemClick = {
-                            Log.d("test click TransactionItem", "Click ok")
+                        onItemClick = {transId ->
+                            navController.navigate("${Route.EditTransactionScreen.route}/$transId?fundId=${fundId}")
                         }
                     )
                 }
@@ -118,5 +116,5 @@ fun TransactionDetailScreen(
 @Preview(showSystemUi = true)
 @Composable
 fun TransactionDetailScreenPreview(){
-    TransactionDetailScreen(navController = rememberNavController(), participantId = 1)
+    TransactionDetailScreen(navController = rememberNavController(), participantId = 1, fundId = 1)
 }

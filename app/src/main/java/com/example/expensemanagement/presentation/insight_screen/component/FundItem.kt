@@ -16,6 +16,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,8 +28,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.expensemanagement.domain.models.Fund
 import com.example.expensemanagement.domain.models.Participant
+import com.example.expensemanagement.presentation.insight_screen.InsightViewModel
 import com.example.expensemanagement.ui.theme.AcidLime
 import com.example.expensemanagement.ui.theme.Adonis
 
@@ -36,8 +40,19 @@ import com.example.expensemanagement.ui.theme.Adonis
 fun FundItem(
     fund: Fund,
     currency: String,
-    onItemClick: (Int) -> Unit
+    insightViewModel: InsightViewModel = hiltViewModel(),
+    onItemClick: (Int) -> Unit,
 ) {
+    val parList by insightViewModel.parList.collectAsState()
+    val fundAmount by insightViewModel.fundAmount.collectAsState()
+    if(fund.fundId != null){
+        insightViewModel.getParByFund(fund.fundId)
+        var sum = 0.0
+        parList.forEach {
+            sum += it.expense
+        }
+        insightViewModel.setFundAmount(sum)
+    }
     Card(
         onClick = {
             onItemClick(fund.fundId)
@@ -166,7 +181,7 @@ fun FundItem(
                                     color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.onSurface)
                                 )
                             ) {
-                                append(fund.totalAmount.toString())
+                                append(fundAmount.toString())
                             }
                         })
 

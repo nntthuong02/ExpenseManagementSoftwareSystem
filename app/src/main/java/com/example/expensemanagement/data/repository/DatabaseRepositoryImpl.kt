@@ -8,6 +8,7 @@ import com.example.expensemanagement.data.local.entity.ParticipantFundDto
 import com.example.expensemanagement.data.local.entity.TransactionDto
 import com.example.expensemanagement.domain.repository.DatabaseRepository
 import kotlinx.coroutines.flow.Flow
+import java.util.Date
 import javax.inject.Inject
 
 class DatabaseRepositoryImpl @Inject constructor(
@@ -61,6 +62,20 @@ class DatabaseRepositoryImpl @Inject constructor(
     override suspend fun updateTransaction(trans: TransactionDto) {
         return databaseDao.updateTransaction(trans)
     }
+
+    override suspend fun updateTransactionDetails(
+        id: Int,
+        title: String,
+        date: Date,
+        amount: Double,
+        category: String,
+        transactionType: String,
+        parId: Int
+    ) {
+        return databaseDao.updateTransactionDetails(id, title, date, amount, category, transactionType, parId)
+    }
+
+
 
     override fun getCurrentDayTransaction(): Flow<List<TransactionDto>> {
         return databaseDao.getCurrentDayExpTransaction()
@@ -138,6 +153,11 @@ class DatabaseRepositoryImpl @Inject constructor(
         return databaseDao.getParticipantFundById(parFundId)
     }
 
+    override fun getParFundByParAndFund(parId: Int, fundId: Int): Flow<ParticipantFundDto> {
+        return databaseDao.getParFundByParAndFund(parId, fundId)
+    }
+
+
     override suspend fun updateParticipantFund(parFund: ParticipantFundDto) {
         return databaseDao.updateParticipantFund(parFund)
     }
@@ -145,7 +165,6 @@ class DatabaseRepositoryImpl @Inject constructor(
     override suspend fun eraseParFundById(parFundId: Int) {
         return databaseDao.eraseParFundById(parFundId)
     }
-
 
 
     //Participant

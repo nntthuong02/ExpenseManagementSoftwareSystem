@@ -1,5 +1,6 @@
 package com.example.expensemanagement.presentation.insight_screen.component
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,7 +29,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.expensemanagement.common.Constants
 import com.example.expensemanagement.domain.models.Participant
+import com.example.expensemanagement.presentation.insight_screen.InsightViewModel
 import com.example.expensemanagement.ui.theme.Abigail
 import com.example.expensemanagement.ui.theme.Adonis
 
@@ -35,8 +41,30 @@ import com.example.expensemanagement.ui.theme.Adonis
 fun ParticipantItem(
     participant: Participant,
     currency: String,
+    insightViewModel: InsightViewModel = hiltViewModel(),
     onItemClick: (Int) -> Unit
 ) {
+    val transList by insightViewModel.transList.collectAsState()
+    val expense by insightViewModel.expense.collectAsState()
+    val income by insightViewModel.income.collectAsState()
+    val balance by insightViewModel.balance.collectAsState()
+
+    if(participant.participantId != null){
+        insightViewModel.getTransaction(participant.participantId)
+        var incomeTotal = 0.0
+        var expenseTotal = 0.0
+        transList.forEach {trans ->
+            Log.d("transactionType par", trans.transactionType)
+            if(trans.transactionType == Constants.EXPENSE){
+                expenseTotal += trans.amount
+            } else{
+                incomeTotal += trans.amount
+            }
+        }
+        insightViewModel.setExpense(expenseTotal)
+        insightViewModel.setIncome(incomeTotal)
+        insightViewModel.setBalance(incomeTotal - expenseTotal)
+    }
     Card(
         onClick = {
             onItemClick(participant.participantId)
@@ -85,7 +113,7 @@ fun ParticipantItem(
                         fontWeight = FontWeight.ExtraLight
                     )
                 ){
-                    append(participant.balance.toString())
+                    append(balance.toString())
                 }
             },
                 modifier = Modifier.padding(start = 5.dp)
@@ -140,7 +168,7 @@ fun ParticipantItem(
                                     color = contentColorFor(backgroundColor = Color.Red)
                                 )
                             ){
-                                append(participant.income.toString())
+                                append(income.toString())
                             }
 
 
@@ -164,7 +192,7 @@ fun ParticipantItem(
                                     color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.onSurface)
                                 )
                             ) {
-                                append(participant.expense.toString())
+                                append(expense.toString())
                             }
                         })
 

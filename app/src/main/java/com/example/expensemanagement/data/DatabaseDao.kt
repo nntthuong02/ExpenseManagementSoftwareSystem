@@ -13,6 +13,7 @@ import com.example.expensemanagement.data.local.entity.ParticipantDto
 import com.example.expensemanagement.data.local.entity.ParticipantFundDto
 import com.example.expensemanagement.data.local.entity.TransactionDto
 import kotlinx.coroutines.flow.Flow
+import java.util.Date
 
 
 @Dao
@@ -62,6 +63,9 @@ interface DatabaseDao {
 
     @Update
     suspend fun updateTransaction(trans: TransactionDto)
+
+    @Query("UPDATE transaction_table SET title = :title, timestamp = :date, amount = :amount, category = :category, transactionType = :transactionType, participantId = :parId WHERE _id = :id")
+    suspend fun updateTransactionDetails(id: Int, title: String, date: Date, amount: Double, category: String, transactionType: String, parId: Int)
 
     @Query("SELECT * FROM TRANSACTION_TABLE WHERE dateOfEntry = date('now', 'localtime') AND transactionType = :transactionType")
     fun getCurrentDayExpTransaction(transactionType: String = TransactionType.EXPENSE.title): Flow<List<TransactionDto>>
@@ -119,6 +123,9 @@ interface DatabaseDao {
 
     @Query("SELECT * FROM PARTICIPANTFUND_TABLE WHERE _ID = :parFundId")
     fun getParticipantFundById(parFundId: Int): Flow<ParticipantFundDto>
+
+    @Query("SELECT * FROM PARTICIPANTFUND_TABLE WHERE participantId = :parId AND fundId = :fundId")
+    fun getParFundByParAndFund(parId: Int, fundId: Int): Flow<ParticipantFundDto>
 
     @Update
     suspend fun updateParticipantFund(parFund: ParticipantFundDto)

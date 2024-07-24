@@ -1,5 +1,6 @@
 package com.example.expensemanagement.presentation.transaction_screen.component
 
+import android.util.Log
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,21 +14,27 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.expensemanagement.R
+import com.example.expensemanagement.common.Constants
 import com.example.expensemanagement.presentation.common.Category
+import com.example.expensemanagement.presentation.common.TabButton
+import com.example.expensemanagement.presentation.insight_screen.InsightViewModel
 import com.example.expensemanagement.presentation.transaction_screen.TransactionViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Category(
-    expenseItems: Array<Category> = Category.values()
+    expenseItems: Array<Category> = Category.values(),
 ) {
     FlowRow(
         modifier = Modifier.padding(
@@ -45,10 +52,12 @@ fun Category(
 @Composable
 fun CategoryTag(
     category: Category,
-    transactionViewModel: TransactionViewModel = hiltViewModel()
+    transactionViewModel: TransactionViewModel = hiltViewModel(),
+    insightViewModel: InsightViewModel = hiltViewModel()
 ) {
     val selected by transactionViewModel.category.collectAsState()
     var isSelected = selected.title == category.title
+
     TextButton(
         modifier = Modifier.padding(end = 5.dp),
         onClick = {

@@ -9,6 +9,7 @@ sealed class Route(val route: String) {
     object InsightScreen: Route("insight")
     object ParticipantScreen: Route("participant")
     object TransactionDetailScreen: Route("detail")
+    object EditTransactionScreen: Route("edit_transaction")
     object SettingScreen: Route("setting")
     object PayScreen: Route("pay")
 }

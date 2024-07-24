@@ -1,5 +1,6 @@
 package com.example.expensemanagement.presentation.transaction_screen
 
+import android.icu.text.SimpleDateFormat
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,8 +18,10 @@ import com.example.expensemanagement.domain.usecase.GetFormattedDateUseCase
 import com.example.expensemanagement.domain.usecase.read_database.GetAllTransactions
 import com.example.expensemanagement.domain.usecase.read_database.GetFundByGroupId
 import com.example.expensemanagement.domain.usecase.read_database.GetFundById
+import com.example.expensemanagement.domain.usecase.read_database.GetParFundByParAndFund
 import com.example.expensemanagement.domain.usecase.read_database.GetParticipantByFundId
 import com.example.expensemanagement.domain.usecase.read_database.GetParticipantById
+import com.example.expensemanagement.domain.usecase.read_database.GetTransactionById
 import com.example.expensemanagement.domain.usecase.read_datastore.GetCurrencyUseCase
 import com.example.expensemanagement.domain.usecase.write_database.InsertNewFund
 import com.example.expensemanagement.domain.usecase.write_database.InsertNewGroup
@@ -28,6 +31,8 @@ import com.example.expensemanagement.domain.usecase.write_database.InsertNewTran
 import com.example.expensemanagement.domain.usecase.write_database.UpdateFund
 import com.example.expensemanagement.domain.usecase.write_database.UpdateParFund
 import com.example.expensemanagement.domain.usecase.write_database.UpdateParticipant
+import com.example.expensemanagement.domain.usecase.write_database.UpdateTransaction
+import com.example.expensemanagement.domain.usecase.write_database.UpdateTransactionDetails
 import com.example.expensemanagement.presentation.common.Category
 import com.example.expensemanagement.presentation.common.TabButton
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -60,8 +65,11 @@ class TransactionViewModel @Inject constructor(
     private val updateParticipant: UpdateParticipant,
     private val insertNewParticipantFund: InsertNewParticipantFund,
     private val insertNewFund: InsertNewFund,
-    private val getFundById: GetFundById
-    
+    private val getFundById: GetFundById,
+    private val updateTransactionDetails: UpdateTransactionDetails,
+    private val getTransactionById: GetTransactionById,
+    private val getParFundByParAndFund: GetParFundByParAndFund
+
 ): ViewModel(){
     var tabButton = MutableStateFlow(TabButton.EXPENSE)
         private set
@@ -111,7 +119,14 @@ class TransactionViewModel @Inject constructor(
         private set
     var isPaidT = MutableStateFlow(false)
         private set
-
+    var selectedDate = MutableStateFlow(Date())
+        private set
+    fun selectDate(date: Date){
+        selectedDate.value = date
+    }
+    fun convertDate(date : Date) : String{
+        return SimpleDateFormat("yyyy-MM-dd").format(date)
+    }
     init {
 //        val currentDate = getDateUseCase()
 //        formattedDate.value = getFormattedDateUseCase(currentTime.value)
@@ -213,36 +228,39 @@ class TransactionViewModel @Inject constructor(
 //    }
     fun addNewTransaction(
 //        transactionId: Int,
+        selectedDate: Date,
         date: String,
         amount: Double,
         category: String,
         transactionType: String,
         transactionTitle: String,
         isPaid: Boolean,
-        participantId: Int,
+        selectedParId: Int,
+        selectedFundId: Int,
         navigateBack: () -> Unit
     ) {
         viewModelScope.launch(IO) {
+            val parFundDto = getParFundByParAndFund(selectedParId, selectedFundId).first()
             val newTransaction = TransactionDto(
                 transactionId = 0,
                 transactionTitle,
-                currentTime.value,
+                selectedDate,
                 date,
                 amount,
                 category,
                 isPaid,
                 transactionType,
-                participantId
+                selectedParId
             )
 
 
             if (transactionType == Constants.INCOME) {
-                val currentParticipant = getParticipantById(participantId).first()
+                val currentParticipant = getParticipantById(selectedParId).first()
                 val newIncomeAmount = currentParticipant.income + amount
                 val balance = newIncomeAmount - currentParticipant.expense
 
                 val updatedParticipant = currentParticipant.copy(
-                    participantId = participantId,
+                    participantId = selectedParId,
                     participantName = currentParticipant.participantName,
                     income = newIncomeAmount,
                     expense = currentParticipant.expense,
@@ -251,12 +269,12 @@ class TransactionViewModel @Inject constructor(
                 updateParticipant(updatedParticipant)
 
             } else {
-                val currentParticipant = getParticipantById(participantId).first()
+                val currentParticipant = getParticipantById(selectedParId).first()
                 val newExpenseAmount = currentParticipant.expense + amount
                 val balance = currentParticipant.income - newExpenseAmount
 
                 val updatedParticipant = currentParticipant.copy(
-                    participantId = participantId,
+                    participantId = selectedParId,
                     participantName = currentParticipant.participantName,
                     income = currentParticipant.income,
                     expense = newExpenseAmount,
@@ -264,10 +282,81 @@ class TransactionViewModel @Inject constructor(
                 )
                 updateParticipant(updatedParticipant)
             }
-            insertNewTransaction(newTransaction)
-            withContext(Main) {
-                navigateBack()
+            if (parFundDto != null) {
+                val parFundUpdate = ParticipantFundDto(
+                    parFundDto.parFundId,
+                    selectedParId,
+                    selectedFundId
+                )
+                insertNewParticipantFund(parFundUpdate)
+            } else {
+                val newParFundDto = ParticipantFundDto(
+                    parFundId = 0,
+                    participantId = selectedParId,
+                    fundId = selectedFundId
+                )
+                insertNewParticipantFund(newParFundDto)
             }
+            insertNewTransaction(newTransaction)
+//            withContext(Main) {
+//                navigateBack()
+//            }
+        }
+    }
+    fun updateTransactionById(
+        transactionId: Int,
+        selectedDate: Date,
+        amount: Double,
+        category: String,
+        transactionType: String,
+        transactionTitle: String,
+        selectedParId: Int,
+        selectedFundId: Int,
+        initialFundId: Int,
+        navigateBack: () -> Unit
+    ) {
+        viewModelScope.launch(IO) {
+            val transDto = getTransactionById(transactionId).first()
+            val parId: Int = transDto.participantId
+            val parFundDto = getParFundByParAndFund(parId, initialFundId).first()
+            if (transactionType == Constants.INCOME) {
+                val currentParticipant = getParticipantById(parId).first()
+                val newIncomeAmount = currentParticipant.income - transDto.amount + amount
+                val balance = newIncomeAmount - currentParticipant.expense
+
+                val updatedParticipant = currentParticipant.copy(
+                    participantId = parId,
+                    participantName = currentParticipant.participantName,
+                    income = newIncomeAmount,
+                    expense = currentParticipant.expense,
+                    balance = balance
+                )
+                updateParticipant(updatedParticipant)
+
+            } else {
+                val currentParticipant = getParticipantById(parId).first()
+                val newExpenseAmount = currentParticipant.expense - transDto.amount + amount
+                val balance = currentParticipant.income - newExpenseAmount
+
+                val updatedParticipant = currentParticipant.copy(
+                    participantId = parId,
+                    participantName = currentParticipant.participantName,
+                    income = currentParticipant.income,
+                    expense = newExpenseAmount,
+                    balance = balance
+                )
+                updateParticipant(updatedParticipant)
+            }
+            val parFundUpdate = ParticipantFundDto(
+                parFundDto.parFundId,
+                selectedParId,
+                selectedFundId
+            )
+            updateParFund(parFundUpdate)
+            updateTransactionDetails(transactionId, transactionTitle, selectedDate, amount, category, transactionType, selectedParId)
+//            withContext(Main) {
+//                navigateBack()
+//            }
         }
     }
     fun createEntity() {
