@@ -28,33 +28,20 @@ import androidx.compose.ui.unit.dp
 
 
 // Dummy data model
-data class Group(val id: Int, var name: String)
-data class Fund(val id: Int, var name: String)
-data class Participant(val id: Int, var name: String)
+data class GroupData(val id: Int, var name: String)
+data class FundData(val id: Int, var name: String)
+data class ParticipantData(val id: Int, var name: String)
 
 @Composable
 fun HomeScreen(
 
 ) {
-//    val showSnackbar by sharedViewModel.showSnackbar.collectAsState()
-//    val snackbarHostState = remember { SnackbarHostState() }
-//    LaunchedEffect(showSnackbar) {
-//        if (showSnackbar) {
-//            coroutineScope {
-//                snackbarHostState.showSnackbar(
-//                    message = "Delete successfully",
-//                    duration = SnackbarDuration.Short
-//                )
-//            }
-//
-//            sharedViewModel.resetSnackbar()
-//        }
-//    }
+
 
     // Dummy data
-    val group = remember { mutableStateOf(Group(1, "Group A")) }
-    val fundList = remember { mutableStateOf(listOf(Fund(1, "Fund 1"), Fund(2, "Fund 2"))) }
-    val participantList = remember { mutableStateOf(listOf(Participant(1, "Participant 1"), Participant(2, "Participant 2"))) }
+    val group = remember { mutableStateOf(GroupData(1, "GroupData A")) }
+    val fundList = remember { mutableStateOf(listOf(FundData(1, "Fund 1"), FundData(2, "Fund 2"))) }
+    val participantList = remember { mutableStateOf(listOf(ParticipantData(1, "Participant 1"), ParticipantData(2, "Participant 2"))) }
 
     Column(
         modifier = Modifier
@@ -62,11 +49,11 @@ fun HomeScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Edit Group name
+        // Edit GroupData name
         EditableEntity(
             entity = group.value,
             onValueChange = { newValue -> group.value = group.value.copy(name = newValue) },
-            label = "Group"
+            label = "GroupData"
         )
 //        SnackbarHost(hostState = snackbarHostState)
         // Edit Fund names
@@ -97,18 +84,18 @@ fun HomeScreen(
 
         // Add Fund button
         Button(
-            onClick = { fundList.value = fundList.value + Fund(fundList.value.size + 1, "New Fund") },
+            onClick = { fundList.value = fundList.value + FundData(fundList.value.size + 1, "New FundData") },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Add Fund")
+            Text("Add FundData")
         }
 
         // Add Participant button
         Button(
-            onClick = { participantList.value = participantList.value + Participant(participantList.value.size + 1, "New Participant") },
+            onClick = { participantList.value = participantList.value + ParticipantData(participantList.value.size + 1, "New ParticipantData") },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Add Participant")
+            Text("Add ParticipantData")
         }
     }
 }
@@ -125,7 +112,7 @@ fun EditableEntity(entity: Any, onValueChange: (String) -> Unit, label: String) 
             modifier = Modifier.padding(8.dp)
         ) {
             OutlinedTextField(
-                value = (entity as? Group)?.name ?: (entity as? Fund)?.name ?: (entity as? Participant)?.name ?: "",
+                value = (entity as? GroupData)?.name ?: (entity as? FundData)?.name ?: (entity as? ParticipantData)?.name ?: "",
                 onValueChange = { onValueChange(it) },
                 label = { Text("Enter $label name") },
                 singleLine = true,
