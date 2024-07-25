@@ -40,20 +40,21 @@ import com.example.expensemanagement.ui.theme.Adonis
 @Composable
 fun ParticipantItem(
     participant: Participant,
+    fundId: Int,
     currency: String,
     insightViewModel: InsightViewModel = hiltViewModel(),
     onItemClick: (Int) -> Unit
 ) {
-    val transList by insightViewModel.transList.collectAsState()
+    val transByFundAndPar by insightViewModel.transByFundAndPar.collectAsState()
     val expense by insightViewModel.expense.collectAsState()
     val income by insightViewModel.income.collectAsState()
     val balance by insightViewModel.balance.collectAsState()
 
     if(participant.participantId != null){
-        insightViewModel.getTransaction(participant.participantId)
+        insightViewModel.getTransactionByParAndFund(fundId, participant.participantId)
         var incomeTotal = 0.0
         var expenseTotal = 0.0
-        transList.forEach {trans ->
+        transByFundAndPar.forEach {trans ->
             Log.d("transactionType par", trans.transactionType)
             if(trans.transactionType == Constants.EXPENSE){
                 expenseTotal += trans.amount
@@ -226,5 +227,5 @@ fun ParticipantItem(
 @Composable
 fun ParticipantItemPreview(){
     val thuong = Participant(1, "Thuong", 0.0, 0.0, 0.0)
-    ParticipantItem(participant = thuong, currency = "VND", onItemClick = {})
+    ParticipantItem(participant = thuong, 1, currency = "VND", onItemClick = {})
 }

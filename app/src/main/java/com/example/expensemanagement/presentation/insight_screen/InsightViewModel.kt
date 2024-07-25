@@ -12,8 +12,11 @@ import com.example.expensemanagement.domain.usecase.read_database.GetAllGroups
 import com.example.expensemanagement.domain.usecase.read_database.GetAllParticipants
 import com.example.expensemanagement.domain.usecase.read_database.GetFundByGroupId
 import com.example.expensemanagement.domain.usecase.read_database.GetFundById
+import com.example.expensemanagement.domain.usecase.read_database.GetParFundByParAndFund
 import com.example.expensemanagement.domain.usecase.read_database.GetParticipantByFundId
 import com.example.expensemanagement.domain.usecase.read_database.GetParticipantById
+import com.example.expensemanagement.domain.usecase.read_database.GetTransByFund
+import com.example.expensemanagement.domain.usecase.read_database.GetTransByFundAndPar
 import com.example.expensemanagement.domain.usecase.read_database.GetTransactionById
 import com.example.expensemanagement.domain.usecase.read_database.GetTransactionByParticipant
 import com.example.expensemanagement.domain.usecase.read_datastore.GetCurrencyUseCase
@@ -40,7 +43,9 @@ class InsightViewModel @Inject constructor(
     private val getTransactionById: GetTransactionById,
     private val getFundById: GetFundById,
     private val getParticipantById: GetParticipantById,
-    private val eraseTransactionById: EraseTransactionById
+    private val eraseTransactionById: EraseTransactionById,
+    private val getTransByFundAndPar: GetTransByFundAndPar,
+    private val getTransByFund: GetTransByFund
 ): ViewModel() {
 //    var transactions = MutableStateFlow(mapOf<String, List<Transaction>>())
 //        private set
@@ -67,6 +72,12 @@ class InsightViewModel @Inject constructor(
 
     private val _transList = MutableStateFlow<List<Transaction>>(emptyList())
     val transList: StateFlow<List<Transaction>> = _transList
+
+    private val _transByFundAndPar = MutableStateFlow<List<Transaction>>(emptyList())
+    val transByFundAndPar: StateFlow<List<Transaction>> = _transByFundAndPar
+
+    private val _transByFund = MutableStateFlow<List<Transaction>>(emptyList())
+    val transByFund: StateFlow<List<Transaction>> = _transByFund
 
 //    private val _selectedDate = MutableStateFlow(Date())
 //    val selectedDate: StateFlow<Date> = _selectedDate
@@ -152,6 +163,32 @@ class InsightViewModel @Inject constructor(
             }
         }
     }
+    fun getTransactionByParAndFund(fundId: Int, parId: Int){
+        viewModelScope.launch(IO){
+            getTransByFundAndPar(fundId, parId).collect{
+                it.let{ listTransDto ->
+                    val newListTrans = listTransDto.map { transDto ->
+                        transDto.toTransaction()
+                    }.sortedByDescending { trans -> trans.date }
+                    _transByFundAndPar.value = newListTrans
+                }
+            }
+        }
+    }
+
+    fun getTransactionByFund(fundId: Int){
+        viewModelScope.launch(IO){
+            getTransByFund(fundId).collect{
+                it.let{ listTransDto ->
+                    val newListTrans = listTransDto.map { transDto ->
+                        transDto.toTransaction()
+                    }.sortedByDescending { trans -> trans.date }
+                    _transByFund.value = newListTrans
+                }
+            }
+        }
+    }
+
     fun eraseTransaction(
         transId: Int,
     ){

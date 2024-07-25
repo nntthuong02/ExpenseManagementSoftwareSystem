@@ -71,7 +71,7 @@ fun ParticipantScreen(
                     val participants = parByFundId[key]
                     if (participants != null){
                         itemsIndexed(participants) { index, par ->
-                            ParticipantItem(par, currency) {parId ->
+                            ParticipantItem(par, fundId, currency) {parId ->
                                 Log.d("test lazyColumn", "${par.participantId}")
                                 navController.navigate("${Route.TransactionDetailScreen.route}/$parId?fundId=${fundId}")
                                 Log.d("test Route.ParticipantScreen", "${fundId}")

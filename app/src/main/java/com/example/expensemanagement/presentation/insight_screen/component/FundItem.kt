@@ -1,5 +1,6 @@
 package com.example.expensemanagement.presentation.insight_screen.component
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.expensemanagement.common.Constants
 import com.example.expensemanagement.domain.models.Fund
 import com.example.expensemanagement.domain.models.Participant
 import com.example.expensemanagement.presentation.insight_screen.InsightViewModel
@@ -43,13 +45,16 @@ fun FundItem(
     insightViewModel: InsightViewModel = hiltViewModel(),
     onItemClick: (Int) -> Unit,
 ) {
-    val parList by insightViewModel.parList.collectAsState()
+    val transByFund by insightViewModel.transByFund.collectAsState()
     val fundAmount by insightViewModel.fundAmount.collectAsState()
     if(fund.fundId != null){
-        insightViewModel.getParByFund(fund.fundId)
+        insightViewModel.getTransactionByFund(fund.fundId)
         var sum = 0.0
-        parList.forEach {
-            sum += it.expense
+        transByFund.forEach {trans ->
+            if (trans.transactionType == Constants.EXPENSE){
+                sum += trans.amount
+                Log.d("FundItem", trans.transactionType )
+            }
         }
         insightViewModel.setFundAmount(sum)
     }
