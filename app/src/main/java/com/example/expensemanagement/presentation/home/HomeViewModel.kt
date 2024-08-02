@@ -47,6 +47,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -144,6 +145,7 @@ class HomeViewModel @Inject constructor(
     var childCheckedStates = MutableStateFlow<List<Boolean>>(emptyList())
         private set
     var fundNameFieldValue by mutableStateOf(TextFieldValue(""))
+
     init {
         fetchSelectedCurrency()
 
@@ -188,7 +190,7 @@ class HomeViewModel @Inject constructor(
     fun getFundByFundId(fundId: Int) {
         viewModelScope.launch(IO) {
             getFundById(fundId).collect {
-                it?.let{
+                it?.let {
                     _fundById.value = it.toFund()
                 }
 
@@ -208,41 +210,72 @@ class HomeViewModel @Inject constructor(
 
     fun getTransactionByFund(fundId: Int) {
         viewModelScope.launch(IO) {
-            getTransByFund(fundId).collect { listTransDto ->
-                _transByFund.value = listTransDto.map { transDto ->
-                    Log.d("fundId editfundscreen", fundId.toString())
-                    Log.d("_transByFund", _transByFund.value.toString())
-                    transDto.toTransaction()
-                }.sortedByDescending { trans -> trans.date }
+            getTransByFund(fundId).collect {
+                it?.let { listTransDto ->
+                    _transByFund.value = listTransDto.map { transDto ->
+                        Log.d("fundId editfundscreen", fundId.toString())
+                        Log.d("_transByFund", _transByFund.value.toString())
+                        transDto.toTransaction()
+                    }.sortedByDescending { trans -> trans.date }
+                }
+
             }
         }
     }
 
     fun getTransactionByPar(parId: Int) {
         viewModelScope.launch(IO) {
-            getTransByFund(parId).collect { listTransDto ->
-                _transByPar.value = listTransDto.map { transDto ->
-                    transDto.toTransaction()
-                }.sortedByDescending { trans -> trans.date }
+            getTransByFund(parId).collect {
+                it?.let { listTransDto ->
+                    _transByPar.value = listTransDto.map { transDto ->
+                        transDto.toTransaction()
+                    }.sortedByDescending { trans -> trans.date }
+                }
+
             }
         }
     }
 
-    fun getTransWithPar(){
+    fun getTransWithPar() {
         viewModelScope.launch(IO) {
-           _transByFund.collect { listTrans ->
-               val mappedList = listTrans.mapNotNull  { trans ->
-                   getParById(trans.participantId)
-                   _parById.value?.let {
-                       trans to it
-                   }
+            _transByFund.collect {
+                it?.let { listTrans ->
+                    val mappedList = listTrans.mapNotNull { trans ->
+                        _parById.value = getParticipantById(trans.participantId).first().toParticipant()
+                        _parById.value?.let {
+                            trans to it
+                        }
 //                   trans to _parById!!.value
-               }
-               _transWithPar.value = mappedList
+                    }
+                    Log.d("_transByFund", _transByFund.value.toString())
+
+                    _transWithPar.value = mappedList
+                    Log.d("_transWithPar", _transWithPar.value.toString())
+                }
+
             }
         }
     }
+    fun getTransWithParByPar() {
+        viewModelScope.launch(IO) {
+            _transByPar.collect {
+                it?.let { listTrans ->
+                    val mappedList = listTrans.mapNotNull { trans ->
+                        _parById.value = getParticipantById(trans.participantId).first().toParticipant()
+                        _parById.value?.let {
+                            trans to it
+                        }
+//                   trans to _parById!!.value
+                    }
+                    Log.d("_transByPar", _transByPar.value.toString())
 
+                    _transWithPar.value = mappedList
+                    Log.d("_transWithPar", _transWithPar.value.toString())
+                }
+
+            }
+        }
+    }
     fun getAllPars() {
         viewModelScope.launch(IO) {
             getAllParticipants().collect { listParDto ->
@@ -255,10 +288,14 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+
     fun getParById(parId: Int) {
         viewModelScope.launch(IO) {
             getParticipantById(parId).collect {
-                _parById.value = it.toParticipant()
+                it?.let {
+                    _parById.value = it.toParticipant()
+                }
+
             }
         }
     }
@@ -394,9 +431,6 @@ class HomeViewModel @Inject constructor(
     fun updateParticipantById(
         participantId: Int,
         participantName: String,
-        income: Double,
-        expense: Double,
-        balance: Double
     ) {
         viewModelScope.launch(IO) {
             val updateParticipant = ParticipantDto(

@@ -16,21 +16,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.expensemanagement.domain.models.Fund
+//import com.example.expensemanagement.domain.models.Fund
 import com.example.expensemanagement.domain.models.Participant
 import com.example.expensemanagement.presentation.transaction_screen.TransactionViewModel
 
 @Composable
 fun ParDropdownMenu(
     onParSelected: (Participant) -> Unit,
+    participants: List<Participant>,
     transactionViewModel: TransactionViewModel = hiltViewModel()
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedPar by remember { mutableStateOf<Participant?>(null) }
-    val participants by transactionViewModel.participantList.collectAsState()
+//    val participants by transactionViewModel.participantList.collectAsState()
     LaunchedEffect(participants) {
         if (participants.isNotEmpty()) {
-            selectedPar = participants.first() // Chọn Fund đầu tiên làm mặc định
+            selectedPar = participants.first() // Chọn Par đầu tiên làm mặc định
             onParSelected(selectedPar!!)
         }
     }
@@ -38,20 +39,20 @@ fun ParDropdownMenu(
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = { expanded = !expanded }) {
-            Text(text = selectedPar?.participantName ?: "Select Fund")
+            Text(text = selectedPar?.participantName ?: "Select Participant")
         }
         DropdownMenu(
             modifier = Modifier.fillMaxWidth(),
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            participants.forEach { fund ->
+            participants.forEach { par ->
                 DropdownMenuItem(
-                    text = { Text(fund.participantName) },
+                    text = { Text(par.participantName) },
                     onClick = {
-                        selectedPar = fund
+                        selectedPar = par
                         expanded = false
-                        onParSelected(fund)
+                        onParSelected(par)
                     }
                 )
             }
@@ -63,5 +64,10 @@ fun ParDropdownMenu(
 @Preview(showSystemUi = true)
 @Composable
 fun ParDropMenuPreview(){
-    ParDropdownMenu(onParSelected = {})
+    val fakeParticipants = listOf(
+        Participant(1, participantName = "Participant 1"),
+        Participant(2, participantName = "Participant 2"),
+        Participant(3, participantName = "Participant 3")
+    )
+    ParDropdownMenu(onParSelected = {}, fakeParticipants)
 }

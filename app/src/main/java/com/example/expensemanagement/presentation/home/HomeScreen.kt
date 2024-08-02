@@ -100,16 +100,16 @@ fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Edit Group name
-        EditNameEntity(
-            "Group",
-            groupNameFieldValue.text,
-            onNameChange = {
-                homeViewModel.setGroupName(it)
-            },
-            onSaveClick = {
-                /*Todo*/
-            }
-        )
+//        EditNameEntity(
+//            "Group",
+//            groupNameFieldValue.text,
+//            onNameChange = {
+//                homeViewModel.setGroupName(it)
+//            },
+//            onSaveClick = {
+//                /*Todo*/
+//            }
+//        )
         Spacer(modifier = Modifier.padding(5.dp))
         // List fund
         EntityItem(

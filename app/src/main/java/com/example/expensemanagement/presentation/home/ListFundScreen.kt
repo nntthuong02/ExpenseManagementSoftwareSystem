@@ -99,13 +99,14 @@ fun ListFundScreen(
                     .background(Color.Green) // Màu nền cho văn bản
                     .padding(0.dp) // Khoảng cách giữa văn bản và viền nền
             ) {
-            Text(
-                text = "List Fund",
-                modifier = Modifier
-                    .border(2.dp, Color.Black, RoundedCornerShape(4.dp))
-                    .padding(8.dp), // Tạo khoảng cách giữa văn bản và đường viền
+                Text(
+                    text = "List Fund",
+                    modifier = Modifier
+                        .border(2.dp, Color.Black, RoundedCornerShape(4.dp))
+                        .padding(8.dp), // Tạo khoảng cách giữa văn bản và đường viền
 
-            )}
+                )
+            }
             Spacer(modifier = Modifier.padding(10.dp))
         }
 //        Column(

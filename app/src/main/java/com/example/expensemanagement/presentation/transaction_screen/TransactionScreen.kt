@@ -186,12 +186,14 @@ fun TransactionScreen(
                     val participants = participantByFundId[key]
                     Log.d("testParDropdownMenu2.2", participants.toString())
                     if (participants != null) {
-                        participants.forEach { participant ->
+//                        participants.forEach { participant ->
                             Log.d("testParDropdownMenu2.2", "ok")
                             ParDropdownMenu(onParSelected = {
                                 selectedPar = it
-                            })
-                        }
+                            },
+                                participants = participants
+                                )
+//                        }
                     }
                 }
             }

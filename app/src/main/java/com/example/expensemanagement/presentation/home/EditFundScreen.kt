@@ -102,6 +102,8 @@ fun EditFundScreen(
     LaunchedEffect(fundId) {
         homeViewModel.apply {
             getFundByFundId(fundId)
+            Log.d("fundId", fundId.toString())
+            Log.d("transByFund1", transByFund.toString())
             getTransactionByFund(fundId)
             getAllPars()
             getTransWithPar()
@@ -392,13 +394,17 @@ fun TransactionContent(
 //                    )
 //
 //                }
-                Log.d("test ParticipantDetail", "test1")
+                Log.d("test ParticipantDetail", transWithPar.toString())
+
                 itemsIndexed(transWithPar) { index, (trans, participant) ->
 
 //                    coroutineScope.launch {
 //                        homeViewModel.getParById(trans.participantId)
 //                    }
                     val category = getCategory(trans.category)
+                    Log.d("test Transaction", trans.toString()
+
+                    )
                     TransItem(
                         transaction = trans,
                         category = category,
