@@ -26,10 +26,8 @@ data class FundDto(
     val fundId: Int,
     @ColumnInfo(name = "fundName")
     val fundName: String,
-    @ColumnInfo(name = "totalAmount")
-    val totalAmount: Double,
     @ColumnInfo(name = "groupId")
     val groupId: Int
 ){
-    fun toFund(): Fund = Fund(fundId, fundName, totalAmount, groupId)
+    fun toFund(): Fund = Fund(fundId, fundName, groupId)
 }

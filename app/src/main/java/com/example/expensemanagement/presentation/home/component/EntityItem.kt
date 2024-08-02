@@ -1,6 +1,5 @@
-package com.example.expensemanagement.presentation.insight_screen.component
+package com.example.expensemanagement.presentation.home.component
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,48 +30,26 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.expensemanagement.common.Constants
 import com.example.expensemanagement.domain.models.Fund
-import com.example.expensemanagement.domain.models.Participant
-import com.example.expensemanagement.presentation.insight_screen.InsightViewModel
-import com.example.expensemanagement.ui.theme.AcidLime
-import com.example.expensemanagement.ui.theme.Adonis
+import com.example.expensemanagement.presentation.home.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FundItem(
-    fund: Fund,
-    currency: String,
-    insightViewModel: InsightViewModel = hiltViewModel(),
-    onItemClick: (Int) -> Unit,
+fun EntityItem(
+    nameEntity: String,
+    number: String,
+    itemOnClick: () -> Unit,
+//    contentColor: Color,
+    backgroundColor: Color,
+    surfaceColor: Color
 ) {
-    val transByFund by insightViewModel.transByFund.collectAsState()
-    val fundAmount by insightViewModel.fundAmount.collectAsState()
-    LaunchedEffect(fund.fundId) {
-        insightViewModel.getTransactionByFund(fund.fundId)
-        var sum = 0.0
-        transByFund.forEach { trans ->
-            if (trans.transactionType == Constants.EXPENSE) {
-                sum += trans.amount
-                Log.d("FundItem", trans.transactionType)
-            }
-        }
-        insightViewModel.setFundAmount(sum)
-    }
     Card(
-        onClick = {
-            onItemClick(fund.fundId)
-        },
-        colors = CardDefaults.cardColors(Color.DarkGray.copy(alpha= 0.1f)),
-//        elevation = CardDefaults.cardElevation(1.dp),
+        onClick = itemOnClick,
+        colors = CardDefaults.cardColors(backgroundColor),
         shape = RoundedCornerShape(24.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                top = 5.dp,
-                start = 5.dp,
-                end = 5.dp
-            )
+            .padding(top = 5.dp, start = 5.dp, end = 5.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -82,34 +59,27 @@ fun FundItem(
                     top = 5.dp
                 )
         ) {
-
-
             Text(
-                text = fund.fundName,
+                text = "Edit " + "$nameEntity",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(10.dp)
+                modifier = Modifier.padding(top = 10.dp),
+                color = MaterialTheme.colorScheme.onSurface
             )
-            Spacer(modifier = Modifier.height(5.dp))
+            Spacer(modifier = Modifier.height(10.dp))
+
             Surface(
-                color = Color.Blue.copy(0.5f),
-                modifier = Modifier.fillMaxWidth()
+                color = surfaceColor,
+                modifier = Modifier
+                    .fillMaxWidth()
             ) {
-                Column(verticalArrangement = Arrangement.Center) {
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        Text(
-                            text = "EXPENSE",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Red,
-                            modifier = Modifier.padding(top = 10.dp)
-                        )
-                    }
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.padding(
+                        top = 10.dp,
+                        bottom = 10.dp
+                    )
+                ) {
                     Row(
                         horizontalArrangement = Arrangement.Center,
                         modifier = Modifier
@@ -125,7 +95,7 @@ fun FundItem(
                                     color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary)
                                 )
                             ) {
-                                append(currency + "    ")
+                                append("Number of $nameEntity: ")
                             }
                             withStyle(
                                 SpanStyle(
@@ -135,7 +105,7 @@ fun FundItem(
                                     color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary)
                                 )
                             ) {
-                                append(fundAmount.toString())
+                                append(number)
                             }
                         })
                     }
@@ -145,10 +115,14 @@ fun FundItem(
     }
 }
 
-
 @Preview(showSystemUi = true)
 @Composable
-fun FundItemPreview(){
-    val myFund = Fund(1, "Thuong", 1)
-    FundItem(fund = myFund, currency = "VND", onItemClick = {})
+fun EntityPreview() {
+    EntityItem(
+        nameEntity = "Fund",
+        number = "1",
+        itemOnClick = { /*TODO*/ },
+        backgroundColor = Color.DarkGray.copy(alpha = 0.1f),
+        surfaceColor = Color.Blue.copy(alpha = 0.8f)
+    )
 }

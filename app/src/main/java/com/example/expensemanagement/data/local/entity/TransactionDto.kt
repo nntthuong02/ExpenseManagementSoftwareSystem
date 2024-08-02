@@ -10,12 +10,18 @@ import java.util.Date
 
 @Entity(
     tableName = "transaction_table",
-    foreignKeys = [ForeignKey(
+    foreignKeys = [
+        ForeignKey(
         entity = ParticipantDto::class,
         parentColumns = arrayOf("_id"),
         childColumns = arrayOf("participantId"),
-        onDelete = ForeignKey.CASCADE
-    )],
+        onDelete = ForeignKey.CASCADE),
+        ForeignKey(
+            entity = FundDto::class,
+            parentColumns = arrayOf("_id"),
+            childColumns = arrayOf("fundId"),
+            onDelete = ForeignKey.CASCADE
+        )],
     indices = [
         Index(value = ["participantId"],
 //        unique = true
@@ -41,6 +47,8 @@ data class TransactionDto(
     val transactionType: String,
     @ColumnInfo(name = "participantId")
     val participantId: Int,
+    @ColumnInfo(name = "fundId")
+    val fundId: Int
 ){
-    fun toTransaction(): Transaction = Transaction(transactionId, title, date, dateOfEntry, amount, category, isPaid, transactionType, participantId)
+    fun toTransaction(): Transaction = Transaction(transactionId, title, date, dateOfEntry, amount, category, isPaid, transactionType, participantId, fundId)
 }

@@ -73,6 +73,6 @@ fun ParticipantTag(
 @Preview(showBackground = true)
 @Composable
 fun ParticipantTagPreview() {
-    val participant = Participant(1, "Thuong", 0.0, 0.0, 0.0)
+    val participant = Participant(1, "Thuong")
     ParticipantTag(participant = participant, onParSelected = {})
 }

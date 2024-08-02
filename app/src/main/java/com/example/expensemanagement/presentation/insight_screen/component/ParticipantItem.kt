@@ -129,7 +129,7 @@ fun ParticipantItem(
 //            }
 
             Surface(
-                color = Color.Gray.copy(alpha= 0.1f),
+                color = Color.Blue.copy(0.5f),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(verticalArrangement = Arrangement.Center) {
@@ -141,7 +141,7 @@ fun ParticipantItem(
                         Text(
                             text = participant.participantName,
                             style = MaterialTheme.typography.titleMedium,
-                            color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.onSurface)
+                            color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary)
                         )
                     }
                     Row(
@@ -156,7 +156,7 @@ fun ParticipantItem(
                                     fontWeight = FontWeight.Normal,
                                     fontSize = 10.sp,
                                     letterSpacing = 0.4.sp,
-                                    color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.onSurface)
+                                    color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary)
                                 )
                             ){
                                 append(currency + "  ")
@@ -166,21 +166,25 @@ fun ParticipantItem(
                                     fontWeight = FontWeight.Thin,
                                     fontSize = 14.sp,
                                     letterSpacing = 0.2.sp,
-                                    color = contentColorFor(backgroundColor = Color.Red)
+                                    color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary)
                                 )
                             ){
                                 append(income.toString())
                             }
+                        },
+                            modifier = Modifier.padding(
+                                start = 5.dp,
+                                end = 5.dp
+                            )
+                            )
 
-
-                        })
                         Text(text = buildAnnotatedString {
                             withStyle(
                                 SpanStyle(
                                     fontWeight = FontWeight.Thin,
                                     fontSize = 10.sp,
                                     letterSpacing = 0.4.sp,
-                                    color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.onSurface)
+                                    color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary)
                                 )
                             ) {
                                 append(currency + "  ")
@@ -190,12 +194,17 @@ fun ParticipantItem(
                                     fontWeight = FontWeight.Thin,
                                     fontSize = 14.sp,
                                     letterSpacing = 0.2.sp,
-                                    color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.onSurface)
+                                    color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary)
                                 )
                             ) {
                                 append(expense.toString())
                             }
-                        })
+                        },
+                            modifier = Modifier.padding(
+                                start = 5.dp,
+                                end = 5.dp
+                            )
+                        )
 
                     }
                     Row(
@@ -207,13 +216,13 @@ fun ParticipantItem(
                         Text(
                             text = "INCOME",
                             style = MaterialTheme.typography.titleMedium,
-                            color = contentColorFor(backgroundColor = Adonis)
+                            color = Color.Green
                         )
 
                         Text(
                             text = "EXPENSE",
                             style = MaterialTheme.typography.titleMedium,
-                            color = contentColorFor(backgroundColor = Color.Red)
+                            color = Color.Red
                         )
                     }
                 }
@@ -226,6 +235,6 @@ fun ParticipantItem(
 @Preview(showSystemUi = true)
 @Composable
 fun ParticipantItemPreview(){
-    val thuong = Participant(1, "Thuong", 0.0, 0.0, 0.0)
+    val thuong = Participant(1, "Thuong")
     ParticipantItem(participant = thuong, 1, currency = "VND", onItemClick = {})
 }

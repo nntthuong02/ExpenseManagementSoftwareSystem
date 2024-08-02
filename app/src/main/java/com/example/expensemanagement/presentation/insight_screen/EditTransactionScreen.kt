@@ -155,12 +155,21 @@ fun EditTransactionScreen(
         transactionById?.let { trans ->
             Log.d("test EditTrans", trans.toString())
             initialTitle = trans.title
+            LaunchedEffect(initialTitle) {
+                transactionViewModel.setTransactionTitle(initialTitle)
+            }
+            initialAmount = trans.amount.toString()
+            LaunchedEffect(initialAmount) {
+                transactionViewModel.setTransaction(initialAmount)
+            }
+//            transactionViewModel.setTransactionTitle(initialTitle)
 //        if(trans.transactionType == Constants.INCOME){
 //            initialType.value = TabButton.INCOME
 //        } else{
 //            initialType.value = TabButton.EXPENSE
 //        }
-            initialAmount = trans.amount.toString()
+
+//            transactionViewModel.setTransaction(initialAmount)
 //        val category = Category.fromTitle(trans.category)
 //        category?.let {
 //            transactionViewModel.selectCategory(it)
@@ -403,24 +412,18 @@ fun EditTransactionScreen(
                                         fundId
                                     ) {
                                         Log.d("test income transaction", "income success")
-                                        navController.navigateUp()
-                                        navController.navigate("${Route.InsightScreen.route}")
+//                                        navController.navigateUp()
+//                                        navController.navigate("${Route.InsightScreen.route}")
                                     }
                                 } else {
-                                    Log.d("selectedFund", selectedFund?.totalAmount.toString())
+                                    Log.d("selectedFund", "selectedFund?.totalAmount.toString()")
                                     if (selectedFund != null) {
                                         funds.forEach { fund ->
                                             if (fund.fundId == selectedFund!!.fundId) {
-                                                val newTotalAmount =
-                                                    fund.totalAmount + transactionAmount.value.toDouble()
-                                                Log.d(
-                                                    "UpdateFund",
-                                                    "Updating fund ${fund.fundId} with new total amount: $newTotalAmount"
-                                                )
+
                                                 updateExpenseFund(
                                                     fund.fundId,
-                                                    fund.fundName,
-                                                    newTotalAmount,
+                                                    fund.fundName
                                                 )
                                             }
                                         }
@@ -437,8 +440,8 @@ fun EditTransactionScreen(
                                         fundId
                                     ) {
                                         Log.d("test expense transaction", "expense success")
-                                        navController.navigateUp()
-                                        navController.navigate("${Route.InsightScreen.route}")
+//                                        navController.navigateUp()
+//                                        navController.navigate("${Route.InsightScreen.route}")
                                     }
                                 }
                             }
@@ -446,6 +449,7 @@ fun EditTransactionScreen(
                             transactionViewModel.setTransaction("")
                             Toast.makeText(context, "Update successfully!", Toast.LENGTH_LONG)
                                 .show()
+                            navController.navigateUp()
 
 //                        coroutineScope.launch {
 //                            snackbarHostState.showSnackbar(

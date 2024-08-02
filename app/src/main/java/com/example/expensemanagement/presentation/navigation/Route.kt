@@ -12,4 +12,8 @@ sealed class Route(val route: String) {
     object EditTransactionScreen: Route("edit_transaction")
     object SettingScreen: Route("setting")
     object PayScreen: Route("pay")
+    object ListFundScreen: Route("list_fund")
+    object EditFundScreen: Route("edit_fund")
+    object ListParticipantScreen: Route("list_participant")
+    object EditParticipantScreen: Route("edit_participant")
 }

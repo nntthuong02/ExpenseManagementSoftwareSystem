@@ -12,4 +12,5 @@ data class Transaction(
     val isPaid: Boolean,
     val transactionType: String,
     val participantId: Int,
+    val fundId: Int
 )

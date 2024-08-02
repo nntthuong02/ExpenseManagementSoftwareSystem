@@ -1,6 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
-package com.example.expensemanagement.presentation.insight_screen.component
+package com.example.expensemanagement.presentation.home.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -10,49 +8,47 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.expensemanagement.domain.models.Transaction
-import com.example.expensemanagement.presentation.insight_screen.InsightViewModel
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.expensemanagement.common.Constants
+import com.example.expensemanagement.domain.models.Transaction
 import com.example.expensemanagement.presentation.common.Category
+import com.example.expensemanagement.presentation.home.HomeViewModel
+import com.example.expensemanagement.presentation.insight_screen.InsightViewModel
+import com.example.expensemanagement.presentation.insight_screen.component.getCategory
 import java.util.Date
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransactionItem(
+fun TransItem(
     transaction: Transaction,
-    insightViewModel: InsightViewModel = hiltViewModel(),
-    onItemClick: (Int) -> Unit
+    category: Category,
+    currencyCode: String,
+    parName: String,
 ) {
-    val category = getCategory(transaction.category)
-    val currencyCode by insightViewModel.selectedCurrencyCode.collectAsState()
-
 
     Card(
-        onClick = { onItemClick(transaction.transactionId) },
+        onClick = {  },
         colors = CardDefaults.cardColors(Color.DarkGray.copy(alpha = 0.1f)),
-//        elevation = CardDefaults.cardElevation(4.dp),
         shape = RoundedCornerShape(24.dp),
         modifier = Modifier
             .fillMaxWidth()
@@ -69,7 +65,7 @@ fun TransactionItem(
                 )
         ) {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -79,14 +75,31 @@ fun TransactionItem(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .background(
-                            category.bgRes,
+                            color = if (transaction.transactionType == Constants.INCOME) Color.Green
+                            else Color.Red.copy(alpha = 0.75f),
                             shape = RoundedCornerShape(24.dp)
                         )
                         .padding(
                             vertical = 5.dp,
                             horizontal = 10.dp
                         ),
-                    color = category.colorRes,
+                    color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary),
+                    letterSpacing = TextUnit(1.1f, TextUnitType.Sp)
+                )
+                Text(
+                    text = parName,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .background(
+                            color = Color.Yellow,
+                            shape = RoundedCornerShape(24.dp)
+                        )
+                        .padding(
+                            vertical = 5.dp,
+                            horizontal = 10.dp
+                        ),
+                    color = Color.White,
                     letterSpacing = TextUnit(1.1f, TextUnitType.Sp)
                 )
             }
@@ -145,15 +158,6 @@ fun TransactionItem(
     }
 }
 
-fun getCategory(title: String): Category {
-    var result: Category = Category.FOOD_DRINK
-    Category.values().forEach {
-        if (it.title == title)
-            result = it
-    }
-    return result
-}
-
 @Preview(showSystemUi = true)
 @Composable
 fun TransactionItemPreview(){
@@ -164,13 +168,10 @@ fun TransactionItemPreview(){
         category = "FOOD_DRINK",
         title = "Grocery shopping",
         amount = 50.0,
-        transactionType = Constants.EXPENSE,
+        transactionType = Constants.INCOME,
         isPaid = false,
         participantId = 1,
         fundId = 1
     )
-    TransactionItem(
-        transaction = transaction,
-        onItemClick = {}
-    )
+    TransItem(transaction, Category.CLOTHES, "VND", "Thuong")
 }

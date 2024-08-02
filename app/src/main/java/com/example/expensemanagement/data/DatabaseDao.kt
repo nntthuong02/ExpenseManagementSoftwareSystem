@@ -34,22 +34,14 @@ interface DatabaseDao {
     @Query("SELECT * FROM TRANSACTION_TABLE WHERE participantId = :parId")
     fun getTransactionByParticipant(parId: Int): Flow<List<TransactionDto>>
 
-    @Query("SELECT * FROM TRANSACTION_TABLE WHERE _id = :transId")
-    fun getTransIsNotPaidById(transId: Int): Flow<List<TransactionDto>>
+    @Query("SELECT * FROM TRANSACTION_TABLE WHERE isPaid = 0")
+    fun getTransIsNotPaid(): Flow<List<TransactionDto>>
 
     @RewriteQueriesToDropUnusedColumns
-    @Query("SELECT * " +
-            "FROM TRANSACTION_TABLE AS T " +
-            "INNER JOIN PARTICIPANT_TABLE AS P ON P._id = T.participantId " +
-            "INNER JOIN PARTICIPANTFUND_TABLE AS PF ON P._ID = PF.PARTICIPANTID " +
-            "WHERE PF._id = :fundId")
+    @Query("SELECT * FROM TRANSACTION_TABLE WHERE fundId = :fundId")
     fun getTransByFund(fundId: Int): Flow<List<TransactionDto>>
     @RewriteQueriesToDropUnusedColumns
-    @Query("SELECT * " +
-            "FROM TRANSACTION_TABLE AS T " +
-            "INNER JOIN PARTICIPANT_TABLE AS P ON P._id = T.participantId " +
-            "INNER JOIN PARTICIPANTFUND_TABLE AS PF ON P._ID = PF.PARTICIPANTID " +
-            "WHERE PF._id = :fundId AND P._id = :parId")
+    @Query("SELECT * FROM TRANSACTION_TABLE WHERE fundId = :fundId AND participantId = :parId")
     fun getTransByFundAndPar(fundId: Int, parId: Int): Flow<List<TransactionDto>>
 
     @Query("SELECT * FROM TRANSACTION_TABLE")
@@ -64,8 +56,8 @@ interface DatabaseDao {
     @Update
     suspend fun updateTransaction(trans: TransactionDto)
 
-    @Query("UPDATE transaction_table SET title = :title, timestamp = :date, amount = :amount, category = :category, transactionType = :transactionType, participantId = :parId WHERE _id = :id")
-    suspend fun updateTransactionDetails(id: Int, title: String, date: Date, amount: Double, category: String, transactionType: String, parId: Int)
+    @Query("UPDATE transaction_table SET title = :title, timestamp = :date, amount = :amount, category = :category, transactionType = :transactionType, participantId = :parId, fundId = :fundId WHERE _id = :id")
+    suspend fun updateTransactionDetails(id: Int, title: String, date: Date, amount: Double, category: String, transactionType: String, parId: Int, fundId: Int)
 
     @Query("SELECT * FROM TRANSACTION_TABLE WHERE dateOfEntry = date('now', 'localtime') AND transactionType = :transactionType")
     fun getCurrentDayExpTransaction(transactionType: String = TransactionType.EXPENSE.title): Flow<List<TransactionDto>>
@@ -79,6 +71,11 @@ interface DatabaseDao {
     @Query("SELECT * FROM TRANSACTION_TABLE WHERE transactionType = :transactionType")
     fun getTransactionByType(transactionType: String): Flow<List<TransactionDto>>
 
+    @Query("UPDATE transaction_table SET dateOfEntry = :time, isPaid = 1 WHERE isPaid = 0")
+    suspend fun updatePayTransactions(time: String)
+
+    @Query("UPDATE TRANSACTION_TABLE SET dateOfEntry = '', isPaid = 0 WHERE dateOfEntry = :time" )
+    suspend fun undoPayment(time: String)
     //Group
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertGroup(group: GroupDto)
@@ -146,7 +143,7 @@ interface DatabaseDao {
     @Query("SELECT * FROM PARTICIPANT_TABLE")
     fun getAllParticipants() : Flow<List<ParticipantDto>>
 
-    @Query("SELECT P._id, P.participantName, P.balance, P.expense, P.income " +
+    @Query("SELECT P._id, P.participantName " +
             "FROM PARTICIPANT_TABLE AS P " +
             "INNER JOIN PARTICIPANTFUND_TABLE AS PF ON PF.PARTICIPANTID = P._ID " +
             "WHERE PF.fundId = :fundId")

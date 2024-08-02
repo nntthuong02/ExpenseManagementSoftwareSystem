@@ -35,8 +35,8 @@ class DatabaseRepositoryImpl @Inject constructor(
         return databaseDao.getTransactionByParticipant(participantId)
     }
 
-    override fun getTransIsNotPaidById(transId: Int): Flow<List<TransactionDto>> {
-        return databaseDao.getTransIsNotPaidById(transId)
+    override fun getTransIsNotPaid(): Flow<List<TransactionDto>> {
+        return databaseDao.getTransIsNotPaid()
     }
 
     override fun getTransByFund(fundId: Int): Flow<List<TransactionDto>> {
@@ -70,9 +70,10 @@ class DatabaseRepositoryImpl @Inject constructor(
         amount: Double,
         category: String,
         transactionType: String,
-        parId: Int
+        parId: Int,
+        fundId: Int
     ) {
-        return databaseDao.updateTransactionDetails(id, title, date, amount, category, transactionType, parId)
+        return databaseDao.updateTransactionDetails(id, title, date, amount, category, transactionType, parId, fundId)
     }
 
 
@@ -91,6 +92,14 @@ class DatabaseRepositoryImpl @Inject constructor(
 
     override fun getTransactionByType(transactionType: String): Flow<List<TransactionDto>> {
         return databaseDao.getTransactionByType(transactionType)
+    }
+
+    override suspend fun updatePayTransactions(time: String) {
+       return databaseDao.updatePayTransactions(time)
+    }
+
+    override suspend fun undoPayment(time: String) {
+        return databaseDao.undoPayment(time)
     }
 
     //Group

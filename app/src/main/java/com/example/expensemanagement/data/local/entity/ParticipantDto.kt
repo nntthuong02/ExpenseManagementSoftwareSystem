@@ -12,12 +12,6 @@ data class ParticipantDto(
     val participantId: Int,
     @ColumnInfo(name = "participantName")
     val participantName: String,
-    @ColumnInfo(name = "income")
-    val income: Double,
-    @ColumnInfo(name = "expense")
-    val expense: Double,
-    @ColumnInfo(name = "balance")
-    var balance: Double,
 ){
-    fun toParticipant(): Participant = Participant(participantId, participantName, income, expense, balance)
+    fun toParticipant(): Participant = Participant(participantId, participantName)
 }

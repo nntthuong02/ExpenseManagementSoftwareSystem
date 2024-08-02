@@ -13,7 +13,7 @@ import com.example.expensemanagement.data.local.entity.TransactionDto
 @TypeConverters(DateConverter::class)
 @Database(
     entities = [TransactionDto::class, ParticipantDto::class, GroupDto::class, FundDto::class, ParticipantFundDto::class],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 abstract class AppDatabase: RoomDatabase(){

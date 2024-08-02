@@ -1,6 +1,11 @@
 package com.example.expensemanagement.presentation.home
 
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.expensemanagement.data.local.entity.FundDto
@@ -20,6 +25,7 @@ import com.example.expensemanagement.domain.usecase.read_database.GetGroupById
 import com.example.expensemanagement.domain.usecase.read_database.GetParFundByParAndFund
 import com.example.expensemanagement.domain.usecase.read_database.GetParticipantByFundId
 import com.example.expensemanagement.domain.usecase.read_database.GetParticipantById
+import com.example.expensemanagement.domain.usecase.read_database.GetTransByFund
 import com.example.expensemanagement.domain.usecase.read_database.GetTransactionById
 import com.example.expensemanagement.domain.usecase.read_database.GetTransactionByParticipant
 import com.example.expensemanagement.domain.usecase.read_datastore.GetCurrencyUseCase
@@ -33,11 +39,18 @@ import com.example.expensemanagement.domain.usecase.write_database.UpdateFund
 import com.example.expensemanagement.domain.usecase.write_database.UpdateGroup
 import com.example.expensemanagement.domain.usecase.write_database.UpdateParFund
 import com.example.expensemanagement.domain.usecase.write_database.UpdateParticipant
+import com.example.expensemanagement.presentation.common.Category
+import com.example.expensemanagement.presentation.common.TabButton
+import com.example.expensemanagement.presentation.common.TabContent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import javax.inject.Inject
@@ -63,10 +76,10 @@ class HomeViewModel @Inject constructor(
     private val updateGroup: UpdateGroup,
     private val updateFund: UpdateFund,
     private val updateParFund: UpdateParFund,
-    private val updateParticipant: UpdateParticipant
-): ViewModel() {
-    var selectedCurrencyCode = MutableStateFlow(String())
-        private set
+    private val updateParticipant: UpdateParticipant,
+    private val getTransByFund: GetTransByFund,
+    private val getParticipantByFundId: GetParticipantByFundId
+) : ViewModel() {
 
     private val _groupById = MutableStateFlow<Group?>(null)
     val groupById: StateFlow<Group?> = _groupById
@@ -80,6 +93,9 @@ class HomeViewModel @Inject constructor(
     private val _parById = MutableStateFlow<Participant?>(null)
     val parById: StateFlow<Participant?> = _parById
 
+    private val _parByFund = MutableStateFlow<List<Participant>>(emptyList())
+    val parByFund: StateFlow<List<Participant>> = _parByFund
+
     private val _allParticipant = MutableStateFlow<List<Participant>>(emptyList())
     val allParticipant: StateFlow<List<Participant>> = _allParticipant
 
@@ -92,6 +108,25 @@ class HomeViewModel @Inject constructor(
     private val _transByFund = MutableStateFlow<List<Transaction>>(emptyList())
     val transByFund: StateFlow<List<Transaction>> = _transByFund
 
+    private val _transByPar = MutableStateFlow<List<Transaction>>(emptyList())
+    val transByPar: StateFlow<List<Transaction>> = _transByPar
+
+    private val _transWithPar = MutableStateFlow<List<Pair<Transaction, Participant>>>(emptyList())
+    val transWithPar: StateFlow<List<Pair<Transaction, Participant>>> = _transWithPar
+
+    private val _numberFund = MutableStateFlow(0)
+    val numberFund: StateFlow<Int> = _numberFund
+
+    private val _numberPar = MutableStateFlow(0)
+    val numberPar: StateFlow<Int> = _numberPar
+
+
+    var expense = MutableStateFlow(0.0)
+        private set
+    var income = MutableStateFlow(0.0)
+        private set
+    var balance = MutableStateFlow(0.0)
+        private set
     var eraseState = MutableStateFlow(false)
         private set
     var groupName = MutableStateFlow(String())
@@ -100,17 +135,28 @@ class HomeViewModel @Inject constructor(
         private set
     var parName = MutableStateFlow(String())
         private set
+    var selectedCurrencyCode = MutableStateFlow(String())
+        private set
+    var tabFund = MutableStateFlow(TabContent.FUND)
+        private set
+    var tabPar = MutableStateFlow(TabContent.PARTICIPANT)
+        private set
+    var childCheckedStates = MutableStateFlow<List<Boolean>>(emptyList())
+        private set
+    var fundNameFieldValue by mutableStateOf(TextFieldValue(""))
     init {
         fetchSelectedCurrency()
 
     }
 
-    fun getFormattedDate(date: Date): String{
+
+    fun getFormattedDate(date: Date): String {
         return SimpleDateFormat("yyyy-MM-dd").format(date)
     }
-    private fun fetchSelectedCurrency(){
-        viewModelScope.launch(IO){
-            getCurrencyUseCase().collect{selectedCurrency ->
+
+    private fun fetchSelectedCurrency() {
+        viewModelScope.launch(IO) {
+            getCurrencyUseCase().collect { selectedCurrency ->
                 val currencyCode = selectedCurrency
                 selectedCurrencyCode.value = currencyCode
             }
@@ -118,62 +164,121 @@ class HomeViewModel @Inject constructor(
     }
 
 
-    fun getFundByGroup(){
-        viewModelScope.launch(IO){
-            getFundByGroupId(1).collect{
-                _fundByGroupId.value
-            }
-        }
-    }
-    fun getGroupByGroupId(){
-        viewModelScope.launch(IO){
-            getGroupById(1).collect{
-                _groupById.value = it.toGroup()
-            }
-        }
-    }
-    fun getFundByFundId(fundId: Int){
-        viewModelScope.launch(IO){
-            getFundById(fundId).collect{
-                _fundById.value = it.toFund()
+    fun getFundByGroup() {
+        viewModelScope.launch(IO) {
+            Log.d("getFundByGroupId", getFundByGroupId(1).toString())
+            getFundByGroupId(1).collect { listFundDto ->
+                val listFund = listFundDto.map {
+                    it.toFund()
+                }
+                _fundByGroupId.value = listFund
+                _numberFund.value = _fundByGroupId.value.size
             }
         }
     }
 
-    fun getAllPars(){
-        viewModelScope.launch(IO){
-            getAllParticipants().collect{listParDto ->
+    fun getGroupByGroupId() {
+        viewModelScope.launch(IO) {
+            getGroupById(1).collect {
+                _groupById.value = it.toGroup()
+            }
+        }
+    }
+
+    fun getFundByFundId(fundId: Int) {
+        viewModelScope.launch(IO) {
+            getFundById(fundId).collect {
+                it?.let{
+                    _fundById.value = it.toFund()
+                }
+
+            }
+        }
+    }
+
+    fun getParByFundId(fundId: Int) {
+        viewModelScope.launch(IO) {
+            getParticipantByFundId(fundId).collect {
+                _parByFund.value = it.map { parDto ->
+                    parDto.toParticipant()
+                }
+            }
+        }
+    }
+
+    fun getTransactionByFund(fundId: Int) {
+        viewModelScope.launch(IO) {
+            getTransByFund(fundId).collect { listTransDto ->
+                _transByFund.value = listTransDto.map { transDto ->
+                    Log.d("fundId editfundscreen", fundId.toString())
+                    Log.d("_transByFund", _transByFund.value.toString())
+                    transDto.toTransaction()
+                }.sortedByDescending { trans -> trans.date }
+            }
+        }
+    }
+
+    fun getTransactionByPar(parId: Int) {
+        viewModelScope.launch(IO) {
+            getTransByFund(parId).collect { listTransDto ->
+                _transByPar.value = listTransDto.map { transDto ->
+                    transDto.toTransaction()
+                }.sortedByDescending { trans -> trans.date }
+            }
+        }
+    }
+
+    fun getTransWithPar(){
+        viewModelScope.launch(IO) {
+           _transByFund.collect { listTrans ->
+               val mappedList = listTrans.mapNotNull  { trans ->
+                   getParById(trans.participantId)
+                   _parById.value?.let {
+                       trans to it
+                   }
+//                   trans to _parById!!.value
+               }
+               _transWithPar.value = mappedList
+            }
+        }
+    }
+
+    fun getAllPars() {
+        viewModelScope.launch(IO) {
+            getAllParticipants().collect { listParDto ->
                 val newListPar = listParDto.map { parDto ->
                     parDto.toParticipant()
                 }
                 _allParticipant.value = newListPar
+                _numberPar.value = _allParticipant.value.size
             }
         }
     }
-    fun getParById(parId: Int){
-        viewModelScope.launch(IO){
-            getParticipantById(parId).collect{
+
+    fun getParById(parId: Int) {
+        viewModelScope.launch(IO) {
+            getParticipantById(parId).collect {
                 _parById.value = it.toParticipant()
             }
         }
     }
 
-    fun insertFund(fundName: String, groupId: Int){
-        viewModelScope.launch(IO){
+    fun insertFund(fundName: String, groupId: Int) {
+        viewModelScope.launch(IO) {
             val newFundDto = FundDto(
                 fundId = 0,
                 fundName = fundName,
-                totalAmount = 0.0,
                 groupId = 1
             )
             insertNewFund(newFundDto)
         }
     }
+
     fun insertParticipantFund(
         parId: Int,
         fundId: Int
-    ){
-        viewModelScope.launch(IO){
+    ) {
+        viewModelScope.launch(IO) {
             val newParticipantFund = ParticipantFundDto(
                 parFundId = 0,
                 participantId = parId,
@@ -182,115 +287,164 @@ class HomeViewModel @Inject constructor(
             insertNewParticipantFund(newParticipantFund)
         }
     }
+
     fun insertParticipant(
         parName: String
-    ){
-        viewModelScope.launch(IO){
+    ) {
+        viewModelScope.launch(IO) {
             val newParticipant = ParticipantDto(
                 participantId = 0,
                 participantName = parName,
-                income = 0.0,
-                expense = 0.0,
-                balance = 0.0
             )
             insertNewParticipant(newParticipant)
         }
     }
-    fun addParticipantToFund(parId: Int, fundId: Int){
-        viewModelScope.launch(IO){
-            getParFundByParAndFund(parId, fundId).collect{ parFundDto ->
-                if(parFundDto == null){
+
+    fun addParticipantToFund(pselectedParticipants: List<Participant>, fundId: Int) {
+
+        viewModelScope.launch(IO) {
+            pselectedParticipants.forEach { participant ->
+                val parFundDto =
+                    getParFundByParAndFund(participant.participantId, fundId).firstOrNull()
+                if (parFundDto == null) {
                     val newParFund = ParticipantFundDto(
                         parFundId = 0,
-                        participantId = parId,
+                        participantId = participant.participantId,
                         fundId = fundId
                     )
                     insertNewParticipantFund(newParFund)
-                }else {
+                } else {
                     Log.d("addParticipantToFund", "no addParticipantToFund")
                 }
+
             }
         }
     }
-    fun eraseParticipantToFund(parId: Int, fundId: Int){
-        viewModelScope.launch(IO){
-            getParFundByParAndFund(parId, fundId).collect{ parFundDto ->
-                if(parFundDto != null){
+
+    fun eraseParticipantToFund(parId: Int, fundId: Int) {
+        viewModelScope.launch(IO) {
+            getParFundByParAndFund(parId, fundId).collect { parFundDto ->
+                if (parFundDto != null) {
                     eraseParFundById(parFundDto.parFundId)
-                }else {
+                } else {
                     Log.d("eraseParticipantToFund", "no eraseParticipantToFund")
                 }
             }
         }
     }
-    fun setEraseState(_eraseState: Boolean){
+
+    fun setEraseState(_eraseState: Boolean) {
         eraseState.value = _eraseState
     }
-    fun eraseParById(id: Int){
-        viewModelScope.launch(IO){
-            if(id == 1){
+
+    fun eraseParById(id: Int) {
+        viewModelScope.launch(IO) {
+            if (id == 1) {
                 setEraseState(true)
-            }else {
+            } else {
                 eraseParticipantById(id)
             }
         }
     }
 
-    fun eraseFundByFundId(id: Int){
-        viewModelScope.launch(IO){
-            if(id == 1){
+    fun eraseFundByFundId(id: Int) {
+        viewModelScope.launch(IO) {
+            if (id == 1) {
                 setEraseState(true)
-            }else {
+                Log.d("eraseFundByFundId", true.toString())
+            } else {
+                Log.d("eraseFundByFundId", false.toString())
                 eraseFundById(id)
             }
         }
+
     }
 
-    fun updateGroupById(
-        groupId: Int,
-        groupName: String
-    ){
-        viewModelScope.launch(IO){
-            val updateGroup = GroupDto(
-                groupId,
-                groupName,
-            )
-            updateGroup(updateGroup)
-        }
-    }
+
     fun updateFundById(
         fundId: Int,
         fundName: String,
-        totalAmount: Double,
         groupId: Int
-    ){
-        viewModelScope.launch(IO){
+    ) {
+        viewModelScope.launch(IO) {
             val updateFund = FundDto(
                 fundId,
                 fundName,
-                totalAmount,
                 groupId
             )
             updateFund(updateFund)
         }
     }
+
+    fun insertParFund(
+        fundId: Int,
+        fundName: String,
+        groupId: Int
+    ) {
+        viewModelScope.launch(IO) {
+            val updateFund = FundDto(
+                fundId,
+                fundName,
+                groupId
+            )
+            updateFund(updateFund)
+        }
+    }
+
     fun updateParticipantById(
         participantId: Int,
         participantName: String,
         income: Double,
         expense: Double,
         balance: Double
-    ){
-        viewModelScope.launch(IO){
+    ) {
+        viewModelScope.launch(IO) {
             val updateParticipant = ParticipantDto(
                 participantId,
                 participantName,
-                income,
-                expense,
-                balance
             )
             updateParticipant(updateParticipant)
         }
     }
 
+    fun setGroupName(name: String) {
+        groupName.value = name
+    }
+
+    fun setFundName(name: String) {
+        fundName.value = name
+    }
+
+    fun setParName(name: String) {
+        parName.value = name
+    }
+
+    fun setTabFund(tab: TabContent) {
+        tabFund.value = tab
+    }
+
+    fun setTabPar(tab: TabContent) {
+        tabPar.value = tab
+    }
+
+    fun setExpense(amount: Double) {
+        expense.value = amount
+    }
+
+    fun setIncome(amount: Double) {
+        income.value = amount
+    }
+
+    fun setBalance(amount: Double) {
+        balance.value = amount
+    }
+
+    fun getCategory(title: String): Category {
+        var result: Category = Category.FOOD_DRINK
+        Category.values().forEach {
+            if (it.title == title)
+                result = it
+        }
+        return result
+    }
 }

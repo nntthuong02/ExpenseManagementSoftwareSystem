@@ -14,8 +14,9 @@ class UpdateTransactionDetails @Inject constructor(
         amount: Double,
         category: String,
         transactionType: String,
-        parId: Int
+        parId: Int,
+        fundId: Int
     ){
-       databaseRepository.updateTransactionDetails(id, title, date, amount, category, transactionType, parId)
+       databaseRepository.updateTransactionDetails(id, title, date, amount, category, transactionType, parId, fundId)
     }
 }

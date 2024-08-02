@@ -81,6 +81,8 @@ fun TransactionScreen(
     val selectedTransaction by transactionViewModel.tabButton.collectAsState()
     val title by remember { mutableStateOf(transactionViewModel.transactionTitle) }
     val titleFieldValue = TextFieldValue(title.collectAsState().value)
+//    val title by transactionViewModel.transactionTitle.collectAsState()
+//    val titleFieldValue = remember { mutableStateOf(TextFieldValue(title)) }
     val transaction by remember { mutableStateOf(transactionViewModel.transactionAmount) }
     val transactionFieldValue = TextFieldValue(transaction.collectAsState().value)
     var selectedFund by remember { mutableStateOf<Fund?>(null) }
@@ -284,16 +286,13 @@ fun TransactionScreen(
                                 navController.navigate("${Route.TransactionScreen.route}")
                             }
                         } else {
-                            Log.d("selectedFund", selectedFund?.totalAmount.toString())
                             if (selectedFund != null) {
                                 funds.forEach { fund ->
                                     if (fund.fundId == selectedFund!!.fundId) {
-                                        val newTotalAmount = fund.totalAmount + transactionAmount.value.toDouble()
-                                        Log.d("UpdateFund", "Updating fund ${fund.fundId} with new total amount: $newTotalAmount")
+
                                         updateExpenseFund(
                                             fund.fundId,
-                                            fund.fundName,
-                                            newTotalAmount,
+                                            fund.fundName
                                         )
                                     }
                                 }

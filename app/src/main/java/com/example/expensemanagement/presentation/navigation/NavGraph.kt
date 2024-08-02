@@ -5,25 +5,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.unit.ExperimentalUnitApi
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.expensemanagement.presentation.currency_screen.CurrencyScreen
+import com.example.expensemanagement.presentation.home.EditFundScreen
+import com.example.expensemanagement.presentation.home.EditParticipantScreen
 import com.example.expensemanagement.presentation.home.HomeScreen
+import com.example.expensemanagement.presentation.home.ListFundScreen
+import com.example.expensemanagement.presentation.home.ListParticipantScreen
 import com.example.expensemanagement.presentation.insight_screen.EditTransactionScreen
 import com.example.expensemanagement.presentation.insight_screen.InsightScreen
-import com.example.expensemanagement.presentation.insight_screen.InsightViewModel
 import com.example.expensemanagement.presentation.insight_screen.ParticipantScreen
 import com.example.expensemanagement.presentation.insight_screen.TransactionDetailScreen
 import com.example.expensemanagement.presentation.onboarding.OnboardingScreen
 import com.example.expensemanagement.presentation.payment_screen.PaymentScreen
 import com.example.expensemanagement.presentation.transaction_screen.TransactionScreen
-import com.example.expensemanagement.presentation.transaction_screen.TransactionViewModel
 
 @ExperimentalFoundationApi
 @ExperimentalComposeUiApi
@@ -41,7 +40,39 @@ fun NavGraph(
             CurrencyScreen(navController = navController)
         }
         composable(route = Route.HomeScreen.route) {
-            HomeScreen()
+            HomeScreen(navController = navController)
+        }
+        composable(route = Route.ListFundScreen.route){
+            ListFundScreen(navController = navController)
+        }
+        composable(
+            route = "${Route.EditFundScreen.route}/{fundId}",
+            arguments = listOf(
+                navArgument("fundId"){
+                    type = NavType.IntType
+                    defaultValue = 1
+//                    nullable = true
+                }
+            )
+            ){ backStackEntry  ->
+            val fundId = backStackEntry.arguments!!.getInt("fundId")
+            EditFundScreen(fundId = fundId, navController = navController)
+        }
+        composable(route = Route.ListParticipantScreen.route){
+            ListParticipantScreen(navController = navController)
+        }
+        composable(
+            route = "${Route.EditParticipantScreen.route}/{parId}",
+            arguments = listOf(
+                navArgument("parId"){
+                    type = NavType.IntType
+                    defaultValue = 1
+//                    nullable = true
+                }
+            )
+        ){backStackEntry ->
+            val parId = backStackEntry.arguments!!.getInt("parId")
+            EditParticipantScreen(parId = parId, navController = navController)
         }
         composable(route = Route.TransactionScreen.route) {
             TransactionScreen(navController = navController)
@@ -64,8 +95,8 @@ fun NavGraph(
 //                    nullable = true
                 }
             )) { backStackEntry  ->
-            val fundId = backStackEntry.arguments?.getInt("fundId") ?: 1
-            ParticipantScreen(navController = navController, fundId = backStackEntry.arguments!!.getInt("fundId"))
+            val fundId = backStackEntry.arguments!!.getInt("fundId")
+            ParticipantScreen(navController = navController, fundId = fundId)
         }
 
         composable(

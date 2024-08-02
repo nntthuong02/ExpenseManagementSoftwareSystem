@@ -79,7 +79,13 @@ fun TabTransactionType(
 //            Log.d("TabButton", "ok")
             tabs.forEach { tab ->
                 val backgroundColor by animateColorAsState(
-                    if (selectedTab == tab) MaterialTheme.colorScheme.onSurface
+                    if (selectedTab == tab) {
+                        when (tab) {
+                            TabButton.EXPENSE -> Color.Red // hoặc màu sắc khác cho EXPENSE
+                            TabButton.INCOME -> Color.Green // hoặc màu sắc khác cho INCOME
+                            else -> Color.Transparent // màu mặc định hoặc màu khác nếu cần
+                        }
+                    }
                     else Color.Transparent
                 )
 

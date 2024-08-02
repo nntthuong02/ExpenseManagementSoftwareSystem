@@ -20,7 +20,7 @@ interface DatabaseRepository {
 
     fun getTransactionByParticipant(participantId: Int): Flow<List<TransactionDto>>
 
-    fun getTransIsNotPaidById(transId: Int): Flow<List<TransactionDto>>
+    fun getTransIsNotPaid(): Flow<List<TransactionDto>>
 
     fun getTransByFund(fundId: Int): Flow<List<TransactionDto>>
 
@@ -32,7 +32,7 @@ interface DatabaseRepository {
 
     suspend fun updateTransaction(trans: TransactionDto)
 
-    suspend fun updateTransactionDetails(id: Int, title: String, date: Date, amount: Double, category: String, transactionType: String, parId: Int)
+    suspend fun updateTransactionDetails(id: Int, title: String, date: Date, amount: Double, category: String, transactionType: String, parId: Int, fundId: Int)
 
     fun getCurrentDayTransaction(): Flow<List<TransactionDto>>
 
@@ -42,6 +42,9 @@ interface DatabaseRepository {
 
     fun getTransactionByType(transactionType: String): Flow<List<TransactionDto>>
 
+    suspend fun updatePayTransactions(time: String)
+
+    suspend fun undoPayment(time: String)
     //Group
     suspend fun insertGroup(group: GroupDto)
 

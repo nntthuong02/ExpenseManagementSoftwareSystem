@@ -53,8 +53,8 @@ class CurrencyViewModel @Inject constructor(
     fun createEntity() {
         viewModelScope.launch(IO) {
             insertNewGroup.invoke(GroupDto(1, "My Group"))
-            insertNewFund.invoke(FundDto(1, "My Fund", 0.0, 1))
-            insertNewParticipant.invoke((ParticipantDto(1, "I", 0.0, 0.0, 0.0)))
+            insertNewFund.invoke(FundDto(1, "My Fund",  1))
+            insertNewParticipant.invoke((ParticipantDto(1, "I")))
             insertNewParticipantFund.invoke(ParticipantFundDto(1, 1,1))
         }
     }

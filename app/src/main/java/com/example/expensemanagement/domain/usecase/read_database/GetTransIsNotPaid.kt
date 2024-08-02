@@ -6,10 +6,10 @@ import com.example.expensemanagement.domain.repository.DatabaseRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class GetTransIsNotPaidById @Inject constructor(
+class GetTransIsNotPaid @Inject constructor(
     private val databaseRepository: DatabaseRepository
 ) {
-    operator fun invoke(transId: Int): Flow<List<TransactionDto>> {
-        return databaseRepository.getTransIsNotPaidById(transId)
+    operator fun invoke(): Flow<List<TransactionDto>> {
+        return databaseRepository.getTransIsNotPaid()
     }
 }

@@ -206,18 +206,17 @@ class TransactionViewModel @Inject constructor(
         transactionType = transactionType,
         title = title,
         participantId = participantId,
-        isPaid = isPaid
+        isPaid = isPaid,
+        fundId = fundId
     )
     fun updateExpenseFund(
         fundId: Int,
         fundName: String,
-        totalAmount: Double
     ){
         viewModelScope.launch(IO){
             val updateFund = FundDto(
                 fundId,
                 fundName,
-                totalAmount,
                 1,
             )
             updateFund(updateFund)
@@ -250,38 +249,10 @@ class TransactionViewModel @Inject constructor(
                 category,
                 isPaid,
                 transactionType,
-                selectedParId
+                selectedParId,
+                selectedFundId
             )
 
-
-            if (transactionType == Constants.INCOME) {
-                val currentParticipant = getParticipantById(selectedParId).first()
-                val newIncomeAmount = currentParticipant.income + amount
-                val balance = newIncomeAmount - currentParticipant.expense
-
-                val updatedParticipant = currentParticipant.copy(
-                    participantId = selectedParId,
-                    participantName = currentParticipant.participantName,
-                    income = newIncomeAmount,
-                    expense = currentParticipant.expense,
-                    balance = balance
-                )
-                updateParticipant(updatedParticipant)
-
-            } else {
-                val currentParticipant = getParticipantById(selectedParId).first()
-                val newExpenseAmount = currentParticipant.expense + amount
-                val balance = currentParticipant.income - newExpenseAmount
-
-                val updatedParticipant = currentParticipant.copy(
-                    participantId = selectedParId,
-                    participantName = currentParticipant.participantName,
-                    income = currentParticipant.income,
-                    expense = newExpenseAmount,
-                    balance = balance
-                )
-                updateParticipant(updatedParticipant)
-            }
             if (parFundDto != null) {
                 val parFundUpdate = ParticipantFundDto(
                     parFundDto.parFundId,
@@ -317,43 +288,17 @@ class TransactionViewModel @Inject constructor(
     ) {
         viewModelScope.launch(IO) {
             val transDto = getTransactionById(transactionId).first()
+
             val parId: Int = transDto.participantId
             val parFundDto = getParFundByParAndFund(parId, initialFundId).first()
-            if (transactionType == Constants.INCOME) {
-                val currentParticipant = getParticipantById(parId).first()
-                val newIncomeAmount = currentParticipant.income - transDto.amount + amount
-                val balance = newIncomeAmount - currentParticipant.expense
 
-                val updatedParticipant = currentParticipant.copy(
-                    participantId = parId,
-                    participantName = currentParticipant.participantName,
-                    income = newIncomeAmount,
-                    expense = currentParticipant.expense,
-                    balance = balance
-                )
-                updateParticipant(updatedParticipant)
-
-            } else {
-                val currentParticipant = getParticipantById(parId).first()
-                val newExpenseAmount = currentParticipant.expense - transDto.amount + amount
-                val balance = currentParticipant.income - newExpenseAmount
-
-                val updatedParticipant = currentParticipant.copy(
-                    participantId = parId,
-                    participantName = currentParticipant.participantName,
-                    income = currentParticipant.income,
-                    expense = newExpenseAmount,
-                    balance = balance
-                )
-                updateParticipant(updatedParticipant)
-            }
             val parFundUpdate = ParticipantFundDto(
                 parFundDto.parFundId,
                 selectedParId,
                 selectedFundId
             )
             updateParFund(parFundUpdate)
-            updateTransactionDetails(transactionId, transactionTitle, selectedDate, amount, category, transactionType, selectedParId)
+            updateTransactionDetails(transactionId, transactionTitle, selectedDate, amount, category, transactionType, selectedParId, selectedFundId)
 //            withContext(Main) {
 //                navigateBack()
 //            }
@@ -362,8 +307,8 @@ class TransactionViewModel @Inject constructor(
     fun createEntity() {
         viewModelScope.launch(IO) {
             insertNewGroup.invoke(GroupDto(1, "My Group"))
-            insertNewFund.invoke(FundDto(1, "My Fund", 0.0, 1))
-            insertNewParticipant.invoke((ParticipantDto(1, "I", 0.0, 0.0, 0.0)))
+            insertNewFund.invoke(FundDto(1, "My Fund", 1))
+            insertNewParticipant.invoke((ParticipantDto(1, "I")))
             insertNewParticipantFund.invoke(ParticipantFundDto(1, 1,1))
         }
     }

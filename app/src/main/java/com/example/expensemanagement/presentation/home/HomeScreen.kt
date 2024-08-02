@@ -3,13 +3,10 @@ package com.example.expensemanagement.presentation.home
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -22,9 +19,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.example.expensemanagement.domain.models.Fund
+import com.example.expensemanagement.presentation.home.component.EditNameEntity
+import com.example.expensemanagement.presentation.home.component.EntityItem
+import com.example.expensemanagement.presentation.navigation.Route
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 
 // Dummy data model
@@ -32,71 +40,102 @@ data class GroupData(val id: Int, var name: String)
 data class FundData(val id: Int, var name: String)
 data class ParticipantData(val id: Int, var name: String)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-
+    navController: NavHostController,
+    homeViewModel: HomeViewModel = hiltViewModel()
 ) {
+    val fundData = Fund(1, "Thuong",  1)
 
+    val groupName by remember { mutableStateOf(homeViewModel.groupName) }
+    val groupNameFieldValue = TextFieldValue(groupName.collectAsState().value)
+
+    val parName by remember { mutableStateOf(homeViewModel.parName) }
+    val parNameFieldValue = TextFieldValue(parName.collectAsState().value)
+
+    val groupById by homeViewModel.groupById.collectAsState()
+    val fundsByGroup by homeViewModel.fundByGroupId.collectAsState()
+    val fundById by homeViewModel.fundById.collectAsState()
+    val allPar by homeViewModel.allParticipant.collectAsState()
+    val parById by homeViewModel.parById.collectAsState()
+    val currency by homeViewModel.selectedCurrencyCode.collectAsState()
+    val numberFund by homeViewModel.numberFund.collectAsState()
+    val numberPar by homeViewModel.numberPar.collectAsState()
+
+
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     // Dummy data
-    val group = remember { mutableStateOf(GroupData(1, "GroupData A")) }
+//    val group = remember { mutableStateOf(GroupData(1, "GroupData A")) }
     val fundList = remember { mutableStateOf(listOf(FundData(1, "Fund 1"), FundData(2, "Fund 2"))) }
     val participantList = remember { mutableStateOf(listOf(ParticipantData(1, "Participant 1"), ParticipantData(2, "Participant 2"))) }
+    var initialGroupName = remember { String() }
+    LaunchedEffect(Unit){
+        coroutineScope {
+            launch {
+                homeViewModel.getGroupByGroupId()
+            }
+            launch {
+                homeViewModel.getFundByGroup()
+            }
+            launch {
+                homeViewModel.getAllPars()
+            }
+
+        }
+    }
+    groupById?.let{group ->
+        initialGroupName = group.groupName
+        LaunchedEffect(initialGroupName){
+            homeViewModel.setGroupName(initialGroupName)
+        }
+    }
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+            .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Edit GroupData name
-        EditableEntity(
-            entity = group.value,
-            onValueChange = { newValue -> group.value = group.value.copy(name = newValue) },
-            label = "GroupData"
+        // Edit Group name
+        EditNameEntity(
+            "Group",
+            groupNameFieldValue.text,
+            onNameChange = {
+                homeViewModel.setGroupName(it)
+            },
+            onSaveClick = {
+                /*Todo*/
+            }
         )
-//        SnackbarHost(hostState = snackbarHostState)
-        // Edit Fund names
-        fundList.value.forEach { fund ->
-            EditableEntity(
-                entity = fund,
-                onValueChange = { newValue ->
-                    val updatedList = fundList.value.toMutableList()
-                    updatedList.find { it.id == fund.id }?.name = newValue
-                    fundList.value = updatedList
-                },
-                label = "Fund ${fund.id}"
-            )
-        }
+        Spacer(modifier = Modifier.padding(5.dp))
+        // List fund
+        EntityItem(
+            nameEntity = "Fund",
+            number = fundsByGroup.size.toString(),
+            itemOnClick = {
+                          navController.navigate(Route.ListFundScreen.route)
+                          },
+            backgroundColor = Color.DarkGray.copy(alpha= 0.1f),
+            surfaceColor = Color.Blue
+        )
+        Spacer(modifier = Modifier.padding(5.dp))
+        //List participant
+        EntityItem(
+            nameEntity = "Participant",
+            number = fundsByGroup.size.toString(),
+            itemOnClick = {
+                          navController.navigate(Route.ListParticipantScreen.route)
+                          },
+            backgroundColor = Color.DarkGray.copy(alpha= 0.1f),
+            surfaceColor = Color.Green
+        )
+        Spacer(modifier = Modifier.padding(5.dp))
+        SnackbarHost(hostState = snackbarHostState)
 
-        // Edit Participant names
-        participantList.value.forEach { participant ->
-            EditableEntity(
-                entity = participant,
-                onValueChange = { newValue ->
-                    val updatedList = participantList.value.toMutableList()
-                    updatedList.find { it.id == participant.id }?.name = newValue
-                    participantList.value = updatedList
-                },
-                label = "Participant ${participant.id}"
-            )
-        }
 
-        // Add Fund button
-        Button(
-            onClick = { fundList.value = fundList.value + FundData(fundList.value.size + 1, "New FundData") },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Add FundData")
-        }
-
-        // Add Participant button
-        Button(
-            onClick = { participantList.value = participantList.value + ParticipantData(participantList.value.size + 1, "New ParticipantData") },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Add ParticipantData")
-        }
     }
 }
 
@@ -127,5 +166,5 @@ fun EditableEntity(entity: Any, onValueChange: (String) -> Unit, label: String) 
 @Preview(showSystemUi = true)
 @Composable
 fun HomeScreenPreview(){
-    HomeScreen()
+    HomeScreen(navController = rememberNavController())
 }
