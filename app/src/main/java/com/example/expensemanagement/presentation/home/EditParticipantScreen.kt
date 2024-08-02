@@ -100,7 +100,7 @@ fun EditParticipantScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         // Row with buttons to switch between tabs
-        TabBar(entityTab = TabContent.PARTICIPANT, selectedTab = selectedTab) { tabContent ->
+        TabBar(tab1 = TabContent.PARTICIPANT, tab2 = TabContent.TRANSACTION, selectedTab = selectedTab) { tabContent ->
             homeViewModel.setTabPar(tabContent)
         }
 
@@ -317,7 +317,7 @@ fun Transaction2Content(
         )
     ) {
         Log.d("transByPar Trans", transByPar.toString())
-        if (transByPar == null) {
+        if (transByPar.isEmpty()) {
             Box(
                 modifier = Modifier
                     .border(1.dp, Color.Black, RoundedCornerShape(4.dp))

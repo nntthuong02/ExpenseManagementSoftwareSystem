@@ -29,7 +29,8 @@ import com.example.expensemanagement.presentation.common.TabContent
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TabBar(
-    entityTab: TabContent,
+    tab1: TabContent,
+    tab2: TabContent,
     selectedTab: TabContent,
     onTabSelected: (TabContent) -> Unit
 ) {
@@ -39,18 +40,18 @@ fun TabBar(
     ) {
         SegmentedButton(
             shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-            onClick = { onTabSelected(entityTab) },
-            selected = selectedTab == entityTab
+            onClick = { onTabSelected(tab1) },
+            selected = selectedTab == tab1
         ) {
-            Text(entityTab.title)
+            Text(tab1.title)
         }
 
         SegmentedButton(
             shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-            onClick = { onTabSelected(TabContent.TRANSACTION) },
-            selected = selectedTab == TabContent.TRANSACTION
+            onClick = { onTabSelected(tab2) },
+            selected = selectedTab == tab2
         ) {
-            Text(TabContent.TRANSACTION.title)
+            Text(tab2.title)
         }
 
     }
@@ -60,5 +61,5 @@ fun TabBar(
 @Preview(showSystemUi = true)
 @Composable
 fun TabBarItem() {
-    TabBar(entityTab = TabContent.FUND, selectedTab = TabContent.FUND, onTabSelected = {})
+    TabBar(tab1 = TabContent.FUND, tab2 = TabContent.TRANSACTION, selectedTab = TabContent.FUND, onTabSelected = {})
 }

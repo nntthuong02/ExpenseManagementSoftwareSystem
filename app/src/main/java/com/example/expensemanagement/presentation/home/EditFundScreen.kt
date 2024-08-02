@@ -135,7 +135,7 @@ fun EditFundScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         // Row with buttons to switch between tabs
-        TabBar(entityTab = TabContent.FUND, selectedTab = selectedTab) { tabContent ->
+        TabBar(tab1 = TabContent.FUND, tab2 = TabContent.TRANSACTION, selectedTab = selectedTab) { tabContent ->
             homeViewModel.setTabFund(tabContent)
         }
 
@@ -277,7 +277,6 @@ fun FundContent(
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
-
                         )
                 }
 //                Text("Add participant")
@@ -356,7 +355,7 @@ fun TransactionContent(
         )
     ) {
         Log.d("transByFund Trans", transByFund.toString())
-        if(transByFund == null) {
+        if(transByFund.isEmpty()) {
             Box(
                 modifier = Modifier
                     .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
@@ -376,8 +375,10 @@ fun TransactionContent(
 
                     )
             }
+            Log.d("transByFund null", "ok")
 
         } else{
+            Log.d("transByFund not null", "ok")
             LazyColumn(
                 contentPadding = PaddingValues(
                     start = 5.dp,
