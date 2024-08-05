@@ -215,7 +215,7 @@ class PaymentViewModel @Inject constructor(
         val listTrans = getTransByFund(fundId).first()
         listTrans.let { listTransDto ->
             listTransDto.forEach { trans ->
-                if (trans.transactionType == Constants.EXPENSE) {
+                if (trans.transactionType == Constants.EXPENSE && trans.isPaid == false) {
                     totalExpense += trans.amount
                 }
             }
@@ -228,7 +228,7 @@ class PaymentViewModel @Inject constructor(
         val listTrans = getTransactionByParticipant(parId).first()
         listTrans.let { listTransDto ->
             listTransDto.forEach { trans ->
-                if (trans.transactionType == Constants.EXPENSE) {
+                if (trans.transactionType == Constants.EXPENSE && trans.isPaid == false) {
                     totalExpense += trans.amount
                 }
             }
