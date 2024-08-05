@@ -92,7 +92,6 @@ fun TransactionScreen(
     val funds by transactionViewModel.fundByGroupId.collectAsState()
     val participantByFundId by transactionViewModel.participantByFundId.collectAsState()
     val listFund by transactionViewModel.fundByGroupId.collectAsState()
-    Log.d("TransactionScreen", "ok")
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val selectedDate by transactionViewModel.selectedDate.collectAsState()
@@ -165,7 +164,6 @@ fun TransactionScreen(
                 )
             )
             //Set Transaction titile
-            Log.d("Test TransactionType", "$selectedTransaction")
             Spacer(modifier = Modifier.padding(5.dp))
             Divider(
                 modifier = Modifier
@@ -182,20 +180,14 @@ fun TransactionScreen(
                     transactionViewModel.selectFund(fund)
                 })
             Spacer(modifier = Modifier.padding(5.dp))
-            Log.d("testParDropdownMenu1", "ok")
             Text(text = "Participant Name: ")
             participantByFundId.keys.forEach { key ->
-                Log.d("testParDropdownMenu2", key.toString())
                 if (key == selectedFund?.fundId) {
                     val participants = participantByFundId[key]
-                    Log.d("testParDropdownMenu2.2", participants.toString())
                     if (participants != null) {
 //                        participants.forEach { participant ->
-                            Log.d("testParDropdownMenu2.3", participants.toString())
                             ParDropdownMenu(onParSelected = {
-                                Log.d("testParDropdownMenu2.5", "onParSelected called with: $it")
                                 transactionViewModel.selectParticipant(it)
-                                Log.d("testParDropdownMenu2.4", selectedPar.toString())
                             },
                                 participants = participants
                                 )
@@ -203,7 +195,6 @@ fun TransactionScreen(
                     }
                 }
             }
-            Log.d("testParDropdownMenu3", "ok")
             Text(
                 text = if (selectedTransaction == TabButton.INCOME) {
                     "This is an Income: "
@@ -221,9 +212,7 @@ fun TransactionScreen(
             TextField(
                 value = transactionFieldValue.text,
                 onValueChange = { field ->
-                    Log.d("Test", "field ok")
                     transactionViewModel.setTransaction(field)
-                    Log.d("test", "setTransaction Ok")
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -260,7 +249,6 @@ fun TransactionScreen(
             Category()
     }
         SnackbarHost(hostState = snackbarHostState)
-        Log.d("test selectedPar", selectedPar.toString())
 //        Button(onClick = { transactionViewModel.createEntity()}) {
 //        Text(text = "create")
 //        }
@@ -274,7 +262,6 @@ fun TransactionScreen(
                 } else {
                     transactionViewModel.apply {
                         setCurrentTime(Calendar.getInstance().time)
-                        Log.d("Test transactionType", "$Constants.INCOME")
 
                         if (selectedTransaction == TabButton.INCOME) {
                             if (selectedFund != null) {
@@ -300,7 +287,6 @@ fun TransactionScreen(
                                 selectedPar?.participantId ?: 0,
                                 selectedFund?.fundId ?: 0
                             ) {
-                                Log.d("test income transaction", "income success")
                                 navController.navigateUp()
                                 navController.navigate("${Route.TransactionScreen.route}")
                             }
@@ -329,7 +315,6 @@ fun TransactionScreen(
                                 selectedPar?.participantId ?: 0,
                                 selectedFund?.fundId ?: 0
                             ) {
-                                Log.d("test expense transaction", "expense success")
                                 navController.navigateUp()
                                 navController.navigate("${Route.TransactionScreen.route}")
                             }

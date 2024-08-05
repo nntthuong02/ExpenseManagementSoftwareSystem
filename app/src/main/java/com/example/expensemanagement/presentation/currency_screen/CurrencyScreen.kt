@@ -200,15 +200,10 @@ fun CurrencyScreen(
                         //systemBarsPadding giup button khong bi thanh dieu huong che khuat
                         modifier = Modifier.systemBarsPadding(),
                         onClick = {
-                            Log.d("test", "test1")
                             currencyViewModel.saveCurrency(selectedCountry.currencyCode)
-                            Log.d("MyApp", "saveCurrency executed")
                             navController.popBackStack()
-                            Log.d("MyApp", "popBackStack executed")
                             currencyViewModel.createEntity()
-                            Log.d("MyApp", "createParticipants executed")
                             currencyViewModel.saveOnboardingState(completed = true)
-                            Log.d("saveOnboardingState", "saveOnboardingState executed")
                         }) {
                         Text("Commit Currency")
                     }

@@ -83,10 +83,7 @@ fun EditParticipantScreen(
             getAllPars()
             getTransWithParByPar()
         }
-        Log.d("edit par screen", parId.toString())
     }
-    Log.d("LaunchedEffect(transByPar)", transByPar.toString())
-    Log.d("LaunchedEffect(transWithPar)", transWithPar.toString())
     if (transByPar != null) {
         var sum = 0.0
         transByPar.forEach { trans ->
@@ -113,11 +110,8 @@ fun EditParticipantScreen(
                     snackbarHostState = snackbarHostState,
                     onChange = {
                         homeViewModel.setParName(it)
-                        Log.d("onChange", it)
-                        Log.d("onChange par name", homeViewModel.parName.value)
                     },
                     onSave = {
-                        Log.d("parNameFieldValue", parNameFieldValue.text)
                         if (parNameFieldValue.text.isEmpty()) {
                             // Hiển thị Snackbar thông báo lỗi
                             coroutineScope.launch {
@@ -127,7 +121,6 @@ fun EditParticipantScreen(
                             coroutineScope.launch {
                                 homeViewModel.apply {
                                     updateParticipantById(parId, parName.value)
-                                    Log.d("parNameFieldValue", parNameFieldValue.text)
                                     navController.navigateUp()
                                     navController.navigate("${Route.EditParticipantScreen.route}/${parById!!.participantId}")
                                 }
@@ -316,7 +309,6 @@ fun Transaction2Content(
             top = 5.dp
         )
     ) {
-        Log.d("transByPar Trans", transByPar.toString())
         if (transByPar.isEmpty()) {
             Box(
                 modifier = Modifier
@@ -355,7 +347,6 @@ fun Transaction2Content(
 //                    )
 //
 //                }
-                Log.d("test ParticipantDetail", "test1")
                 itemsIndexed(transWithPar) { index, (trans, participant) ->
 
 //                    coroutineScope.launch {

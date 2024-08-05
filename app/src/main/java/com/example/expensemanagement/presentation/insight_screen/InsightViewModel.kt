@@ -118,7 +118,6 @@ class InsightViewModel @Inject constructor(
                     fundDto.toFund()
                 }?.sortedBy { it.fundName } ?: emptyList()
                 _fundByGroup.value = funds
-                Log.d("_fundByGroupId", _fundByGroup.value.toString())
 
                 _fundByGroup.value.forEach { fund ->
                     val participantMap = mutableMapOf<Int, List<Participant>>()
@@ -128,51 +127,24 @@ class InsightViewModel @Inject constructor(
                         } ?: emptyList()
                         participantMap[fund.fundId] = participants
                         _parByFund.value = participantMap
-                        Log.d("_fundByGroup", _parByFund.value.toString())
                     }
                 }
             }
         }
 
-//        viewModelScope.launch(IO) {
-//            getFundByGroupId(1).collect {
-//                it?.let { listFundDto ->
-//                    Log.d("listFundDto", listFundDto.toString())
-//                    val listFund = listFundDto.map {
-//                        it.toFund()
-//                    }
-//                    val pair = listFund.map { fund ->
-//                        Log.d("PVM fund", fund.toString())
-//                        var expense = getExpenseByFund(fund.fundId)
-//                        Log.d("PVM expensefund", expense.toString())
-//                        fund to expense
-//                    }
-//
-//                    _fundAndExpense.value = pair
-//                    Log.d("_fundAndExpense.value", _fundAndExpense.value.toString())
-//                }
-//            }
-//        }
         viewModelScope.launch(IO) {
 
             getFundByGroupId(1).collect {
                 it?.let { listFundDto ->
-                    Log.d("listFundDto", listFundDto.toString())
                     val listFund = listFundDto.map {
                         it.toFund()
                     }
-                    var i = 0
                     val listPair = listFund.map { fund ->
-                        i++
-                        Log.d("i++", i.toString())
-                        Log.d("PVM fund2", fund.toString())
                         val expense: Deferred<Double> = async { getExpenseByFund(fund.fundId) }
-                        Log.d("PVM expensefund2", expense.await().toString())
                         fund to expense.await()
                     }
 
                     _fundAndExpense.value = listPair
-                    Log.d("_fundAndExpense", _fundAndExpense.toString())
                 }
             }
         }
@@ -182,18 +154,12 @@ class InsightViewModel @Inject constructor(
         var totalExpense = 0.0
         val listTrans = getTransByFund(fundId).first()
         listTrans.let { listTransDto ->
-            Log.d("listTransDto", listTransDto.toString())
             listTransDto.forEach { trans ->
                 if (trans.transactionType == Constants.EXPENSE) {
-                    Log.d("Constants.EXPENSE", Constants.EXPENSE)
-                    Log.d("trans.transactionType", trans.transactionType)
                     totalExpense += trans.amount
-                    Log.d("getTransByFund PVM", totalExpense.toString())
                 }
             }
         }
-        Log.d("getTransByFund PVM2", totalExpense.toString())
-        Log.d("getExpenseByFund2", totalExpense.toString())
         return totalExpense
     }
 
@@ -276,24 +242,14 @@ class InsightViewModel @Inject constructor(
     ) {
         viewModelScope.launch(IO) {
             eraseTransactionById(transId)
-            Log.d("eraseTransactionById", "ok")
         }
     }
 
-    //    fun getTransById(transId: Int){
-//        viewModelScope.launch(IO){
-//            getTransactionById(transId).collect{
-//                _transactionById.value = it.toTransaction()
-//                Log.d("getTransById", _transactionById.value.toString())
-//            }
-//        }
-//    }
     fun getTransById(transId: Int) {
         viewModelScope.launch(IO) {
             getTransactionById(transId).collect { transactionDto ->
                 transactionDto?.let {
                     _transactionById.value = it.toTransaction()
-                    Log.d("getTransById", _transactionById.value.toString())
                 } ?: run {
                     Log.e("getTransById", "TransactionDto is null for transactionId: $transId")
                 }
@@ -303,7 +259,6 @@ class InsightViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        Log.d("InsightViewModel onCleared", "ViewModel is being cleared")
     }
 
     fun getParByFund(fundId: Int) {

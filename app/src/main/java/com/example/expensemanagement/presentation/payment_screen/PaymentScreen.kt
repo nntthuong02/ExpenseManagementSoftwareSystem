@@ -65,8 +65,6 @@ fun PaymentScreen(
     val selectedTab by paymentViewModel.tabBar.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
-    Log.d("fundAndExpense", fundAndExpense.toString())
-    Log.d("parAndAmount", parAndAmount.toString())
 
     LaunchedEffect(Unit){
         paymentViewModel.getPaidTransactionCountsByDate()

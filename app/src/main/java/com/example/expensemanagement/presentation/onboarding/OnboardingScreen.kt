@@ -54,12 +54,10 @@ fun OnboardingScreen(
                 }
             }
         }
-        Log.d("test OnboardingScreen", "ok")
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxWidth()
         ) { index ->
-            Log.d("test2 OnboardingScreen", "ok")
             OnboardingPage(page = pages[index])
         }
         Spacer(modifier = Modifier.weight(1f))
@@ -114,7 +112,6 @@ fun OnboardingScreen(
                     onClick = {
                         scope.launch {
                             if (pagerState.currentPage == 2) {
-                                Log.d("onboardingScreen", "navigate")
                                 navController.popBackStack()
                                 navController.navigate(Route.CurrencyScreen.route)
                             } else {

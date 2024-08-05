@@ -168,24 +168,17 @@ class HomeViewModel @Inject constructor(
 
             getFundByGroupId(1).collect {
                 it?.let { listFundDto ->
-                    Log.d("listFundDto", listFundDto.toString())
                     val listFund = listFundDto.map {
                         it.toFund()
                     }.sortedWith { fund1, fund2 ->
                         collator.compare(fund1.fundName, fund2.fundName)
                     }
-                    var i = 0
                     val listPair = listFund.map { fund ->
-                        i++
-                        Log.d("i++", i.toString())
-                        Log.d("PVM fund2", fund.toString())
                         val expense: Deferred<Double> = async { getExpenseByFund(fund.fundId) }
-                        Log.d("PVM expensefund2", expense.await().toString())
                         fund to expense.await()
                     }
 
                     _fundAndExpense.value = listPair
-                    Log.d("_fundAndExpense", _fundAndExpense.toString())
                 }
             }
         }
@@ -194,7 +187,6 @@ class HomeViewModel @Inject constructor(
             getAllParticipants().collect{
 
                 it?.let { listParDto ->
-                    Log.d("listParDto", listParDto.toString())
                     val listPar = listParDto.map {
                         it.toParticipant()
                     }.sortedWith { par1, par2 ->
@@ -205,7 +197,6 @@ class HomeViewModel @Inject constructor(
                         par to expense.await()
                     }
                     _parAndExpense.value = listPair
-                    Log.d("_fundAndExpense", _parAndExpense.value.toString())
                 }
             }
         }
@@ -229,7 +220,6 @@ class HomeViewModel @Inject constructor(
 
     fun getFundByGroup() {
         viewModelScope.launch(IO) {
-            Log.d("getFundByGroupId", getFundByGroupId(1).toString())
             getFundByGroupId(1).collect { listFundDto ->
                 val listFund = listFundDto.map {
                     it.toFund()
@@ -272,18 +262,12 @@ class HomeViewModel @Inject constructor(
         var totalExpense = 0.0
         val listTrans = getTransByFund(fundId).first()
         listTrans.let { listTransDto ->
-            Log.d("listTransDto", listTransDto.toString())
             listTransDto.forEach { trans ->
                 if (trans.transactionType == Constants.EXPENSE) {
-                    Log.d("Constants.EXPENSE", Constants.EXPENSE)
-                    Log.d("trans.transactionType", trans.transactionType)
                     totalExpense += trans.amount
-                    Log.d("getTransByFund PVM", totalExpense.toString())
                 }
             }
         }
-        Log.d("getTransByFund PVM2", totalExpense.toString())
-        Log.d("getExpenseByFund2", totalExpense.toString())
         return totalExpense
     }
     suspend fun getBalanceByPar(parId: Int): Double {
@@ -291,20 +275,14 @@ class HomeViewModel @Inject constructor(
         var totalIncome = 0.0
         val listTrans = getTransactionByParticipant(parId).first()
         listTrans.let { listTransDto ->
-            Log.d("listTransDto", listTransDto.toString())
             listTransDto.forEach { trans ->
                 if (trans.transactionType == Constants.EXPENSE) {
-                    Log.d("Constants.EXPENSE", Constants.EXPENSE)
-                    Log.d("trans.transactionType", trans.transactionType)
                     totalExpense += trans.amount
-                    Log.d("getTransByFund PVM", totalExpense.toString())
                 }else {
                     totalIncome += trans.amount
                 }
             }
         }
-        Log.d("getTransByFund PVM2", totalExpense.toString())
-        Log.d("getExpenseByFund2", totalExpense.toString())
         return (totalIncome - totalExpense)
     }
     suspend fun getExpenseByPar(parId: Int): Double {
@@ -312,20 +290,14 @@ class HomeViewModel @Inject constructor(
 //        var totalIncome = 0.0
         val listTrans = getTransactionByParticipant(parId).first()
         listTrans.let { listTransDto ->
-            Log.d("listTransDto", listTransDto.toString())
             listTransDto.forEach { trans ->
                 if (trans.transactionType == Constants.EXPENSE) {
-                    Log.d("Constants.EXPENSE", Constants.EXPENSE)
-                    Log.d("trans.transactionType", trans.transactionType)
                     totalExpense += trans.amount
-                    Log.d("getTransByFund PVM", totalExpense.toString())
                 }else {
 //                    totalIncome += trans.amount
                 }
             }
         }
-        Log.d("getTransByFund PVM2", totalExpense.toString())
-        Log.d("getExpenseByFund2", totalExpense.toString())
         return (totalExpense)
     }
 
@@ -334,8 +306,6 @@ class HomeViewModel @Inject constructor(
             getTransByFund(fundId).collect {
                 it?.let { listTransDto ->
                     _transByFund.value = listTransDto.map { transDto ->
-                        Log.d("fundId editfundscreen", fundId.toString())
-                        Log.d("_transByFund", _transByFund.value.toString())
                         transDto.toTransaction()
                     }.sortedByDescending { trans -> trans.date }
                 }
@@ -349,7 +319,6 @@ class HomeViewModel @Inject constructor(
             getTransactionByParticipant(parId).collect {
                 it?.let { listTransDto ->
                     _transByPar.value = listTransDto.map { transDto ->
-                        Log.d("_transByPar", _transByPar.value.toString())
                         transDto.toTransaction()
                     }.sortedByDescending { trans -> trans.date }
                 }
@@ -369,10 +338,8 @@ class HomeViewModel @Inject constructor(
                         }
 //                   trans to _parById!!.value
                     }
-                    Log.d("_transByFund", _transByFund.value.toString())
 
                     _transWithPar.value = mappedList
-                    Log.d("_transWithPar", _transWithPar.value.toString())
                 }
 
             }
@@ -390,10 +357,8 @@ class HomeViewModel @Inject constructor(
                         }
 //                   trans to _parById!!.value
                     }
-                    Log.d("_transByPar", _transByPar.value.toString())
 
                     _transWithPar.value = mappedList
-                    Log.d("_transWithPar", _transWithPar.value.toString())
                 }
 
             }
@@ -432,7 +397,6 @@ class HomeViewModel @Inject constructor(
                 groupId = 1
             )
             val fundId = insertNewFund(newFundDto)
-            Log.d("fundId.toInt()", fundId.toString())
             insertParticipantFund(1, fundId.toInt())
         }
     }
@@ -461,7 +425,6 @@ class HomeViewModel @Inject constructor(
                     )
                     insertNewParticipantFund(newParFund)
                 } else {
-                    Log.d("addParticipantToFund", "no addParticipantToFund")
                 }
 
 //            }
@@ -495,7 +458,6 @@ class HomeViewModel @Inject constructor(
                     )
                     insertNewParticipantFund(newParFund)
                 } else {
-                    Log.d("addParticipantToFund", "no addParticipantToFund")
                 }
 
             }
@@ -508,7 +470,6 @@ class HomeViewModel @Inject constructor(
                 if (parFundDto != null) {
                     eraseParFundById(parFundDto.parFundId)
                 } else {
-                    Log.d("eraseParticipantToFund", "no eraseParticipantToFund")
                 }
             }
         }
@@ -532,9 +493,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(IO) {
             if (id == 1) {
                 setEraseState(true)
-                Log.d("eraseFundByFundId", true.toString())
             } else {
-                Log.d("eraseFundByFundId", false.toString())
                 eraseFundById(id)
             }
         }

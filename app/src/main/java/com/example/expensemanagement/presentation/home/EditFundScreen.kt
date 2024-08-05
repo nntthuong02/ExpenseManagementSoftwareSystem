@@ -98,20 +98,14 @@ fun EditFundScreen(
     val density = LocalDensity.current
     val fundTitle by remember { mutableStateOf(homeViewModel.fundName) }
     val fundNameFieldValue = TextFieldValue(fundTitle.collectAsState().value)
-    Log.d("fundId editfundscreen", fundId.toString())
     LaunchedEffect(fundId) {
         homeViewModel.apply {
             getFundByFundId(fundId)
-            Log.d("fundId", fundId.toString())
-            Log.d("transByFund1", transByFund.toString())
             getTransactionByFund(fundId)
             getAllPars()
             getTransWithPar()
         }
-        Log.d("edit fund screen", fundId.toString())
     }
-//    LaunchedEffect(transByFund){
-        Log.d("LaunchedEffect(transByFund)", transByFund.toString())
         if (transByFund != null) {
             var sum = 0.0
             transByFund.forEach { trans ->
@@ -121,16 +115,8 @@ fun EditFundScreen(
             }
             homeViewModel.setExpense(sum)
         }
-//    }
 
-//    val childCheckedStates = remember { mutableStateListOf<Boolean>() }
-//    childCheckedStates.addAll(List(allParticipant.size) { false })
-//    val parentState = when {
-//        childCheckedStates.all { it } -> ToggleableState.On
-//        childCheckedStates.none { it } -> ToggleableState.Off
-//        else -> ToggleableState.Indeterminate
-//    }
-//    val fundContent: @Composable () -> Unit = {}
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -148,11 +134,8 @@ fun EditFundScreen(
                     snackbarHostState = snackbarHostState,
                     onChange = {
                         homeViewModel.setFundName(it)
-                        Log.d("onChange", it)
-                        Log.d("onChange fund name", homeViewModel.fundName.value)
                     },
                     onSave = {
-                        Log.d("fundNameFieldValue", fundNameFieldValue.text)
                         if (fundNameFieldValue.text.isEmpty()) {
                             // Hiển thị Snackbar thông báo lỗi
                             coroutineScope.launch {
@@ -162,7 +145,6 @@ fun EditFundScreen(
                             coroutineScope.launch {
                                 homeViewModel.apply {
                                     updateFundById(fundId, fundName.value, 1)
-                                    Log.d("fundNameFieldValue", fundNameFieldValue.text)
                                     navController.navigateUp()
                                     navController.navigate("${Route.EditFundScreen.route}/${fundById!!.fundId}")
                                 }
@@ -362,7 +344,6 @@ fun TransactionContent(
             top = 5.dp
         )
     ) {
-        Log.d("transByFund Trans", transByFund.toString())
         if(transByFund.isEmpty()) {
             Box(
                 modifier = Modifier
@@ -383,10 +364,8 @@ fun TransactionContent(
 
                     )
             }
-            Log.d("transByFund null", "ok")
 
         } else{
-            Log.d("transByFund not null", "ok")
             LazyColumn(
                 contentPadding = PaddingValues(
                     start = 5.dp,
@@ -403,7 +382,6 @@ fun TransactionContent(
 //                    )
 //
 //                }
-                Log.d("test ParticipantDetail", transWithPar.toString())
 
                 itemsIndexed(transWithPar) { index, (trans, participant) ->
 
@@ -411,9 +389,7 @@ fun TransactionContent(
 //                        homeViewModel.getParById(trans.participantId)
 //                    }
                     val category = getCategory(trans.category)
-                    Log.d("test Transaction", trans.toString()
 
-                    )
                     TransItem(
                         transaction = trans,
                         category = category,

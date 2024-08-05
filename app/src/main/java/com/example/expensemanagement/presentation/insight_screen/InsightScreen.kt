@@ -52,7 +52,6 @@ fun InsightScreen(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Log.d("InsightScreen Test", " ok")
         LazyColumn {
             item {
                 Row(
@@ -75,22 +74,7 @@ fun InsightScreen(
                 }
 
             }
-//            itemsIndexed(funds) { index, fund ->
 //
-//                val fundAmount = remember { mutableStateOf(0.0) }
-//                fundAndExpense.forEach { (fund2, expense) ->
-//                    if (fund2.fundId == fund.fundId) {
-//                        fundAmount.value = expense
-////                        insightViewModel.setFundAmount(expense) // Cập nhật giá trị tương ứng
-//                    }
-//                }
-//
-//                FundItem(fund, fundAmount.value, currency) {fundId ->
-//                    Log.d("test lazyColumn", "${fund.fundId}")
-//                    navController.navigate("${Route.ParticipantScreen.route}/$fundId")
-//                    Log.d("test Route.ParticipantScreen", "${fundId}")
-//                }
-//            }
             itemsIndexed(fundAndExpense) { index, (fund, expense) ->
 
 //                val fundAmount = remember { mutableStateOf(0.0) }
@@ -102,9 +86,7 @@ fun InsightScreen(
 //                }
 
                 FundItem(fund, expense, currency) {fundId ->
-                    Log.d("test lazyColumn", "${fund.fundId}")
                     navController.navigate("${Route.ParticipantScreen.route}/$fundId")
-                    Log.d("test Route.ParticipantScreen", "${fundId}")
                 }
             }
         }

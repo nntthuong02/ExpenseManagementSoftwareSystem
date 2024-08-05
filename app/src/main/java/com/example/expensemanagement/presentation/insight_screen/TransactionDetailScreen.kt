@@ -40,7 +40,6 @@ fun TransactionDetailScreen(
     //participantName is null
     if (participantId != null) {
         insightViewModel.getTransaction(participantId)
-        Log.d("test participantName", "$participantId")
     }
 
     Surface(
@@ -58,7 +57,6 @@ fun TransactionDetailScreen(
                     text = "Not Transaction",
                     textAlign = TextAlign.Center
                     )
-                Log.d("test transactionById", "isEmpty")
             }
 
         }
@@ -79,9 +77,7 @@ fun TransactionDetailScreen(
                 )
 
             }
-            Log.d("test ParticipantDetail", "test1")
             transactionsByParId.forEach { (date, transactionList) ->
-                Log.d("test ParticipantDetail", "test2")
                 stickyHeader {
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,

@@ -61,11 +61,9 @@ class MainActivity : ComponentActivity() {
         /*Test*/
         lifecycleScope.launch {
             appEntryUseCase.getOnboardingKeyUseCase().collect{
-                Log.d("test appEntryUseCase", it.toString())
             }
         }
 
-        Log.d("currency", currencyViewModel.countryCurrencies.value.toString())
 //        val currencies = getCurrency.invoke()
 //        currencies.forEach {
 //            Log.d("CurrencyInfo", it.toString())

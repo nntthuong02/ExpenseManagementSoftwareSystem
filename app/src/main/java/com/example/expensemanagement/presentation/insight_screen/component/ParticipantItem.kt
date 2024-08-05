@@ -55,7 +55,6 @@ fun ParticipantItem(
         var incomeTotal = 0.0
         var expenseTotal = 0.0
         transByFundAndPar.forEach {trans ->
-            Log.d("transactionType par", trans.transactionType)
             if(trans.transactionType == Constants.EXPENSE){
                 expenseTotal += trans.amount
             } else{

@@ -146,51 +146,26 @@ class TransactionViewModel @Inject constructor(
         // Load the funds (you would fetch from repository/database here)
         viewModelScope.launch(IO) {
 
-            Log.d("_fundByGroupId", _fundByGroupId.value.toString())
             val participantMap = mutableMapOf<Int, List<Participant>>()
             val listFund = getFunds()
             _fundByGroupId.value = listFund
-            Log.d("_fundByGroupId", _fundByGroupId.value.toString())
             if (_fundByGroupId.value.isNotEmpty()) {
-                Log.d("_fundByGroupId1", "notempty")
                 _fundByGroupId.value.forEach { fund ->
-                    Log.d("_fundByGroupId fund", fund.toString())
                     // Thực hiện các hành động khác
-                    Log.d("_fundByGroupId fund", fund.toString())
                     val listPar = getParByFund(fund.fundId)
                     _participantList.value = listPar
                     participantMap[fund.fundId] = _participantList.value
-                    Log.d("participantMap1", participantMap.toString())
                 }
             } else {
-                Log.d("_fundByGroupId", "Danh sách quỹ rỗng")
             }
-//            _fundByGroupId.value.forEach { fund ->
-//                Log.d("_fundByGroupId fund", fund.toString())
-//                getParByFund(fund.fundId)
-//                participantMap[fund.fundId] = _participantList.value
-//                Log.d("participantMap1", participantMap.toString())
-//            }
-            Log.d("participantMap2", participantMap.toString())
             _participantByFundId.value = participantMap
-            Log.d("_participantByFundId", _participantByFundId.value.toString())
         }
         viewModelScope.launch {
             getAllTransactions().collect {
-                Log.d("GetAllTransaction", it.toString())
             }
         }
     }
 
-//    suspend fun getFundByGroup(): List<Fund> {
-//        viewModelScope.launch(IO) {
-//            val listFundDto = getFundByGroupId(1).firstOrNull() ?: emptyList()
-//            _fundByGroupId.value = listFundDto.map {
-//                it.toFund()
-//            }
-//        }
-//        return _fundByGroupId.value
-//    }
 suspend fun getFunds(): List<Fund> {
     return withContext(IO) {
         val listFundDto = getFundByGroupId(1).firstOrNull() ?: emptyList()
@@ -203,13 +178,6 @@ suspend fun getFunds(): List<Fund> {
             val listParDto = getParticipantByFundId(fundId).firstOrNull()?: emptyList()
             listParDto.map { it.toParticipant() }
         }
-//        viewModelScope.launch(IO){
-//            getParticipantByFundId(fundId).collect{listParDto ->
-//                _participantList.value = listParDto.map {parDto ->
-//                    parDto.toParticipant()
-//                }
-//            }
-//        }
     }
 
     fun selectTabButton(button: TabButton) {
@@ -283,9 +251,6 @@ suspend fun getFunds(): List<Fund> {
         }
     }
 
-    //    fun fetchFundById(fundId: Int){
-//
-//    }
     fun addNewTransaction(
 //        transactionId: Int,
         selectedDate: Date,

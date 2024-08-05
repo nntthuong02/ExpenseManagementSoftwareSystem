@@ -101,7 +101,6 @@ class PaymentViewModel @Inject constructor(
     init {
 
 
-        Log.d("init PVM", _expenseByFund.value.toString())
 
         viewModelScope.launch(IO) {
             getFundByGroupId(1).collect { listFundDto ->
@@ -121,69 +120,17 @@ class PaymentViewModel @Inject constructor(
                     val fundExpenses = fundExpensesDeferred.awaitAll()
 
                     _fundAndExpense.value = fundExpenses
-                    Log.d("_fundAndExpense", _fundAndExpense.toString())
                 }
             }
         }
 
-
-//        viewModelScope.launch(IO) {
-//
-//            getFundByGroupId(1).collect {
-//                it?.let { listFundDto ->
-//                    Log.d("listFundDto", listFundDto.toString())
-//                    val listFund = listFundDto.map {
-//                        it.toFund()
-//                    }
-//                    var i = 0
-//                    val fundExpensesDeferred = listFund.map { fund ->
-//                        i++
-//                        Log.d("i++", i.toString())
-//                        Log.d("PVM fund2", fund.toString())
-//                        val expense: Deferred<Double> = async { getExpenseByFund(fund.fundId) }
-//                        Log.d("PVM expensefund2", expense.await().toString())
-//                        fund to expense.await()
-//                    }
-//
-//                    _fundAndExpense.value = fundExpensesDeferred
-//                    Log.d("_fundAndExpense", _fundAndExpense.toString())
-//                }
-//            }
-//        }
-//        viewModelScope.launch(IO) {
-//            val participants = getAllParticipants().first()
-//
-//            val participantExpenses = participants.map { participant ->
-//                async {
-//                    val fundExpenses = mutableListOf<Double>()
-//                    getFundByPar(participant.participantId).collect { funds ->
-//                        funds?.forEach { fund ->
-//                            val countDeferred = async { countParsInFund(fund.fundId) }
-//                            val expenseDeferred = async { getExpenseByFund(fund.fundId) }
-//                            val count = countDeferred.await()
-//                            val expense = expenseDeferred.await()
-//                            fundExpenses.add(expense / count)
-//                        }
-//                    }
-//                    fundExpenses.sum()
-//                }
-//            }
-//
-//            val results = participantExpenses.awaitAll().zip(participants) { expense, participant ->
-//                participant.toParticipant() to expense
-//            }
-//
-//            _parAndExpense.value = results
-//        }
 
         viewModelScope.launch(IO) {
             val listPar = getAllParticipants().first().map { it.toParticipant() }
                 .sortedWith { par1, par2 ->
                     collator.compare(par1.participantName, par2.participantName)
                 }
-            Log.d("listPar", listPar.toString())
 
-//            var expensePar = 0.0
             val participantExpenses = listPar.map { participant ->
                 async {
                     val expenseParDeferred: Deferred<Double> = async { getExpenseByPar(participant.participantId) }
@@ -197,8 +144,6 @@ class PaymentViewModel @Inject constructor(
                             fundExpenses.add(expense / count)
 
                     }
-                    Log.d("expenseParDeferred", expenseParDeferred.toString())
-                    Log.d("fundExpenses", fundExpenses.toString())
                     fundExpenses.sum() - expenseParDeferred.await()
 
                 }
@@ -207,60 +152,7 @@ class PaymentViewModel @Inject constructor(
                 participant to expense
             }
             _parAndExpense.value = results
-            Log.d("_parAndExpense", _parAndExpense.toString())
         }
-
-//
-//        viewModelScope.launch(IO) {
-////            getAllParticipants().first()
-//            getAllParticipants().collect {
-//                it?.let { listParDto ->
-//                    val listPar = listParDto.map {
-//                        it.toParticipant()
-//                    }
-//                    Log.d("PVM listPar", listPar.toString())
-//                    val pair = listPar.map { par ->
-//                        Log.d("PVM par", par.toString())
-//                        var expense = 0.0
-//                        var amountFund = 0.0
-//                        getFundByPar(par.participantId).collect { listFundDto ->
-//                            Log.d("listFundDto.isNotEmpty()", listFundDto.toString())
-//                            if (listFundDto.isNotEmpty()) {
-//                                Log.d("listFundDto.isNotEmpty()", "ok")
-//                                listFundDto.forEach { fundDto ->
-//                                    val count = countParsInFund(fundDto.fundId)
-//                                    Log.d("listFundDto.isNotEmpty()1", count.toString())
-//                                    val expenseFund = getExpenseByFund(fundDto.fundId)
-//                                    Log.d("listFundDto.isNotEmpty()2", expenseFund.toString())
-//                                    if (expenseFund != null && count != null) {
-//                                        amountFund += (expenseFund / count)
-//                                    }
-//
-//                                    Log.d("listFundDto.isNotEmpty()3", amountFund.toString())
-//                                }
-//                                Log.d("PVM2", "ok")
-//                            }
-//                            Log.d("PVM3", "ok")
-//                        }
-//                        Log.d("PVM4", "ok")
-//                        Log.d("PVM expensepar", expense.toString())
-//                        Log.d("PVM amountfund", amountFund.toString())
-//                        val amountPar = getExpenseByPar(par.participantId)
-//                        expense = amountFund - amountPar
-//                        par to expense
-//                    }
-//                    _parAndAmount.value = pair
-//                }
-//            }
-//        }
-
-//        viewModelScope.launch(IO) {
-//            Log.d("getExpenseByFundtest", getExpenseByFund(1).toString())
-//            getFundByPar(1).collect{
-//                Log.d("getFundByPar", it.toString())
-//            }
-//
-//        }
 
     }
 
@@ -297,7 +189,6 @@ class PaymentViewModel @Inject constructor(
             _transactionsByDate.value = result
 
             // In ra kết quả để kiểm tra
-            Log.d("getPaidTransactionCountsByDate", result.toString())
         }
     }
     }
@@ -323,18 +214,12 @@ class PaymentViewModel @Inject constructor(
         var totalExpense = 0.0
         val listTrans = getTransByFund(fundId).first()
         listTrans.let { listTransDto ->
-            Log.d("listTransDto", listTransDto.toString())
             listTransDto.forEach { trans ->
                 if (trans.transactionType == Constants.EXPENSE) {
-                    Log.d("Constants.EXPENSE", Constants.EXPENSE)
-                    Log.d("trans.transactionType", trans.transactionType)
                     totalExpense += trans.amount
-                    Log.d("getTransByFund PVM", totalExpense.toString())
                 }
             }
         }
-        Log.d("getTransByFund PVM2", totalExpense.toString())
-        Log.d("getExpenseByFund2", totalExpense.toString())
         return totalExpense
     }
 
@@ -342,7 +227,6 @@ class PaymentViewModel @Inject constructor(
         var totalExpense = 0.0
         val listTrans = getTransactionByParticipant(parId).first()
         listTrans.let { listTransDto ->
-            Log.d("listTransDto", listTransDto.toString())
             listTransDto.forEach { trans ->
                 if (trans.transactionType == Constants.EXPENSE) {
                     totalExpense += trans.amount
@@ -355,11 +239,6 @@ class PaymentViewModel @Inject constructor(
     suspend fun countParsInFund(fundId: Int): Int {
 //        var count = 0
         val listParDto = getParticipantByFundId(fundId).first()
-//        listParDto.forEach { parDto ->
-//
-//            count++
-//
-//        }
         return listParDto.size
     }
 

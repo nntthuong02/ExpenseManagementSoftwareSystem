@@ -42,15 +42,10 @@ fun TabTransactionType(
     LaunchedEffect(transactionId) {
         if (transactionId != 0) {
             insightViewModel.getTransById(transactionId)
-            Log.d("transactionId transactionType", transactionId.toString())
-            Log.d("transactionById transactionType", transactionById.toString())
             transactionById?.let { trans ->
-                Log.d("transactionById let", trans.transactionType)
                 if (trans.transactionType == Constants.INCOME) {
-                    Log.d("transactionType transactionType", trans.transactionType)
                     transactionViewModel.selectTabButton(TabButton.INCOME)
                 } else {
-                    Log.d("transactionType transactionType", trans.transactionType)
                     transactionViewModel.selectTabButton(TabButton.EXPENSE)
                 }
             }
@@ -76,7 +71,6 @@ fun TabTransactionType(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-//            Log.d("TabButton", "ok")
             tabs.forEach { tab ->
                 val backgroundColor by animateColorAsState(
                     if (selectedTab == tab) {

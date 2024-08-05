@@ -36,7 +36,6 @@ class CurrencyViewModel @Inject constructor(
 
     init {
         countryCurrencies.value = getCurrency().groupBy { it.country[0] }
-        Log.d("test currency", countryCurrencies.value.toString())
     }
 
     fun saveOnboardingState(completed: Boolean) {

@@ -91,7 +91,6 @@ fun EditTransactionScreen(
     val funds by transactionViewModel.fundByGroupId.collectAsState()
     val participantByFundId by transactionViewModel.participantByFundId.collectAsState()
     val listFund by transactionViewModel.fundByGroupId.collectAsState()
-    Log.d("TransactionScreen", "ok")
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val selectedDate by transactionViewModel.selectedDate.collectAsState()
@@ -106,20 +105,6 @@ fun EditTransactionScreen(
     val openAlertDialog = remember { mutableStateOf(false) }
 
     var initialDate = remember { Date() }
-//    var initialCategory = remember { String() }
-    Log.d("test FundId", fundId.toString())
-//    if (transactionId != null) {
-//        insightViewModel.getTransById(transactionId)
-//        Log.d("test participantName", "$transactionId")
-//
-//    }
-//    selectedDate = transactionById.date
-//    LaunchedEffect(transactionId){
-//        if(transactionId == null){
-//            navController.navigate(Route.InsightScreen.route)
-//        }
-//    }
-
 
 
         val initialCategory by remember {
@@ -129,32 +114,9 @@ fun EditTransactionScreen(
         LaunchedEffect(transactionId, fundId) {
             insightViewModel.getTransById(transactionId)
             insightViewModel.getFundByFundId(fundId)
-            Log.d("transactionId", transactionId.toString())
-            Log.d("transactionById", transactionById.toString())
         }
 
-//    transactionById?.let { trans ->
-//        Log.d("test EditTrans", trans.toString())
-//        initialTitle = trans.title
-//        //tai sao transactionType khong doi duoc, con category doi duoc
-//        //do khac biet vi category khai bao isSelected ?
-//        if(trans.transactionType == Constants.INCOME){
-//            transactionViewModel.selectTabButton(TabButton.INCOME)
-//        } else{
-//            transactionViewModel.selectTabButton(TabButton.EXPENSE)
-//        }
-//        transactionViewModel.setTransactionTitle(trans.title)
-//        transactionViewModel.setTransaction(trans.amount.toString())
-//        val category = Category.fromTitle(trans.category)
-//        category?.let {
-//            transactionViewModel.selectCategory(it)
-//        }
-//        selectedFund = fundById
-//        insightViewModel.getParById(trans.participantId)
-//        selectedPar = parById
-//    }
         transactionById?.let { trans ->
-            Log.d("test EditTrans", trans.toString())
             initialTitle = trans.title
             LaunchedEffect(initialTitle) {
                 transactionViewModel.setTransactionTitle(initialTitle)
@@ -288,7 +250,6 @@ fun EditTransactionScreen(
                     )
                 )
                 //Set Transaction title
-                Log.d("Test TransactionType", "$selectedTransaction")
                 Spacer(modifier = Modifier.padding(5.dp))
                 Divider(
                     modifier = Modifier
@@ -305,16 +266,12 @@ fun EditTransactionScreen(
                         selectedFund = fund
                     })
                 Spacer(modifier = Modifier.padding(5.dp))
-                Log.d("testParDropdownMenu1", "ok")
                 Text(text = "Participant Name: ")
                 participantByFundId.keys.forEach { key ->
-                    Log.d("testParDropdownMenu2", "ok")
                     if (key == selectedFund?.fundId) {
                         val participants = participantByFundId[key]
-                        Log.d("testParDropdownMenu2.2", participants.toString())
                         if (participants != null) {
 //                            participants.forEach { participant ->
-                                Log.d("testParDropdownMenu2.2", "ok")
                                 ParDropdownMenu(onParSelected = {
                                     selectedPar = it
                                 },
@@ -324,7 +281,6 @@ fun EditTransactionScreen(
                         }
                     }
                 }
-                Log.d("testParDropdownMenu3", "ok")
                 Text(
                     text = if (selectedTransaction == TabButton.INCOME) {
                         "This is an Income: "
@@ -342,9 +298,7 @@ fun EditTransactionScreen(
                 TextField(
                     value = transactionFieldValue.text,
                     onValueChange = { field ->
-                        Log.d("Test", "field ok")
                         transactionViewModel.setTransaction(field)
-                        Log.d("test", "setTransaction Ok")
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -381,7 +335,6 @@ fun EditTransactionScreen(
                 Category()
             }
             SnackbarHost(hostState = snackbarHostState)
-            Log.d("test selectedPar", selectedPar.toString())
 //        Button(onClick = { transactionViewModel.createEntity()}) {
 //        Text(text = "create")
 //        }
@@ -402,7 +355,6 @@ fun EditTransactionScreen(
                         } else {
                             transactionViewModel.apply {
                                 setCurrentTime(Calendar.getInstance().time)
-                                Log.d("Test transactionType", "$selectedTransaction")
 
                                 if (selectedTransaction == TabButton.INCOME) {
                                     updateTransactionById(
@@ -416,12 +368,10 @@ fun EditTransactionScreen(
                                         selectedFund?.fundId ?: 0,
                                         fundId
                                     ) {
-                                        Log.d("test income transaction", "income success")
 //                                        navController.navigateUp()
 //                                        navController.navigate("${Route.InsightScreen.route}")
                                     }
                                 } else {
-                                    Log.d("selectedFund", "selectedFund?.totalAmount.toString()")
                                     if (selectedFund != null) {
                                         funds.forEach { fund ->
                                             if (fund.fundId == selectedFund!!.fundId) {
@@ -444,7 +394,6 @@ fun EditTransactionScreen(
                                         selectedFund?.fundId ?: 0,
                                         fundId
                                     ) {
-                                        Log.d("test expense transaction", "expense success")
 //                                        navController.navigateUp()
 //                                        navController.navigate("${Route.InsightScreen.route}")
                                     }
