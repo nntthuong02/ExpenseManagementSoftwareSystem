@@ -22,12 +22,14 @@ import com.example.expensemanagement.presentation.transaction_screen.Transaction
 
 @Composable
 fun FundDropdownMenu(
+    funds: List<Fund>,
     onFundSelected: (Fund) -> Unit,
+
     transactionViewModel: TransactionViewModel = hiltViewModel()
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedFund by remember { mutableStateOf<Fund?>(null) }
-    val funds by transactionViewModel.fundByGroupId.collectAsState()
+//    val funds by transactionViewModel.fundByGroupId.collectAsState()
     LaunchedEffect(funds) {
         if (funds.isNotEmpty()) {
             selectedFund = funds.first() // Chọn Fund đầu tiên làm mặc định
@@ -63,5 +65,8 @@ fun FundDropdownMenu(
 @Preview(showSystemUi = true)
 @Composable
 fun FundDropMenuPreview(){
-    FundDropdownMenu(onFundSelected = {})
+    val listFund = listOf(
+        Fund(1, "QUy", 1)
+    )
+    FundDropdownMenu(funds = listFund, onFundSelected = {})
 }

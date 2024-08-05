@@ -42,6 +42,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
@@ -70,9 +71,10 @@ class TransactionViewModel @Inject constructor(
     private val getTransactionById: GetTransactionById,
     private val getParFundByParAndFund: GetParFundByParAndFund
 
-): ViewModel(){
+) : ViewModel() {
     var tabButton = MutableStateFlow(TabButton.EXPENSE)
         private set
+
     //chỉnh sửa biến thành List<FundDto>(hoac nguoc lai) và sửa các hàm dùng biến này
     //Giảm bớt biến không cần thiết
     private val _fundByGroupId = MutableStateFlow<List<Fund>>(emptyList())
@@ -84,8 +86,6 @@ class TransactionViewModel @Inject constructor(
 
     private val _participantByFundId = MutableStateFlow<Map<Int, List<Participant>>>(emptyMap())
     val participantByFundId: StateFlow<Map<Int, List<Participant>>> = _participantByFundId
-
-
 
 
     //
@@ -101,6 +101,12 @@ class TransactionViewModel @Inject constructor(
 
     var selectedParticipant = MutableStateFlow<Participant?>(null)
         private set
+
+    //
+    var selectedFund = MutableStateFlow<Fund?>(null)
+        private set
+
+    //
     var category = MutableStateFlow(Category.FOOD_DRINK)
         private set
     var transactionTitle = MutableStateFlow(String())
@@ -111,6 +117,7 @@ class TransactionViewModel @Inject constructor(
         private set
     var selectedFundId = MutableStateFlow(1)
         private set
+
     var currentTime = MutableStateFlow(Calendar.getInstance().time)
         private set
     var formattedDate = MutableStateFlow(String())
@@ -121,72 +128,123 @@ class TransactionViewModel @Inject constructor(
         private set
     var selectedDate = MutableStateFlow(Date())
         private set
-    fun selectDate(date: Date){
+
+    fun selectDate(date: Date) {
         selectedDate.value = date
     }
-    fun convertDate(date : Date) : String{
+
+    fun convertDate(date: Date): String {
         return SimpleDateFormat("yyyy-MM-dd").format(date)
     }
+
     init {
 //        val currentDate = getDateUseCase()
 //        formattedDate.value = getFormattedDateUseCase(currentTime.value)
 //        date.value = currentDate
         fetchSelectedCurrency()
+
         // Load the funds (you would fetch from repository/database here)
         viewModelScope.launch(IO) {
-            getFundByGroupId(1).collect { listFundDto ->
-                _fundByGroupIdDto.value = listFundDto
-                val funds = listFundDto?.map { fundDto ->
-                    fundDto.toFund()
-                } ?: emptyList()
-                _fundByGroupId.value = funds
-                Log.d("_fundByGroupId", _fundByGroupId.value.toString())
 
+            Log.d("_fundByGroupId", _fundByGroupId.value.toString())
+            val participantMap = mutableMapOf<Int, List<Participant>>()
+            val listFund = getFunds()
+            _fundByGroupId.value = listFund
+            Log.d("_fundByGroupId", _fundByGroupId.value.toString())
+            if (_fundByGroupId.value.isNotEmpty()) {
+                Log.d("_fundByGroupId1", "notempty")
                 _fundByGroupId.value.forEach { fund ->
-                    val participantMap = mutableMapOf<Int, List<Participant>>()
-                    getParticipantByFundId(fund.fundId).collect { listParDto ->
-                        val participants = listParDto?.map { parDto ->
-                            parDto.toParticipant()
-                        } ?: emptyList()
-                        _participantList.value = participants
-                        participantMap[fund.fundId] = participants
-                        _participantByFundId.value = participantMap
-                        Log.d("_fundByGroupId", _participantByFundId.value.toString())
-//                        val participant = participantMap[fund.fundId] ?: emptyList()
-//                        initialParticipantName.value = participant.firstOrNull()?.participantName?: ""
-                    }
+                    Log.d("_fundByGroupId fund", fund.toString())
+                    // Thực hiện các hành động khác
+                    Log.d("_fundByGroupId fund", fund.toString())
+                    val listPar = getParByFund(fund.fundId)
+                    _participantList.value = listPar
+                    participantMap[fund.fundId] = _participantList.value
+                    Log.d("participantMap1", participantMap.toString())
                 }
+            } else {
+                Log.d("_fundByGroupId", "Danh sách quỹ rỗng")
             }
+//            _fundByGroupId.value.forEach { fund ->
+//                Log.d("_fundByGroupId fund", fund.toString())
+//                getParByFund(fund.fundId)
+//                participantMap[fund.fundId] = _participantList.value
+//                Log.d("participantMap1", participantMap.toString())
+//            }
+            Log.d("participantMap2", participantMap.toString())
+            _participantByFundId.value = participantMap
+            Log.d("_participantByFundId", _participantByFundId.value.toString())
         }
         viewModelScope.launch {
-            getAllTransactions().collect{
+            getAllTransactions().collect {
                 Log.d("GetAllTransaction", it.toString())
             }
         }
     }
 
+//    suspend fun getFundByGroup(): List<Fund> {
+//        viewModelScope.launch(IO) {
+//            val listFundDto = getFundByGroupId(1).firstOrNull() ?: emptyList()
+//            _fundByGroupId.value = listFundDto.map {
+//                it.toFund()
+//            }
+//        }
+//        return _fundByGroupId.value
+//    }
+suspend fun getFunds(): List<Fund> {
+    return withContext(IO) {
+        val listFundDto = getFundByGroupId(1).firstOrNull() ?: emptyList()
+        listFundDto.map { it.toFund() }
+    }
+}
+
+    suspend fun getParByFund(fundId: Int): List<Participant>{
+        return withContext(IO){
+            val listParDto = getParticipantByFundId(fundId).firstOrNull()?: emptyList()
+            listParDto.map { it.toParticipant() }
+        }
+//        viewModelScope.launch(IO){
+//            getParticipantByFundId(fundId).collect{listParDto ->
+//                _participantList.value = listParDto.map {parDto ->
+//                    parDto.toParticipant()
+//                }
+//            }
+//        }
+    }
+
     fun selectTabButton(button: TabButton) {
         tabButton.value = button
     }
+
     fun selectParticipant(participant: Participant) {
         selectedParticipant.value = participant
     }
+
+    fun selectFund(fund: Fund) {
+        selectedFund.value = fund
+    }
+
     fun selectCategory(category: Category) {
         this.category.value = category
     }
+
     fun setTransactionTitle(title: String) {
         transactionTitle.value = title
     }
+
     fun setTransaction(amount: String) {
         transactionAmount.value = amount
     }
-    fun setFundId(fundId: Int){
+
+    fun setFundId(fundId: Int) {
         selectedFundId.value = fundId
     }
+
     fun setCurrentTime(time: Date) {
         currentTime.value = time
     }
-    fun setIsPaid(isPaid: Boolean){
+
+    fun setIsPaid(isPaid: Boolean) {
         isPaidT.value = isPaid
     }
 
@@ -197,6 +255,7 @@ class TransactionViewModel @Inject constructor(
             }
         }
     }
+
     fun Transaction.toTransactionDto(): TransactionDto = TransactionDto(
         transactionId = 0,
         date = date,
@@ -209,11 +268,12 @@ class TransactionViewModel @Inject constructor(
         isPaid = isPaid,
         fundId = fundId
     )
+
     fun updateExpenseFund(
         fundId: Int,
         fundName: String,
-    ){
-        viewModelScope.launch(IO){
+    ) {
+        viewModelScope.launch(IO) {
             val updateFund = FundDto(
                 fundId,
                 fundName,
@@ -222,7 +282,8 @@ class TransactionViewModel @Inject constructor(
             updateFund(updateFund)
         }
     }
-//    fun fetchFundById(fundId: Int){
+
+    //    fun fetchFundById(fundId: Int){
 //
 //    }
     fun addNewTransaction(
@@ -274,6 +335,7 @@ class TransactionViewModel @Inject constructor(
 //            }
         }
     }
+
     fun updateTransactionById(
         transactionId: Int,
         selectedDate: Date,
@@ -298,18 +360,28 @@ class TransactionViewModel @Inject constructor(
                 selectedFundId
             )
             updateParFund(parFundUpdate)
-            updateTransactionDetails(transactionId, transactionTitle, selectedDate, amount, category, transactionType, selectedParId, selectedFundId)
+            updateTransactionDetails(
+                transactionId,
+                transactionTitle,
+                selectedDate,
+                amount,
+                category,
+                transactionType,
+                selectedParId,
+                selectedFundId
+            )
 //            withContext(Main) {
 //                navigateBack()
 //            }
         }
     }
+
     fun createEntity() {
         viewModelScope.launch(IO) {
             insertNewGroup.invoke(GroupDto(1, "My Group"))
             insertNewFund.invoke(FundDto(1, "My Fund", 1))
             insertNewParticipant.invoke((ParticipantDto(1, "I")))
-            insertNewParticipantFund.invoke(ParticipantFundDto(1, 1,1))
+            insertNewParticipantFund.invoke(ParticipantFundDto(1, 1, 1))
         }
     }
 }

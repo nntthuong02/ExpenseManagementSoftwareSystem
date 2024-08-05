@@ -42,23 +42,12 @@ import com.example.expensemanagement.ui.theme.Adonis
 @Composable
 fun FundItem(
     fund: Fund,
+    fundAmount: Double,
     currency: String,
-    insightViewModel: InsightViewModel = hiltViewModel(),
+//    insightViewModel: InsightViewModel = hiltViewModel(),
     onItemClick: (Int) -> Unit,
 ) {
-    val transByFund by insightViewModel.transByFund.collectAsState()
-    val fundAmount by insightViewModel.fundAmount.collectAsState()
-    LaunchedEffect(fund.fundId) {
-        insightViewModel.getTransactionByFund(fund.fundId)
-        var sum = 0.0
-        transByFund.forEach { trans ->
-            if (trans.transactionType == Constants.EXPENSE) {
-                sum += trans.amount
-                Log.d("FundItem", trans.transactionType)
-            }
-        }
-        insightViewModel.setFundAmount(sum)
-    }
+
     Card(
         onClick = {
             onItemClick(fund.fundId)
@@ -150,5 +139,5 @@ fun FundItem(
 @Composable
 fun FundItemPreview(){
     val myFund = Fund(1, "Thuong", 1)
-    FundItem(fund = myFund, currency = "VND", onItemClick = {})
+    FundItem(fund = myFund, 1.0, currency = "VND", onItemClick = {})
 }

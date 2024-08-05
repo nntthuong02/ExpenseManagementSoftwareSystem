@@ -94,7 +94,10 @@ interface DatabaseDao {
 
     //Fund
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertFund(fund: FundDto)
+    suspend fun insertFund(fund: FundDto): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertFundGetId(fund: FundDto): Long
 
     @Query("SELECT * FROM FUND_TABLE")
     fun getAllFunds(): Flow<List<FundDto>>
@@ -104,6 +107,12 @@ interface DatabaseDao {
 
     @Query("SELECT * FROM FUND_TABLE WHERE FUND_TABLE.groupId = :groupId ")
     fun getFundByGroupId(groupId: Int): Flow<List<FundDto>>
+
+    @Query("SELECT F._id, F.fundName, F.groupId " +
+            "FROM FUND_TABLE AS F " +
+            "INNER JOIN PARTICIPANTFUND_TABLE AS PF ON PF.fundId = F._ID " +
+            "WHERE PF.participantId = :parId")
+    fun getFundByPar(parId: Int): Flow<List<FundDto>>
 
     @Update
     suspend fun updateFund(fund: FundDto)

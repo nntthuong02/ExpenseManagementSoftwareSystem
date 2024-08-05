@@ -32,7 +32,8 @@ import androidx.compose.ui.unit.sp
 fun DetailEntityItem(
     name: String,
     numberTransaction: Int,
-    expense: Double,
+    amount: Double,
+    amountType: String,
     itemOnClick: () -> Unit,
     backgroundColor: Color,
     surfaceColor: Color
@@ -86,7 +87,7 @@ fun DetailEntityItem(
                             withStyle(
                                 SpanStyle(
                                     fontWeight = FontWeight.Thin,
-                                    fontSize = 10.sp,
+                                    fontSize = 14.sp,
                                     letterSpacing = 0.4.sp,
                                     color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary)
                                 )
@@ -109,12 +110,12 @@ fun DetailEntityItem(
                             withStyle(
                                 SpanStyle(
                                     fontWeight = FontWeight.Thin,
-                                    fontSize = 10.sp,
+                                    fontSize = 14.sp,
                                     letterSpacing = 0.4.sp,
                                     color = Color.Red
                                 )
                             ) {
-                                append("EXPENSE:  ")
+                                append(amountType)
                             }
                             withStyle(
                                 SpanStyle(
@@ -124,7 +125,7 @@ fun DetailEntityItem(
                                     color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary)
                                 )
                             ) {
-                                append(expense.toString())
+                                append(amount.toString())
                             }
                         })
                     }
@@ -140,9 +141,10 @@ fun DetailEntityPreview() {
     DetailEntityItem(
         name = "My Fund",
         numberTransaction = 1,
-        expense = 1.0,
+        amount = 1.0,
         itemOnClick = { /*TODO*/ },
         backgroundColor = Color.DarkGray.copy(alpha = 0.1f),
+        amountType = "Expense",
         surfaceColor = Color.Green
     )
 }

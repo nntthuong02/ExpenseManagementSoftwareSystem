@@ -175,8 +175,16 @@ fun EditFundScreen(
                             listChecked[index]
                         }
                         coroutineScope.launch{
-                            homeViewModel.addParticipantToFund(selectedParticipants, fundId)
-                            Toast.makeText(context, "save participant successfully", Toast.LENGTH_SHORT).show()
+                            if(selectedParticipants.isEmpty()){
+                                snackbarHostState.showSnackbar("You must select at least one participant")
+                            } else {
+                                homeViewModel.addParticipantToFund(selectedParticipants, fundId)
+                                Toast.makeText(
+                                    context,
+                                    "save participant successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
 
                     },

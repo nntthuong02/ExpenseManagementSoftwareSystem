@@ -90,6 +90,7 @@ fun EditTransactionScreen(
     var selectedPar by remember { mutableStateOf<Participant?>(null) }
     val funds by transactionViewModel.fundByGroupId.collectAsState()
     val participantByFundId by transactionViewModel.participantByFundId.collectAsState()
+    val listFund by transactionViewModel.fundByGroupId.collectAsState()
     Log.d("TransactionScreen", "ok")
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -299,6 +300,7 @@ fun EditTransactionScreen(
                 Spacer(modifier = Modifier.padding(5.dp))
                 Text(text = "Fund Name: ")
                 FundDropdownMenu(
+                    funds = listFund,
                     onFundSelected = { fund ->
                         selectedFund = fund
                     })
@@ -394,6 +396,7 @@ fun EditTransactionScreen(
                         if (titleFieldValue.text.isEmpty() || transactionFieldValue.text.isEmpty()) {
                             // Hiển thị Snackbar thông báo lỗi
                             coroutineScope.launch {
+
                                 snackbarHostState.showSnackbar("Please enter both title and amount")
                             }
                         } else {

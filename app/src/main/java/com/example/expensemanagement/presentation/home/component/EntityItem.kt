@@ -90,7 +90,7 @@ fun EntityItem(
                             withStyle(
                                 SpanStyle(
                                     fontWeight = FontWeight.Thin,
-                                    fontSize = 10.sp,
+                                    fontSize = 16.sp,
                                     letterSpacing = 0.4.sp,
                                     color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary)
                                 )
@@ -100,7 +100,7 @@ fun EntityItem(
                             withStyle(
                                 SpanStyle(
                                     fontWeight = FontWeight.Thin,
-                                    fontSize = 14.sp,
+                                    fontSize = 18.sp,
                                     letterSpacing = 0.2.sp,
                                     color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary)
                                 )

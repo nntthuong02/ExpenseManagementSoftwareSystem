@@ -75,9 +75,9 @@ fun HomeScreen(
     var initialGroupName = remember { String() }
     LaunchedEffect(Unit){
         coroutineScope {
-            launch {
-                homeViewModel.getGroupByGroupId()
-            }
+//            launch {
+//                homeViewModel.getGroupByGroupId()
+//            }
             launch {
                 homeViewModel.getFundByGroup()
             }
@@ -125,7 +125,7 @@ fun HomeScreen(
         //List participant
         EntityItem(
             nameEntity = "Participant",
-            number = fundsByGroup.size.toString(),
+            number = allPar.size.toString(),
             itemOnClick = {
                           navController.navigate(Route.ListParticipantScreen.route)
                           },

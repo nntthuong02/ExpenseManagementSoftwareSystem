@@ -85,10 +85,13 @@ fun TransactionScreen(
 //    val titleFieldValue = remember { mutableStateOf(TextFieldValue(title)) }
     val transaction by remember { mutableStateOf(transactionViewModel.transactionAmount) }
     val transactionFieldValue = TextFieldValue(transaction.collectAsState().value)
-    var selectedFund by remember { mutableStateOf<Fund?>(null) }
-    var selectedPar by remember { mutableStateOf<Participant?>(null) }
+//    var selectedFund by remember { mutableStateOf<Fund?>(null) }
+//    var selectedPar by remember { mutableStateOf<Participant?>(null) }
+    val selectedFund by transactionViewModel.selectedFund.collectAsState()
+    val selectedPar by transactionViewModel.selectedParticipant.collectAsState()
     val funds by transactionViewModel.fundByGroupId.collectAsState()
     val participantByFundId by transactionViewModel.participantByFundId.collectAsState()
+    val listFund by transactionViewModel.fundByGroupId.collectAsState()
     Log.d("TransactionScreen", "ok")
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -174,22 +177,25 @@ fun TransactionScreen(
             Spacer(modifier = Modifier.padding(5.dp))
             Text(text = "Fund Name: ")
             FundDropdownMenu(
+                funds = listFund,
                 onFundSelected = { fund ->
-                    selectedFund = fund
+                    transactionViewModel.selectFund(fund)
                 })
             Spacer(modifier = Modifier.padding(5.dp))
             Log.d("testParDropdownMenu1", "ok")
             Text(text = "Participant Name: ")
             participantByFundId.keys.forEach { key ->
-                Log.d("testParDropdownMenu2", "ok")
+                Log.d("testParDropdownMenu2", key.toString())
                 if (key == selectedFund?.fundId) {
                     val participants = participantByFundId[key]
                     Log.d("testParDropdownMenu2.2", participants.toString())
                     if (participants != null) {
 //                        participants.forEach { participant ->
-                            Log.d("testParDropdownMenu2.2", "ok")
+                            Log.d("testParDropdownMenu2.3", participants.toString())
                             ParDropdownMenu(onParSelected = {
-                                selectedPar = it
+                                Log.d("testParDropdownMenu2.5", "onParSelected called with: $it")
+                                transactionViewModel.selectParticipant(it)
+                                Log.d("testParDropdownMenu2.4", selectedPar.toString())
                             },
                                 participants = participants
                                 )
@@ -260,7 +266,7 @@ fun TransactionScreen(
 //        }
         Button(
             onClick = {
-                if (titleFieldValue.text.isEmpty() || transactionFieldValue.text.isEmpty()) {
+                if (titleFieldValue.text.isEmpty() || transactionFieldValue.text.isEmpty() || selectedPar == null) {
                     // Hiển thị Snackbar thông báo lỗi
                     coroutineScope.launch {
                         snackbarHostState.showSnackbar("Please enter both title and amount")
@@ -271,6 +277,17 @@ fun TransactionScreen(
                         Log.d("Test transactionType", "$Constants.INCOME")
 
                         if (selectedTransaction == TabButton.INCOME) {
+                            if (selectedFund != null) {
+                                funds.forEach { fund ->
+                                    if (fund.fundId == selectedFund!!.fundId) {
+
+                                        updateExpenseFund(
+                                            fund.fundId,
+                                            fund.fundName
+                                        )
+                                    }
+                                }
+                            }
                             addNewTransaction(
 //                                0,
                                 selectedDate,

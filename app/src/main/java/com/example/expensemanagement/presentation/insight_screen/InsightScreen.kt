@@ -15,6 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -24,6 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.expensemanagement.common.Constants
 import com.example.expensemanagement.presentation.insight_screen.component.FundItem
 import com.example.expensemanagement.presentation.navigation.Route
 import com.example.expensemanagement.presentation.transaction_screen.TransactionViewModel
@@ -38,6 +41,12 @@ fun InsightScreen(
     val funds by insightViewModel.fundByGroup.collectAsState()
 //    val parByFundId by insightViewModel.parByFund.collectAsState()
     val currency by insightViewModel.selectedCurrencyCode.collectAsState()
+    val transByFund by insightViewModel.transByFund.collectAsState()
+//    val fundAmount by insightViewModel.fundAmount.collectAsState()
+    val fundAndExpense by insightViewModel.fundAndExpense.collectAsState()
+    LaunchedEffect(Unit) {
+
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -66,8 +75,33 @@ fun InsightScreen(
                 }
 
             }
-            itemsIndexed(funds) { index, fund ->
-                FundItem(fund, currency) {fundId ->
+//            itemsIndexed(funds) { index, fund ->
+//
+//                val fundAmount = remember { mutableStateOf(0.0) }
+//                fundAndExpense.forEach { (fund2, expense) ->
+//                    if (fund2.fundId == fund.fundId) {
+//                        fundAmount.value = expense
+////                        insightViewModel.setFundAmount(expense) // Cập nhật giá trị tương ứng
+//                    }
+//                }
+//
+//                FundItem(fund, fundAmount.value, currency) {fundId ->
+//                    Log.d("test lazyColumn", "${fund.fundId}")
+//                    navController.navigate("${Route.ParticipantScreen.route}/$fundId")
+//                    Log.d("test Route.ParticipantScreen", "${fundId}")
+//                }
+//            }
+            itemsIndexed(fundAndExpense) { index, (fund, expense) ->
+
+//                val fundAmount = remember { mutableStateOf(0.0) }
+//                fundAndExpense.forEach { (fund2, expense) ->
+//                    if (fund2.fundId == fund.fundId) {
+//                        fundAmount.value = expense
+////                        insightViewModel.setFundAmount(expense) // Cập nhật giá trị tương ứng
+//                    }
+//                }
+
+                FundItem(fund, expense, currency) {fundId ->
                     Log.d("test lazyColumn", "${fund.fundId}")
                     navController.navigate("${Route.ParticipantScreen.route}/$fundId")
                     Log.d("test Route.ParticipantScreen", "${fundId}")

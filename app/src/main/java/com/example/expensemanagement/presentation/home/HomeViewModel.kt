@@ -8,6 +8,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.expensemanagement.common.Constants
 import com.example.expensemanagement.data.local.entity.FundDto
 import com.example.expensemanagement.data.local.entity.GroupDto
 import com.example.expensemanagement.data.local.entity.ParticipantDto
@@ -43,8 +44,10 @@ import com.example.expensemanagement.presentation.common.Category
 import com.example.expensemanagement.presentation.common.TabButton
 import com.example.expensemanagement.presentation.common.TabContent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -52,8 +55,10 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.Collator
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -79,7 +84,8 @@ class HomeViewModel @Inject constructor(
     private val updateParFund: UpdateParFund,
     private val updateParticipant: UpdateParticipant,
     private val getTransByFund: GetTransByFund,
-    private val getParticipantByFundId: GetParticipantByFundId
+    private val getParticipantByFundId: GetParticipantByFundId,
+//    private val getTransactionByParticipant: GetTransactionByParticipant
 ) : ViewModel() {
 
     private val _groupById = MutableStateFlow<Group?>(null)
@@ -121,6 +127,15 @@ class HomeViewModel @Inject constructor(
     private val _numberPar = MutableStateFlow(0)
     val numberPar: StateFlow<Int> = _numberPar
 
+    private val _fundAndExpense = MutableStateFlow<List<Pair<Fund, Double>>>(emptyList())
+    val fundAndExpense: StateFlow<List<Pair<Fund, Double>>> = _fundAndExpense
+
+    private val _parAndBalance = MutableStateFlow<List<Pair<Participant, Double>>>(emptyList())
+    val parAndBalance: StateFlow<List<Pair<Participant, Double>>> = _parAndBalance
+
+    private val _parAndExpense = MutableStateFlow<List<Pair<Participant, Double>>>(emptyList())
+    val parAndExpense: StateFlow<List<Pair<Participant, Double>>> = _parAndExpense
+
 
     var expense = MutableStateFlow(0.0)
         private set
@@ -146,8 +161,54 @@ class HomeViewModel @Inject constructor(
         private set
     var fundNameFieldValue by mutableStateOf(TextFieldValue(""))
 
+    val collator = Collator.getInstance(Locale("vi", "VN"))
     init {
         fetchSelectedCurrency()
+        viewModelScope.launch(IO) {
+
+            getFundByGroupId(1).collect {
+                it?.let { listFundDto ->
+                    Log.d("listFundDto", listFundDto.toString())
+                    val listFund = listFundDto.map {
+                        it.toFund()
+                    }.sortedWith { fund1, fund2 ->
+                        collator.compare(fund1.fundName, fund2.fundName)
+                    }
+                    var i = 0
+                    val listPair = listFund.map { fund ->
+                        i++
+                        Log.d("i++", i.toString())
+                        Log.d("PVM fund2", fund.toString())
+                        val expense: Deferred<Double> = async { getExpenseByFund(fund.fundId) }
+                        Log.d("PVM expensefund2", expense.await().toString())
+                        fund to expense.await()
+                    }
+
+                    _fundAndExpense.value = listPair
+                    Log.d("_fundAndExpense", _fundAndExpense.toString())
+                }
+            }
+        }
+        viewModelScope.launch(IO) {
+
+            getAllParticipants().collect{
+
+                it?.let { listParDto ->
+                    Log.d("listParDto", listParDto.toString())
+                    val listPar = listParDto.map {
+                        it.toParticipant()
+                    }.sortedWith { par1, par2 ->
+                        collator.compare(par1.participantName, par2.participantName)
+                    }
+                    val listPair = listPar.map { par ->
+                        val expense: Deferred<Double> = async { getExpenseByPar(par.participantId) }
+                        par to expense.await()
+                    }
+                    _parAndExpense.value = listPair
+                    Log.d("_fundAndExpense", _parAndExpense.value.toString())
+                }
+            }
+        }
 
     }
 
@@ -207,6 +268,66 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+    suspend fun getExpenseByFund(fundId: Int): Double {
+        var totalExpense = 0.0
+        val listTrans = getTransByFund(fundId).first()
+        listTrans.let { listTransDto ->
+            Log.d("listTransDto", listTransDto.toString())
+            listTransDto.forEach { trans ->
+                if (trans.transactionType == Constants.EXPENSE) {
+                    Log.d("Constants.EXPENSE", Constants.EXPENSE)
+                    Log.d("trans.transactionType", trans.transactionType)
+                    totalExpense += trans.amount
+                    Log.d("getTransByFund PVM", totalExpense.toString())
+                }
+            }
+        }
+        Log.d("getTransByFund PVM2", totalExpense.toString())
+        Log.d("getExpenseByFund2", totalExpense.toString())
+        return totalExpense
+    }
+    suspend fun getBalanceByPar(parId: Int): Double {
+        var totalExpense = 0.0
+        var totalIncome = 0.0
+        val listTrans = getTransactionByParticipant(parId).first()
+        listTrans.let { listTransDto ->
+            Log.d("listTransDto", listTransDto.toString())
+            listTransDto.forEach { trans ->
+                if (trans.transactionType == Constants.EXPENSE) {
+                    Log.d("Constants.EXPENSE", Constants.EXPENSE)
+                    Log.d("trans.transactionType", trans.transactionType)
+                    totalExpense += trans.amount
+                    Log.d("getTransByFund PVM", totalExpense.toString())
+                }else {
+                    totalIncome += trans.amount
+                }
+            }
+        }
+        Log.d("getTransByFund PVM2", totalExpense.toString())
+        Log.d("getExpenseByFund2", totalExpense.toString())
+        return (totalIncome - totalExpense)
+    }
+    suspend fun getExpenseByPar(parId: Int): Double {
+        var totalExpense = 0.0
+//        var totalIncome = 0.0
+        val listTrans = getTransactionByParticipant(parId).first()
+        listTrans.let { listTransDto ->
+            Log.d("listTransDto", listTransDto.toString())
+            listTransDto.forEach { trans ->
+                if (trans.transactionType == Constants.EXPENSE) {
+                    Log.d("Constants.EXPENSE", Constants.EXPENSE)
+                    Log.d("trans.transactionType", trans.transactionType)
+                    totalExpense += trans.amount
+                    Log.d("getTransByFund PVM", totalExpense.toString())
+                }else {
+//                    totalIncome += trans.amount
+                }
+            }
+        }
+        Log.d("getTransByFund PVM2", totalExpense.toString())
+        Log.d("getExpenseByFund2", totalExpense.toString())
+        return (totalExpense)
+    }
 
     fun getTransactionByFund(fundId: Int) {
         viewModelScope.launch(IO) {
@@ -225,9 +346,10 @@ class HomeViewModel @Inject constructor(
 
     fun getTransactionByPar(parId: Int) {
         viewModelScope.launch(IO) {
-            getTransByFund(parId).collect {
+            getTransactionByParticipant(parId).collect {
                 it?.let { listTransDto ->
                     _transByPar.value = listTransDto.map { transDto ->
+                        Log.d("_transByPar", _transByPar.value.toString())
                         transDto.toTransaction()
                     }.sortedByDescending { trans -> trans.date }
                 }
@@ -256,6 +378,7 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
     fun getTransWithParByPar() {
         viewModelScope.launch(IO) {
             _transByPar.collect {
@@ -276,6 +399,7 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
     fun getAllPars() {
         viewModelScope.launch(IO) {
             getAllParticipants().collect { listParDto ->
@@ -307,7 +431,9 @@ class HomeViewModel @Inject constructor(
                 fundName = fundName,
                 groupId = 1
             )
-            insertNewFund(newFundDto)
+            val fundId = insertNewFund(newFundDto)
+            Log.d("fundId.toInt()", fundId.toString())
+            insertParticipantFund(1, fundId.toInt())
         }
     }
 
@@ -316,12 +442,30 @@ class HomeViewModel @Inject constructor(
         fundId: Int
     ) {
         viewModelScope.launch(IO) {
-            val newParticipantFund = ParticipantFundDto(
-                parFundId = 0,
-                participantId = parId,
-                fundId = fundId
-            )
-            insertNewParticipantFund(newParticipantFund)
+//            val newParticipantFund = ParticipantFundDto(
+//                parFundId = 0,
+//                participantId = parId,
+//                fundId = fundId
+//            )
+//            insertNewParticipantFund(newParticipantFund)
+//        }
+            viewModelScope.launch(IO) {
+//            selectedParticipants.forEach { participant ->
+                val parFundDto =
+                    getParFundByParAndFund(parId, fundId).firstOrNull()
+                if (parFundDto == null) {
+                    val newParFund = ParticipantFundDto(
+                        parFundId = 0,
+                        participantId = parId,
+                        fundId = fundId
+                    )
+                    insertNewParticipantFund(newParFund)
+                } else {
+                    Log.d("addParticipantToFund", "no addParticipantToFund")
+                }
+
+//            }
+            }
         }
     }
 
@@ -337,10 +481,10 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun addParticipantToFund(pselectedParticipants: List<Participant>, fundId: Int) {
+    fun addParticipantToFund(selectedParticipants: List<Participant>, fundId: Int) {
 
         viewModelScope.launch(IO) {
-            pselectedParticipants.forEach { participant ->
+            selectedParticipants.forEach { participant ->
                 val parFundDto =
                     getParFundByParAndFund(participant.participantId, fundId).firstOrNull()
                 if (parFundDto == null) {
@@ -482,3 +626,4 @@ class HomeViewModel @Inject constructor(
         return result
     }
 }
+

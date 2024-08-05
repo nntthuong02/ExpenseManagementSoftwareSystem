@@ -125,7 +125,7 @@ class DatabaseRepositoryImpl @Inject constructor(
 
 
     //Fund
-    override suspend fun insertFund(fund: FundDto) {
+    override suspend fun insertFund(fund: FundDto): Long {
         return databaseDao.insertFund(fund)
     }
 
@@ -139,6 +139,10 @@ class DatabaseRepositoryImpl @Inject constructor(
 
     override fun getFundByGroupId(groupId: Int): Flow<List<FundDto>> {
         return databaseDao.getFundByGroupId(groupId)
+    }
+
+    override fun getFundByPar(parId: Int): Flow<List<FundDto>> {
+        return databaseDao.getFundByPar(parId)
     }
 
     override suspend fun updateFund(fund: FundDto) {

@@ -136,7 +136,7 @@ fun NavGraph(
             Text("SettingScreen")
         }
         composable(route = Route.PayScreen.route){
-            PaymentScreen()
+            PaymentScreen(navController = navController)
         }
     }
 }

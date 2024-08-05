@@ -23,7 +23,8 @@ fun RowItem(
         modifier = Modifier.fillMaxWidth()
     ) {
         Box(modifier = Modifier
-            .weight(0.3f)
+            .weight(0.4f)
+            .padding(0.dp)
             .border(1.dp, Color.Black)
         ){
             Text(
@@ -33,11 +34,12 @@ fun RowItem(
             )
         }
         Box(modifier = Modifier
-            .weight(0.7f)
+            .weight(0.6f)
+            .padding(0.dp)
             .border(1.dp, Color.Black)
         ){
             Text(
-                text = expense.toString(),
+                text = expense,
                 modifier = Modifier.padding(8.dp)
             )
         }

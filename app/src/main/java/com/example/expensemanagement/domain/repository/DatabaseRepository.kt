@@ -57,13 +57,15 @@ interface DatabaseRepository {
     suspend fun eraseGroupById(groupId: Int)
     //Fund
 
-    suspend fun insertFund(fund: FundDto)
+    suspend fun insertFund(fund: FundDto): Long
 
     fun getAllFunds(): Flow<List<FundDto>>
 
     fun getFundById(fundId: Int): Flow<FundDto>
 
     fun getFundByGroupId(groupId: Int): Flow<List<FundDto>>
+
+    fun getFundByPar(parId: Int): Flow<List<FundDto>>
 
     suspend fun updateFund(fund: FundDto)
 

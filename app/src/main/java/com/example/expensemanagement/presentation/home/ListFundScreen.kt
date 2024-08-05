@@ -53,6 +53,7 @@ fun ListFundScreen(
     val fundByGroupId by homeViewModel.fundByGroupId.collectAsState()
     val transByFund by homeViewModel.transByFund.collectAsState()
     val expense by homeViewModel.expense.collectAsState()
+    val fundAndExpense by homeViewModel.fundAndExpense.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -142,23 +143,24 @@ fun ListFundScreen(
 //                    }
 
 
-                itemsIndexed(fundByGroupId) { _, fund ->
-                    coroutineScope.launch {
-                        homeViewModel.getTransactionByFund(fund.fundId)
-                        var sum = 0.0
-                        transByFund.forEach { trans ->
-                            if (trans.transactionType == Constants.EXPENSE) {
-                                sum += trans.amount
-                            }
-                        }
-                        homeViewModel.setExpense(sum)
-                    }
+                itemsIndexed(fundAndExpense) { _, (fund, expense) ->
+//                    coroutineScope.launch {
+//                        homeViewModel.getTransactionByFund(fund.fundId)
+//                        var sum = 0.0
+//                        transByFund.forEach { trans ->
+//                            if (trans.transactionType == Constants.EXPENSE) {
+//                                sum += trans.amount
+//                            }
+//                        }
+//                        homeViewModel.setExpense(sum)
+//                    }
                     DetailEntityItem(
                         name = fund.fundName,
                         numberTransaction = transByFund.size,
-                        expense = expense,
+                        amount = expense,
                         itemOnClick = { navController.navigate("${Route.EditFundScreen.route}/${fund!!.fundId}") },
                         backgroundColor = Color.DarkGray.copy(alpha = 0.3f),
+                        amountType = "EXPENSE: ",
                         surfaceColor = Color.Blue.copy(alpha = 0.8f)
                     )
 

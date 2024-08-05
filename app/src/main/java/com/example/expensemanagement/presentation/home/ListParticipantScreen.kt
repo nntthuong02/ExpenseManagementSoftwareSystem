@@ -48,6 +48,7 @@ fun ListParticipantScreen(
     val transByPar by homeViewModel.transByPar.collectAsState()
     val expense by homeViewModel.expense.collectAsState()
     val income by homeViewModel.income.collectAsState()
+    val parAndExpense by homeViewModel.parAndExpense.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -139,27 +140,28 @@ fun ListParticipantScreen(
 //                    }
 
 
-                itemsIndexed(allPar) { _, par ->
-                    coroutineScope.launch {
-                        homeViewModel.getTransactionByPar(par.participantId)
-                        var sumExpense = 0.0
-                        var sumIncome = 0.0
-                        transByPar.forEach { trans ->
-                            if (trans.transactionType == Constants.EXPENSE) {
-                                sumExpense += trans.amount
-                            } else {
-                                sumIncome += trans.amount
-                            }
-                        }
-                        homeViewModel.setIncome(sumIncome)
-                        homeViewModel.setExpense(sumExpense)
-                    }
+                itemsIndexed(parAndExpense) { _, (par, expense) ->
+//                    coroutineScope.launch {
+//                        homeViewModel.getTransactionByPar(par.participantId)
+//                        var sumExpense = 0.0
+//                        var sumIncome = 0.0
+//                        transByPar.forEach { trans ->
+//                            if (trans.transactionType == Constants.EXPENSE) {
+//                                sumExpense += trans.amount
+//                            } else {
+//                                sumIncome += trans.amount
+//                            }
+//                        }
+//                        homeViewModel.setIncome(sumIncome)
+//                        homeViewModel.setExpense(sumExpense)
+//                    }
                     DetailEntityItem(
                         name = par.participantName,
                         numberTransaction = transByPar.size,
-                        expense = expense,
+                        amount = expense,
                         itemOnClick = { navController.navigate("${Route.EditParticipantScreen.route}/${par!!.participantId}") },
                         backgroundColor = Color.DarkGray.copy(alpha = 0.3f),
+                        amountType = "Expense: ",
                         surfaceColor = Color.Blue.copy(alpha = 0.8f)
                     )
 
