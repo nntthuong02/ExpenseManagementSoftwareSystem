@@ -264,32 +264,34 @@ fun TransactionScreen(
                         setCurrentTime(Calendar.getInstance().time)
 
                         if (selectedTransaction == TabButton.INCOME) {
-                            if (selectedFund != null) {
-                                funds.forEach { fund ->
-                                    if (fund.fundId == selectedFund!!.fundId) {
+//                            if (selectedFund != null) {
+////                                funds.forEach { fund ->
+////                                    if (fund.fundId == selectedFund!!.fundId) {
+////
+////                                        updateExpenseFund(
+////                                            fund.fundId,
+////                                            fund.fundName
+////                                        )
+////                                    }
+////                                }
+//                            }
+//                            addNewTransaction(
+////                                0,
+//                                selectedDate,
+//                                "",
+//                                transactionAmount.value.toDouble(),
+//                                category.value.title,
+//                                Constants.INCOME,
+//                                transactionTitle.value,
+//                                isPaid = false,
+//                                selectedPar?.participantId ?: 0,
+//                                selectedFund?.fundId ?: 0
+//                            ) {
+//                                navController.navigateUp()
+//                                navController.navigate("${Route.TransactionScreen.route}")
+//                            }
+                            coroutineScope.launch { snackbarHostState.showSnackbar("This function will be updated soon") }
 
-                                        updateExpenseFund(
-                                            fund.fundId,
-                                            fund.fundName
-                                        )
-                                    }
-                                }
-                            }
-                            addNewTransaction(
-//                                0,
-                                selectedDate,
-                                "",
-                                transactionAmount.value.toDouble(),
-                                category.value.title,
-                                Constants.INCOME,
-                                transactionTitle.value,
-                                isPaid = false,
-                                selectedPar?.participantId ?: 0,
-                                selectedFund?.fundId ?: 0
-                            ) {
-                                navController.navigateUp()
-                                navController.navigate("${Route.TransactionScreen.route}")
-                            }
                         } else {
                             if (selectedFund != null) {
                                 funds.forEach { fund ->
@@ -318,11 +320,12 @@ fun TransactionScreen(
                                 navController.navigateUp()
                                 navController.navigate("${Route.TransactionScreen.route}")
                             }
+                            transactionViewModel.setTransactionTitle("")
+                            transactionViewModel.setTransaction("")
+                            Toast.makeText(context, "Saved successfully!", Toast.LENGTH_LONG).show()
                         }
                     }
-                    transactionViewModel.setTransactionTitle("")
-                    transactionViewModel.setTransaction("")
-                    Toast.makeText(context, "Saved successfully!", Toast.LENGTH_LONG).show()
+
 //                    coroutineScope.launch {
 //                        snackbarHostState.showSnackbar(
 //                            message = "Saved successfully",

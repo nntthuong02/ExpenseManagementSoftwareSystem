@@ -17,6 +17,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -42,29 +43,35 @@ fun ParticipantItem(
     participant: Participant,
     fundId: Int,
     currency: String,
+    expense: Double,
     insightViewModel: InsightViewModel = hiltViewModel(),
     onItemClick: (Int) -> Unit
 ) {
     val transByFundAndPar by insightViewModel.transByFundAndPar.collectAsState()
-    val expense by insightViewModel.expense.collectAsState()
-    val income by insightViewModel.income.collectAsState()
-    val balance by insightViewModel.balance.collectAsState()
+//    val expense by insightViewModel.expense.collectAsState()
+//    val income by insightViewModel.income.collectAsState()
+//    val balance by insightViewModel.balance.collectAsState()
 
-    if(participant.participantId != null){
-        insightViewModel.getTransactionByParAndFund(fundId, participant.participantId)
-        var incomeTotal = 0.0
-        var expenseTotal = 0.0
-        transByFundAndPar.forEach {trans ->
-            if(trans.transactionType == Constants.EXPENSE){
-                expenseTotal += trans.amount
-            } else{
-                incomeTotal += trans.amount
-            }
-        }
-        insightViewModel.setExpense(expenseTotal)
-        insightViewModel.setIncome(incomeTotal)
-        insightViewModel.setBalance(incomeTotal - expenseTotal)
+    LaunchedEffect(transByFundAndPar){
+
+            insightViewModel.getTransactionByParAndFund(fundId, participant.participantId)
+        Log.d("transByFundAndPar", transByFundAndPar.toString())
+        Log.d("transByFundAndParSize", transByFundAndPar.size.toString())
+//        var incomeTotal = 0.0
+//        var expenseTotal = 0.0
+//        transByFundAndPar.forEach {trans ->
+//            if(trans.transactionType == Constants.EXPENSE){
+//                expenseTotal += trans.amount
+//            } else{
+//                incomeTotal += trans.amount
+//            }
+//        }
+//        insightViewModel.setExpense(expenseTotal)
+//        insightViewModel.setIncome(incomeTotal)
+//        insightViewModel.setBalance(incomeTotal - expenseTotal)
+
     }
+
     Card(
         onClick = {
             onItemClick(participant.participantId)
@@ -106,14 +113,14 @@ fun ParticipantItem(
                         letterSpacing = 0.2.sp
                     )
                 ){
-                    append(currency + "  ")
+                    append("Transaction number:  ")
                 }
                 withStyle(
                     SpanStyle(
                         fontWeight = FontWeight.ExtraLight
                     )
                 ){
-                    append(balance.toString())
+                    append(transByFundAndPar.size.toString())
                 }
             },
                 modifier = Modifier.padding(start = 5.dp)
@@ -144,38 +151,38 @@ fun ParticipantItem(
                         )
                     }
                     Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        horizontalArrangement = Arrangement.Center,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 5.dp)
                     ) {
-                        Text(text = buildAnnotatedString {
-                            withStyle(
-                                SpanStyle(
-                                    fontWeight = FontWeight.Normal,
-                                    fontSize = 10.sp,
-                                    letterSpacing = 0.4.sp,
-                                    color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary)
-                                )
-                            ){
-                                append(currency + "  ")
-                            }
-                            withStyle(
-                                SpanStyle(
-                                    fontWeight = FontWeight.Thin,
-                                    fontSize = 14.sp,
-                                    letterSpacing = 0.2.sp,
-                                    color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary)
-                                )
-                            ){
-                                append(income.toString())
-                            }
-                        },
-                            modifier = Modifier.padding(
-                                start = 5.dp,
-                                end = 5.dp
-                            )
-                            )
+//                        Text(text = buildAnnotatedString {
+//                            withStyle(
+//                                SpanStyle(
+//                                    fontWeight = FontWeight.Normal,
+//                                    fontSize = 10.sp,
+//                                    letterSpacing = 0.4.sp,
+//                                    color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary)
+//                                )
+//                            ){
+//                                append(currency + "  ")
+//                            }
+//                            withStyle(
+//                                SpanStyle(
+//                                    fontWeight = FontWeight.Thin,
+//                                    fontSize = 14.sp,
+//                                    letterSpacing = 0.2.sp,
+//                                    color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary)
+//                                )
+//                            ){
+//                                append(income.toString())
+//                            }
+//                        },
+//                            modifier = Modifier.padding(
+//                                start = 5.dp,
+//                                end = 5.dp
+//                            )
+//                            )
 
                         Text(text = buildAnnotatedString {
                             withStyle(
@@ -207,16 +214,16 @@ fun ParticipantItem(
 
                     }
                     Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        horizontalArrangement = Arrangement.Center,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 15.dp)
                     ) {
-                        Text(
-                            text = "INCOME",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = Color.Green
-                        )
+//                        Text(
+//                            text = "INCOME",
+//                            style = MaterialTheme.typography.titleMedium,
+//                            color = Color.Green
+//                        )
 
                         Text(
                             text = "EXPENSE",
@@ -235,5 +242,5 @@ fun ParticipantItem(
 @Composable
 fun ParticipantItemPreview(){
     val thuong = Participant(1, "Thuong")
-    ParticipantItem(participant = thuong, 1, currency = "VND", onItemClick = {})
+    ParticipantItem(participant = thuong, 1, currency = "VND", 1.0, onItemClick = {})
 }

@@ -27,14 +27,17 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.Collator
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -65,8 +68,8 @@ class InsightViewModel @Inject constructor(
     private val _transactionById = MutableStateFlow<Transaction?>(null)
     val transactionById: StateFlow<Transaction?> = _transactionById
 
-    private val _fundByGroup = MutableStateFlow<List<Fund>>(emptyList())
-    val fundByGroup: StateFlow<List<Fund>> = _fundByGroup
+//    private val _fundByGroup = MutableStateFlow<List<Fund>>(emptyList())
+//    val fundByGroup: StateFlow<List<Fund>> = _fundByGroup
 
     private val _parByFund = MutableStateFlow<Map<Int, List<Participant>>>(emptyMap())
     val parByFund: StateFlow<Map<Int, List<Participant>>> = _parByFund
@@ -77,14 +80,12 @@ class InsightViewModel @Inject constructor(
     private val _transList = MutableStateFlow<List<Transaction>>(emptyList())
     val transList: StateFlow<List<Transaction>> = _transList
 
-    private val _transByFundAndPar = MutableStateFlow<List<Transaction>>(emptyList())
-    val transByFundAndPar: StateFlow<List<Transaction>> = _transByFundAndPar
+    private val _transByFundAndPar = MutableStateFlow<Map<String, List<Transaction>>>(emptyMap())
+    val transByFundAndPar: StateFlow<Map<String, List<Transaction>>> = _transByFundAndPar
 
     private val _transByFund = MutableStateFlow<List<Transaction>>(emptyList())
     val transByFund: StateFlow<List<Transaction>> = _transByFund
 
-    private val _fundAndExpense = MutableStateFlow<List<Pair<Fund, Double>>>(emptyList())
-    val fundAndExpense: StateFlow<List<Pair<Fund, Double>>> = _fundAndExpense
 
     //    private val _selectedDate = MutableStateFlow(Date())
 //    val selectedDate: StateFlow<Date> = _selectedDate
@@ -93,6 +94,11 @@ class InsightViewModel @Inject constructor(
 
     private val _parById = MutableStateFlow<Participant?>(null)
     val parById: StateFlow<Participant?> = _parById
+
+    private val _fundAndExpense = MutableStateFlow<List<Pair<Fund, Double>>>(emptyList())
+    val fundAndExpense: StateFlow<List<Pair<Fund, Double>>> = _fundAndExpense
+    private val _parAndExpense = MutableStateFlow<List<Pair<Participant, Double>>>(emptyList())
+    val parAndExpense: StateFlow<List<Pair<Participant, Double>>> = _parAndExpense
 
     private val _expenseByFund = MutableStateFlow(0.0)
     val expenseByFund: StateFlow<Double> = _expenseByFund
@@ -110,43 +116,70 @@ class InsightViewModel @Inject constructor(
     var balance = MutableStateFlow(0.0)
         private set
 
+    val collator = Collator.getInstance(Locale("vi", "VN"))
+
     init {
         fetchSelectedCurrency()
+
         viewModelScope.launch(IO) {
             getFundByGroupId(1).collect { listFundDto ->
-                val funds = listFundDto?.map { fundDto ->
-                    fundDto.toFund()
-                }?.sortedBy { it.fundName } ?: emptyList()
-                _fundByGroup.value = funds
+                listFundDto?.let {
+                    val listFund = it.map { fundDto -> fundDto.toFund() }
+                        .sortedWith { fund1, fund2 ->
+                            collator.compare(fund1.fundName, fund2.fundName)
+                        }
 
-                _fundByGroup.value.forEach { fund ->
+                    val fundExpensesDeferred = listFund.map { fund ->
+                        async {
+                            val expense = getExpenseByFund(fund.fundId)
+                            fund to expense
+                        }
+                    }
+                    val fundExpenses = fundExpensesDeferred.awaitAll()
+                    _fundAndExpense.value = fundExpenses
+                    Log.d("_fundAndExpense", _fundAndExpense.value.toString())
                     val participantMap = mutableMapOf<Int, List<Participant>>()
-                    getParticipantByFundId(fund.fundId).collect { listParDto ->
-                        val participants = listParDto?.map { parDto ->
+                    fundExpenses.forEach { (fund, _) ->
+
+                        val listParDto = getParticipantByFundId(fund.fundId).first()
+                        participantMap[fund.fundId] = listParDto?.map { parDto ->
                             parDto.toParticipant()
                         } ?: emptyList()
-                        participantMap[fund.fundId] = participants
-                        _parByFund.value = participantMap
                     }
+                    _parByFund.value = participantMap
+                    Log.d("_parByFund", _parByFund.value.toString())
+
                 }
             }
         }
+    }
 
-        viewModelScope.launch(IO) {
-
-            getFundByGroupId(1).collect {
-                it?.let { listFundDto ->
-                    val listFund = listFundDto.map {
-                        it.toFund()
-                    }
-                    val listPair = listFund.map { fund ->
-                        val expense: Deferred<Double> = async { getExpenseByFund(fund.fundId) }
-                        fund to expense.await()
-                    }
-
-                    _fundAndExpense.value = listPair
+    suspend fun getExpenseByParAndFund(fundId: Int, parId: Int): Double {
+        var totalExpense = 0.0
+        val listTrans = getTransByFundAndPar(fundId, parId).first()
+        listTrans.let { listTransDto ->
+            listTransDto.forEach { trans ->
+                if (trans.transactionType == Constants.EXPENSE) {
+                    totalExpense += trans.amount
                 }
             }
+        }
+        return totalExpense
+    }
+
+    fun expenseByParAndFund(fundId: Int, participants: List<Participant>) {
+        viewModelScope.launch(IO) {
+            participants?.sortedWith { par1, par2 ->
+                collator.compare(par1.participantName, par2.participantName)
+            }
+            val parFundExpenseDeferred = participants.map { par ->
+                async {
+                    val expense = getExpenseByParAndFund(fundId, par.participantId)
+                    par to expense
+                }
+            }
+            val parFundExpense = parFundExpenseDeferred.awaitAll()
+            _parAndExpense.value = parFundExpense
         }
     }
 
@@ -162,7 +195,6 @@ class InsightViewModel @Inject constructor(
         }
         return totalExpense
     }
-
 
 
     //    fun getFormattedDate(date: Date): String {
@@ -219,7 +251,10 @@ class InsightViewModel @Inject constructor(
                     val newListTrans = listTransDto.map { transDto ->
                         transDto.toTransaction()
                     }.sortedByDescending { trans -> trans.date }
-                    _transByFundAndPar.value = newListTrans
+                    _transByFundAndPar.value = newListTrans.groupBy { trans ->
+                        getFormattedDate(trans.date)
+                    }
+                    Log.d("transByFundAndPar", _transByFundAndPar.toString())
                 }
             }
         }
@@ -227,7 +262,7 @@ class InsightViewModel @Inject constructor(
 
     fun getTransactionByFund(fundId: Int) {
         viewModelScope.launch(IO) {
-            getTransByFund(fundId).collect {listTransDto ->
+            getTransByFund(fundId).collect { listTransDto ->
                 listTransDto.let { listTransDto ->
                     _transByFund.value = listTransDto.map { transDto ->
                         transDto.toTransaction()

@@ -36,10 +36,10 @@ fun TransactionDetailScreen(
     insightViewModel: InsightViewModel = hiltViewModel()
 ) {
     //transactionById is empty
-    val transactionsByParId by insightViewModel.transactionByParId.collectAsState()
+    val transByFundAndPar by insightViewModel.transByFundAndPar.collectAsState()
     //participantName is null
     if (participantId != null) {
-        insightViewModel.getTransaction(participantId)
+        insightViewModel.getTransactionByParAndFund(fundId, participantId)
     }
 
     Surface(
@@ -48,7 +48,7 @@ fun TransactionDetailScreen(
             top = 5.dp
         )
     ) {
-        transactionsByParId.ifEmpty {
+        transByFundAndPar.ifEmpty {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
@@ -77,7 +77,7 @@ fun TransactionDetailScreen(
                 )
 
             }
-            transactionsByParId.forEach { (date, transactionList) ->
+            transByFundAndPar.forEach { (date, transactionList) ->
                 stickyHeader {
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,

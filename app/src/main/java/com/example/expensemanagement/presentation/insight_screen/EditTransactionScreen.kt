@@ -350,27 +350,14 @@ fun EditTransactionScreen(
                             // Hiển thị Snackbar thông báo lỗi
                             coroutineScope.launch {
 
-                                snackbarHostState.showSnackbar("Please enter both title and amount")
+                                snackbarHostState.showSnackbar("This function will be updated soon")
                             }
                         } else {
                             transactionViewModel.apply {
                                 setCurrentTime(Calendar.getInstance().time)
 
                                 if (selectedTransaction == TabButton.INCOME) {
-                                    updateTransactionById(
-                                        transactionId,
-                                        selectedDate,
-                                        transactionAmount.value.toDouble(),
-                                        category.value.title,
-                                        Constants.INCOME,
-                                        transactionTitle.value,
-                                        selectedPar?.participantId ?: 0,
-                                        selectedFund?.fundId ?: 0,
-                                        fundId
-                                    ) {
-//                                        navController.navigateUp()
-//                                        navController.navigate("${Route.InsightScreen.route}")
-                                    }
+                                    coroutineScope.launch { snackbarHostState.showSnackbar("This function will be updated soon") }
                                 } else {
                                     if (selectedFund != null) {
                                         funds.forEach { fund ->
@@ -397,13 +384,14 @@ fun EditTransactionScreen(
 //                                        navController.navigateUp()
 //                                        navController.navigate("${Route.InsightScreen.route}")
                                     }
+                                    transactionViewModel.setTransactionTitle("")
+                                    transactionViewModel.setTransaction("")
+                                    Toast.makeText(context, "Update successfully!", Toast.LENGTH_LONG)
+                                        .show()
+                                    navController.navigateUp()
                                 }
                             }
-                            transactionViewModel.setTransactionTitle("")
-                            transactionViewModel.setTransaction("")
-                            Toast.makeText(context, "Update successfully!", Toast.LENGTH_LONG)
-                                .show()
-                            navController.navigateUp()
+
 
 //                        coroutineScope.launch {
 //                            snackbarHostState.showSnackbar(

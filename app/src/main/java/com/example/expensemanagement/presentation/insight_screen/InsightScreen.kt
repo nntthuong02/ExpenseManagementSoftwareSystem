@@ -38,7 +38,7 @@ fun InsightScreen(
     insightViewModel: InsightViewModel = hiltViewModel()
 ) {
 //    Text(text = "InsightScreen")
-    val funds by insightViewModel.fundByGroup.collectAsState()
+//    val funds by insightViewModel.fundAndExpense.collectAsState()
 //    val parByFundId by insightViewModel.parByFund.collectAsState()
     val currency by insightViewModel.selectedCurrencyCode.collectAsState()
     val transByFund by insightViewModel.transByFund.collectAsState()

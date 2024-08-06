@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -23,6 +24,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.expensemanagement.domain.models.Participant
 import com.example.expensemanagement.presentation.insight_screen.component.FundItem
 import com.example.expensemanagement.presentation.insight_screen.component.ParticipantItem
 import com.example.expensemanagement.presentation.navigation.Route
@@ -38,6 +40,18 @@ fun ParticipantScreen(
 //    Text(text = "ParticipantScreen")
     val parByFundId by insightViewModel.parByFund.collectAsState()
     val currency by insightViewModel.selectedCurrencyCode.collectAsState()
+    val expenseAndPar by insightViewModel.parAndExpense.collectAsState()
+
+    Log.d("fundId", fundId.toString())
+    LaunchedEffect(parByFundId) {
+        if (parByFundId.isNotEmpty()) {
+            parByFundId[fundId]?.let { listPar ->
+                insightViewModel.expenseByParAndFund(fundId, listPar)
+            }
+            Log.d("parByFundId", parByFundId.toString())
+            Log.d("expenseAndPar", expenseAndPar.toString())
+        }
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -65,16 +79,21 @@ fun ParticipantScreen(
                 }
 
             }
-            parByFundId.keys.forEach { key ->
-                if(key == fundId){
-                    val participants = parByFundId[key]
-                    if (participants != null){
-                        itemsIndexed(participants) { index, par ->
-                            ParticipantItem(par, fundId, currency) {parId ->
-                                navController.navigate("${Route.TransactionDetailScreen.route}/$parId?fundId=${fundId}")
-                            }
-                        }
-                    }
+//            parByFundId.keys.forEach { key ->
+//                if(key == fundId){
+//                    val participants = parByFundId[key]
+//                    if (participants != null){
+//                        itemsIndexed(participants) { index, par ->
+//                            ParticipantItem(par, fundId, currency) {parId ->
+//                                navController.navigate("${Route.TransactionDetailScreen.route}/$parId?fundId=${fundId}")
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+            itemsIndexed(expenseAndPar){index, (par, expense) ->
+                ParticipantItem(participant = par, fundId = fundId, currency = currency, expense ){parId ->
+                    navController.navigate("${Route.TransactionDetailScreen.route}/$parId?fundId=${fundId}")
                 }
             }
 

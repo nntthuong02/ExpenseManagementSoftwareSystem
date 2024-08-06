@@ -48,6 +48,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -165,20 +166,23 @@ class HomeViewModel @Inject constructor(
     init {
         fetchSelectedCurrency()
         viewModelScope.launch(IO) {
+            getFundByGroupId(1).collect { listFundDto ->
+                listFundDto?.let {
+                    val listFund = it.map { fundDto -> fundDto.toFund() }
+                        .sortedWith { fund1, fund2 ->
+                            collator.compare(fund1.fundName, fund2.fundName)
+                        }
 
-            getFundByGroupId(1).collect {
-                it?.let { listFundDto ->
-                    val listFund = listFundDto.map {
-                        it.toFund()
-                    }.sortedWith { fund1, fund2 ->
-                        collator.compare(fund1.fundName, fund2.fundName)
-                    }
-                    val listPair = listFund.map { fund ->
-                        val expense: Deferred<Double> = async { getExpenseByFund(fund.fundId) }
-                        fund to expense.await()
+                    val fundExpensesDeferred = listFund.map { fund ->
+                        async {
+                            val expense = getExpenseByFund(fund.fundId)
+                            fund to expense
+                        }
                     }
 
-                    _fundAndExpense.value = listPair
+                    val fundExpenses = fundExpensesDeferred.awaitAll()
+
+                    _fundAndExpense.value = fundExpenses
                 }
             }
         }
@@ -192,11 +196,14 @@ class HomeViewModel @Inject constructor(
                     }.sortedWith { par1, par2 ->
                         collator.compare(par1.participantName, par2.participantName)
                     }
-                    val listPair = listPar.map { par ->
-                        val expense: Deferred<Double> = async { getExpenseByPar(par.participantId) }
-                        par to expense.await()
+                    val parExpenseDeferred = listPar.map { par ->
+                        async {
+                            val expense = getExpenseByPar(par.participantId)
+                            par to expense
+                        }
                     }
-                    _parAndExpense.value = listPair
+                    val parExpense = parExpenseDeferred.awaitAll()
+                    _parAndExpense.value = parExpense
                 }
             }
         }
