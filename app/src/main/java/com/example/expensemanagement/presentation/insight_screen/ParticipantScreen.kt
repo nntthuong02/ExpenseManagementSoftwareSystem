@@ -42,14 +42,11 @@ fun ParticipantScreen(
     val currency by insightViewModel.selectedCurrencyCode.collectAsState()
     val expenseAndPar by insightViewModel.parAndExpense.collectAsState()
 
-    Log.d("fundId", fundId.toString())
     LaunchedEffect(parByFundId) {
         if (parByFundId.isNotEmpty()) {
             parByFundId[fundId]?.let { listPar ->
                 insightViewModel.expenseByParAndFund(fundId, listPar)
             }
-            Log.d("parByFundId", parByFundId.toString())
-            Log.d("expenseAndPar", expenseAndPar.toString())
         }
     }
 

@@ -137,7 +137,6 @@ class InsightViewModel @Inject constructor(
                     }
                     val fundExpenses = fundExpensesDeferred.awaitAll()
                     _fundAndExpense.value = fundExpenses
-                    Log.d("_fundAndExpense", _fundAndExpense.value.toString())
                     val participantMap = mutableMapOf<Int, List<Participant>>()
                     fundExpenses.forEach { (fund, _) ->
 
@@ -147,7 +146,6 @@ class InsightViewModel @Inject constructor(
                         } ?: emptyList()
                     }
                     _parByFund.value = participantMap
-                    Log.d("_parByFund", _parByFund.value.toString())
 
                 }
             }
@@ -254,7 +252,6 @@ class InsightViewModel @Inject constructor(
                     _transByFundAndPar.value = newListTrans.groupBy { trans ->
                         getFormattedDate(trans.date)
                     }
-                    Log.d("transByFundAndPar", _transByFundAndPar.toString())
                 }
             }
         }

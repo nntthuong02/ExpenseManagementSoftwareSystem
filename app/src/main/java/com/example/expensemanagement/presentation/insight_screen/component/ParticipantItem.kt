@@ -55,8 +55,6 @@ fun ParticipantItem(
     LaunchedEffect(transByFundAndPar){
 
             insightViewModel.getTransactionByParAndFund(fundId, participant.participantId)
-        Log.d("transByFundAndPar", transByFundAndPar.toString())
-        Log.d("transByFundAndParSize", transByFundAndPar.size.toString())
 //        var incomeTotal = 0.0
 //        var expenseTotal = 0.0
 //        transByFundAndPar.forEach {trans ->

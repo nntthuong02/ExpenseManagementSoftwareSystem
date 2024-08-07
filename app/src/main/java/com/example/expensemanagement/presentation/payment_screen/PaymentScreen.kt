@@ -87,6 +87,7 @@ fun PaymentScreen(
 //                                navController.navigateUp()
                                 val time = paymentViewModel.convertDate(Calendar.getInstance().time)
 
+
                                 paymentViewModel.paymentExpense(time)
 //                                paymentViewModel.eraseTransaction(transactionId)
 //                                delay(300L)
@@ -282,13 +283,15 @@ fun HistoryPayment(
     confirmClick: () -> Unit,
 ) {
     val openAlertDialog = remember { mutableStateOf(false) }
+    val dialogTitle = remember { mutableStateOf("") }
+    val dialogText = remember { mutableStateOf("") }
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column(
             modifier = Modifier
-                .weight(0.9f)
+                .weight(0.8f)
                 .fillMaxWidth()
         ) {
             LazyColumn(
@@ -316,10 +319,10 @@ fun HistoryPayment(
                         )
                     }
 //                    Spacer(modifier = Modifier.padding(15.dp))
-                    RowItem(name = "Date of payment", expense = "Number of transactions ")
+                    RowItem(name = "Trans number ", expense = "Date of payment")
                 }
                 itemsIndexed(transAndNumber){index, (date, number) ->
-                    RowItem(name = date, expense = number.toString())
+                    RowItem(name = number.toString(), expense = date)
                 }
                 item {
                     Spacer(modifier = Modifier.padding(5.dp))
@@ -333,11 +336,12 @@ fun HistoryPayment(
                     openAlertDialog.value = false
                     confirmClick()
                 },
-                dialogTitle = "Payment Confirmation",
-                dialogText = "Are you sure you want to pay?",
+                dialogTitle = dialogTitle.value,
+                dialogText = dialogText.value,
                 icon = Icons.Default.Info
             )
         }
+
 
         Row(
             modifier = Modifier
@@ -347,7 +351,11 @@ fun HistoryPayment(
         ) {
             Button(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = { openAlertDialog.value = true }
+                onClick = {
+                    openAlertDialog.value = true
+                    dialogTitle.value = "Confirm undo payment"
+                    dialogText.value = "Are you sure you want to undo the payment?"
+                }
             ) {
                 Text(text = "Undo payment")
             }

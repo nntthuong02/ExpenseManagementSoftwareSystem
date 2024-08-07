@@ -161,7 +161,7 @@ class PaymentViewModel @Inject constructor(
     }
 
     fun convertDate(date: Date): String {
-        return SimpleDateFormat("yyyy-MM-dd").format(date)
+        return SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date)
     }
     fun paymentExpense(
         dateOfEntry: String
@@ -188,18 +188,17 @@ class PaymentViewModel @Inject constructor(
 
             _transactionsByDate.value = result
 
-            // In ra kết quả để kiểm tra
+
         }
     }
     }
 
-    // Biến LiveData để lưu trữ danh sách các pair nếu cần
+
 
     fun undoPay() {
-        //Sửa hàm này và Entity: Transaction.dateOfEntry thành Date
-        //Tránh trường hợp undo cùng ngày và xoá cả lần thanh toán trước đó
+        //Đã sửa thêm ngày giờ cho thời gian thanh toán
         viewModelScope.launch(IO) {
-            val transactions = getAllTransactions().first() // Lấy tất cả các Transaction
+            val transactions = getAllTransactions().first()
             val latestDate = transactions.filter { it.dateOfEntry != null }
                 .maxByOrNull { it.dateOfEntry }
                 ?.dateOfEntry
