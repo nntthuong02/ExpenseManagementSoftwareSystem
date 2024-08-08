@@ -97,6 +97,9 @@ class PaymentViewModel @Inject constructor(
         return SimpleDateFormat("yyyy-MM-dd").format(date)
     }
 
+    fun formatDouble(value: Double): Double {
+        return String.format("%.1f", value).toDouble()
+    }
 
     init {
 
@@ -112,7 +115,7 @@ class PaymentViewModel @Inject constructor(
 
                     val fundExpensesDeferred = listFund.map { fund ->
                         async {
-                            val expense = getExpenseByFund(fund.fundId)
+                            val expense = formatDouble(getExpenseByFund(fund.fundId))
                             fund to expense
                         }
                     }
@@ -141,10 +144,10 @@ class PaymentViewModel @Inject constructor(
                             val expenseDeferred = async { getExpenseByFund(fundDto.fundId) }
                             val count = countDeferred.await()
                             val expense = expenseDeferred.await()
-                            fundExpenses.add(expense / count)
+                            fundExpenses.add(formatDouble(expense / count))
 
                     }
-                    fundExpenses.sum() - expenseParDeferred.await()
+                    fundExpenses.sum() - formatDouble(expenseParDeferred.await())
 
                 }
             }

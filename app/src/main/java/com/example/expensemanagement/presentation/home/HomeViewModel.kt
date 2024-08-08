@@ -131,6 +131,9 @@ class HomeViewModel @Inject constructor(
     private val _fundAndExpense = MutableStateFlow<List<Pair<Fund, Double>>>(emptyList())
     val fundAndExpense: StateFlow<List<Pair<Fund, Double>>> = _fundAndExpense
 
+    private val _chartData = MutableStateFlow<List<Pair<String, Double>>>(emptyList())
+    val chartData: StateFlow<List<Pair<String, Double>>> = _chartData
+
     private val _parAndBalance = MutableStateFlow<List<Pair<Participant, Double>>>(emptyList())
     val parAndBalance: StateFlow<List<Pair<Participant, Double>>> = _parAndBalance
 
@@ -175,7 +178,7 @@ class HomeViewModel @Inject constructor(
 
                     val fundExpensesDeferred = listFund.map { fund ->
                         async {
-                            val expense = getExpenseByFund(fund.fundId)
+                            val expense = formatDouble(getExpenseByFund(fund.fundId))
                             fund to expense
                         }
                     }
@@ -183,6 +186,7 @@ class HomeViewModel @Inject constructor(
                     val fundExpenses = fundExpensesDeferred.awaitAll()
 
                     _fundAndExpense.value = fundExpenses
+                    _chartData.value
                 }
             }
         }
@@ -198,7 +202,7 @@ class HomeViewModel @Inject constructor(
                     }
                     val parExpenseDeferred = listPar.map { par ->
                         async {
-                            val expense = getExpenseByPar(par.participantId)
+                            val expense = formatDouble(getExpenseByPar(par.participantId))
                             par to expense
                         }
                     }
@@ -208,6 +212,9 @@ class HomeViewModel @Inject constructor(
             }
         }
 
+    }
+    fun formatDouble(value: Double): Double {
+        return String.format("%.1f", value).toDouble()
     }
 
 

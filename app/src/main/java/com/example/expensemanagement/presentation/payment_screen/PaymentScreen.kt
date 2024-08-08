@@ -366,6 +366,7 @@ fun HistoryPayment(
 @Preview(showBackground = true)
 @Composable
 fun PreviewPaymentContent() {
+   
     val fund = Fund(1, "Quy 2", 1)
     val par = Participant(1, "Thuong")
     val fundAndExpense = listOf(

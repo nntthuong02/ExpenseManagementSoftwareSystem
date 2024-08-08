@@ -250,6 +250,10 @@ suspend fun getFunds(): List<Fund> {
             updateFund(updateFund)
         }
     }
+    fun formatDouble(value: Double): Double {
+        return String.format("%.1f", value).toDouble()
+    }
+
 
     fun addNewTransaction(
 //        transactionId: Int,
@@ -271,7 +275,7 @@ suspend fun getFunds(): List<Fund> {
                 transactionTitle,
                 selectedDate,
                 date,
-                amount,
+                formatDouble(amount),
                 category,
                 isPaid,
                 transactionType,
@@ -329,7 +333,7 @@ suspend fun getFunds(): List<Fund> {
                 transactionId,
                 transactionTitle,
                 selectedDate,
-                amount,
+                formatDouble(amount),
                 category,
                 transactionType,
                 selectedParId,
