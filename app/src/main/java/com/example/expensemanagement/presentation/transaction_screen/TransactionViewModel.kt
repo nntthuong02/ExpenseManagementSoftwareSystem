@@ -47,6 +47,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -250,8 +251,11 @@ suspend fun getFunds(): List<Fund> {
             updateFund(updateFund)
         }
     }
+//    fun formatDouble(value: Double): Double {
+//        return String.format("%.1f", value).toDouble()
+//    }
     fun formatDouble(value: Double): Double {
-        return String.format("%.1f", value).toDouble()
+        return String.format(Locale.US, "%.1f", value).toDouble()
     }
 
 

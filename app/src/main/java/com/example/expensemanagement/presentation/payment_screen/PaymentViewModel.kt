@@ -98,7 +98,7 @@ class PaymentViewModel @Inject constructor(
     }
 
     fun formatDouble(value: Double): Double {
-        return String.format("%.1f", value).toDouble()
+        return String.format(Locale.US, "%.1f", value).toDouble()
     }
 
     init {
