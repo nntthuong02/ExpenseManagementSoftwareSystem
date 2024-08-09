@@ -122,6 +122,9 @@ class HomeViewModel @Inject constructor(
     private val _transWithPar = MutableStateFlow<List<Pair<Transaction, Participant>>>(emptyList())
     val transWithPar: StateFlow<List<Pair<Transaction, Participant>>> = _transWithPar
 
+    private val _transWithFund = MutableStateFlow<List<Pair<Transaction, Fund>>>(emptyList())
+    val transWithFund: StateFlow<List<Pair<Transaction, Fund>>> = _transWithFund
+
     private val _numberFund = MutableStateFlow(0)
     val numberFund: StateFlow<Int> = _numberFund
 
@@ -334,7 +337,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getTransWithPar() {
+    fun getTransWithParByFund() {
         viewModelScope.launch(IO) {
             _transByFund.collect {
                 it?.let { listTrans ->
@@ -353,19 +356,19 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getTransWithParByPar() {
+    fun getTransWithFundByPar() {
         viewModelScope.launch(IO) {
             _transByPar.collect {
                 it?.let { listTrans ->
                     val mappedList = listTrans.mapNotNull { trans ->
-                        _parById.value = getParticipantById(trans.participantId).first().toParticipant()
-                        _parById.value?.let {
+                        _fundById.value = getFundById(trans.fundId).first().toFund()
+                        _fundById.value?.let {
                             trans to it
                         }
 //                   trans to _parById!!.value
                     }
 
-                    _transWithPar.value = mappedList
+                    _transWithFund.value = mappedList
                 }
 
             }

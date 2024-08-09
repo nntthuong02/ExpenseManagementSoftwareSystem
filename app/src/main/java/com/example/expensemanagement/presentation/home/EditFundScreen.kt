@@ -103,7 +103,7 @@ fun EditFundScreen(
             getFundByFundId(fundId)
             getTransactionByFund(fundId)
             getAllPars()
-            getTransWithPar()
+            getTransWithParByFund()
         }
     }
         if (transByFund != null) {

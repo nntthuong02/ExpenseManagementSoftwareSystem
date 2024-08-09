@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.expensemanagement.common.Constants
+import com.example.expensemanagement.domain.models.Fund
 import com.example.expensemanagement.domain.models.Participant
 import com.example.expensemanagement.domain.models.Transaction
 import com.example.expensemanagement.presentation.common.TabContent
@@ -65,10 +66,10 @@ fun EditParticipantScreen(
 ) {
     val selectedTab by homeViewModel.tabPar.collectAsState()
     val parById by homeViewModel.parById.collectAsState()
-    val allPars by homeViewModel.allParticipant.collectAsState()
+//    val allPars by homeViewModel.allParticipant.collectAsState()
     val transByPar by homeViewModel.transByPar.collectAsState()
     val currencyCode by homeViewModel.selectedCurrencyCode.collectAsState()
-    val transWithPar by homeViewModel.transWithPar.collectAsState()
+    val transWithFund by homeViewModel.transWithFund.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -80,8 +81,8 @@ fun EditParticipantScreen(
         homeViewModel.apply {
             getParById(parId)
             getTransactionByPar(parId)
-            getAllPars()
-            getTransWithParByPar()
+//            getAllPars()
+            getTransWithFundByPar()
         }
     }
     if (transByPar != null) {
@@ -127,7 +128,7 @@ fun EditParticipantScreen(
                             }
                         }
                     },
-                    allParticipant = allPars,
+//                    allParticipant = allPars,
 //                    saveParticipant = { listChecked ->
 //                        val selectedParticipants = allPars.filterIndexed { index, _ ->
 //                            listChecked[index]
@@ -157,10 +158,10 @@ fun EditParticipantScreen(
                 )
 
                 else -> {
-                    TransactionContent(
+                    TransactionContent2(
                         currencyCode = currencyCode,
-                        transByFund = transByPar,
-                        transWithPar = transWithPar,
+                        transByPar = transByPar,
+                        transWithFund = transWithFund,
                         onItemClick = {}
                     )
                 }
@@ -176,18 +177,18 @@ fun ParticipantContent(
     onChange: (String) -> Unit,
     onSave: () -> Unit,
     deletePar: () -> Unit,
-    allParticipant: List<Participant>,
+//    allParticipant: List<Participant>,
 //    saveParticipant: (List<Boolean>) -> Unit,
 ) {
-    val childCheckedStates = remember { mutableStateListOf<Boolean>() }
-    LaunchedEffect(allParticipant.size) {
-        childCheckedStates.addAll(List(allParticipant.size) { false })
-    }
-    val parentState = when {
-        childCheckedStates.all { it } -> ToggleableState.On
-        childCheckedStates.none { it } -> ToggleableState.Off
-        else -> ToggleableState.Indeterminate
-    }
+//    val childCheckedStates = remember { mutableStateListOf<Boolean>() }
+//    LaunchedEffect(allParticipant.size) {
+//        childCheckedStates.addAll(List(allParticipant.size) { false })
+//    }
+//    val parentState = when {
+//        childCheckedStates.all { it } -> ToggleableState.On
+//        childCheckedStates.none { it } -> ToggleableState.Off
+//        else -> ToggleableState.Indeterminate
+//    }
 //    Column(
 //        modifier = Modifier
 //            .fillMaxWidth(),
@@ -294,11 +295,11 @@ fun ParticipantContent(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Transaction2Content(
+fun TransactionContent2(
     currencyCode: String,
     transByPar: List<Transaction>,
-    transWithPar: List<Pair<Transaction, Participant>>,
-    homeViewModel: HomeViewModel = hiltViewModel(),
+    transWithFund: List<Pair<Transaction, Fund>>,
+//    homeViewModel: HomeViewModel = hiltViewModel(),
     onItemClick: (Int) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -309,7 +310,7 @@ fun Transaction2Content(
             top = 5.dp
         )
     ) {
-        if (transByPar.isEmpty()) {
+        if(transByPar.isEmpty()) {
             Box(
                 modifier = Modifier
                     .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
@@ -330,7 +331,7 @@ fun Transaction2Content(
                     )
             }
 
-        } else {
+        } else{
             LazyColumn(
                 contentPadding = PaddingValues(
                     start = 5.dp,
@@ -347,17 +348,19 @@ fun Transaction2Content(
 //                    )
 //
 //                }
-                itemsIndexed(transWithPar) { index, (trans, participant) ->
+
+                itemsIndexed(transWithFund) { index, (trans, fund) ->
 
 //                    coroutineScope.launch {
 //                        homeViewModel.getParById(trans.participantId)
 //                    }
                     val category = getCategory(trans.category)
+
                     TransItem(
                         transaction = trans,
                         category = category,
                         currencyCode = currencyCode,
-                        parName = "",
+                        parName = fund.fundName,
 
                         )
 
@@ -386,7 +389,7 @@ fun ParticipantContentPreview(){
         onChange = {},
         onSave = { /*TODO*/ },
         deletePar = { /*TODO*/ },
-        allParticipant = fakeParticipants,
+//        allParticipant = fakeParticipants,
 //        saveParticipant = {}
     )
 }
