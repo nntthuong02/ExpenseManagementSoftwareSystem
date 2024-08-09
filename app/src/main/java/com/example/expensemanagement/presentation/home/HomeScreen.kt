@@ -1,11 +1,17 @@
 package com.example.expensemanagement.presentation.home
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -16,6 +22,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,8 +37,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.expensemanagement.domain.models.Fund
 import com.example.expensemanagement.presentation.home.component.EditNameEntity
 import com.example.expensemanagement.presentation.home.component.EntityItem
+import com.example.expensemanagement.presentation.insight_screen.component.AlertDialogComponent
 import com.example.expensemanagement.presentation.navigation.Route
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -62,11 +71,12 @@ fun HomeScreen(
     val currency by homeViewModel.selectedCurrencyCode.collectAsState()
     val numberFund by homeViewModel.numberFund.collectAsState()
     val numberPar by homeViewModel.numberPar.collectAsState()
-
+    val openAlertDialog = remember { mutableStateOf(false) }
 
 
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     // Dummy data
 //    val group = remember { mutableStateOf(GroupData(1, "GroupData A")) }
@@ -133,7 +143,45 @@ fun HomeScreen(
             surfaceColor = Color.Green
         )
         Spacer(modifier = Modifier.padding(5.dp))
-        SnackbarHost(hostState = snackbarHostState)
+        if (openAlertDialog.value == true) {
+            AlertDialogComponent(
+                onDismissRequest = { openAlertDialog.value = false },
+                onConfirmation = {
+                    openAlertDialog.value = false
+                    // Add logic here to handle confirmation.
+                    coroutineScope.launch {
+                        try {
+//                                navController.navigateUp()
+
+                            homeViewModel.eraseAllTransactions()
+
+                            navController.navigate(Route.HomeScreen.route)
+                            Toast.makeText(context, "Erased successfully!", Toast.LENGTH_SHORT).show()
+                        } catch (e: Exception) {
+                            // Handle exception if needed
+                            Log.e("YourComposable", "Error deleting transaction", e)
+                        }
+                    }
+                },
+                dialogTitle = "Confirmation delete",
+                dialogText = "Do you want to delete all transactions?",
+                icon = Icons.Default.Info
+            )
+        }
+        Spacer(modifier = Modifier.padding(5.dp))
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Button(
+                onClick = { openAlertDialog.value = true },
+                shape = MaterialTheme.shapes.small,
+                modifier = Modifier
+                    .padding(5.dp)
+                    .weight(1f)
+            ) {
+                Text(text = "Delete All Transactions")
+            }
+
+        }
+//        SnackbarHost(hostState = snackbarHostState)
 
 
     }

@@ -33,6 +33,7 @@ import com.example.expensemanagement.domain.usecase.read_datastore.GetCurrencyUs
 import com.example.expensemanagement.domain.usecase.write_database.EraseFundById
 import com.example.expensemanagement.domain.usecase.write_database.EraseParFundById
 import com.example.expensemanagement.domain.usecase.write_database.EraseParticipantById
+import com.example.expensemanagement.domain.usecase.write_database.EraseTransaction
 import com.example.expensemanagement.domain.usecase.write_database.InsertNewFund
 import com.example.expensemanagement.domain.usecase.write_database.InsertNewParticipant
 import com.example.expensemanagement.domain.usecase.write_database.InsertNewParticipantFund
@@ -86,6 +87,7 @@ class HomeViewModel @Inject constructor(
     private val updateParticipant: UpdateParticipant,
     private val getTransByFund: GetTransByFund,
     private val getParticipantByFundId: GetParticipantByFundId,
+    private val eraseAllTransaction: EraseTransaction
 //    private val getTransactionByParticipant: GetTransactionByParticipant
 ) : ViewModel() {
 
@@ -341,6 +343,11 @@ class HomeViewModel @Inject constructor(
                 }
 
             }
+        }
+    }
+    fun eraseAllTransactions(){
+        viewModelScope.launch(IO){
+            eraseAllTransaction()
         }
     }
 
