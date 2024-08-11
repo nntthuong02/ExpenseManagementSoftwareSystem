@@ -57,7 +57,8 @@ fun ListParticipantScreen(
     val parNameTextField = TextFieldValue(parTitle.collectAsState().value)
 
     LaunchedEffect(Unit){
-        homeViewModel.getAllPars()
+        launch { homeViewModel.getAllPars() }
+        launch { homeViewModel.fetchParAndExpense() }
     }
 
     Column(

@@ -61,7 +61,8 @@ fun ListFundScreen(
     val fundTitle by remember { mutableStateOf(homeViewModel.fundName) }
     var fundNameFieldValue = TextFieldValue(fundTitle.collectAsState().value)
     LaunchedEffect(Unit) {
-        homeViewModel.getFundByGroup()
+        launch { homeViewModel.getFundByGroup() }
+        launch { homeViewModel.fetchFundAndExpense() }
     }
     Column(
         modifier = Modifier

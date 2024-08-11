@@ -16,12 +16,17 @@ import com.example.expensemanagement.presentation.home.EditParticipantScreen
 import com.example.expensemanagement.presentation.home.HomeScreen
 import com.example.expensemanagement.presentation.home.ListFundScreen
 import com.example.expensemanagement.presentation.home.ListParticipantScreen
+import com.example.expensemanagement.presentation.home.ListTransactionScreen
+import com.example.expensemanagement.presentation.home.StatisticsScreen
 import com.example.expensemanagement.presentation.insight_screen.EditTransactionScreen
 import com.example.expensemanagement.presentation.insight_screen.InsightScreen
 import com.example.expensemanagement.presentation.insight_screen.ParticipantScreen
 import com.example.expensemanagement.presentation.insight_screen.TransactionDetailScreen
 import com.example.expensemanagement.presentation.onboarding.OnboardingScreen
 import com.example.expensemanagement.presentation.payment_screen.PaymentScreen
+import com.example.expensemanagement.presentation.setting.SettingScreen
+import com.example.expensemanagement.presentation.setting.Test1
+import com.example.expensemanagement.presentation.setting.Test2
 import com.example.expensemanagement.presentation.transaction_screen.TransactionScreen
 
 @ExperimentalFoundationApi
@@ -73,6 +78,12 @@ fun NavGraph(
         ){backStackEntry ->
             val parId = backStackEntry.arguments!!.getInt("parId")
             EditParticipantScreen(parId = parId, navController = navController)
+        }
+        composable(route = Route.ListTransaction.route){
+            ListTransactionScreen()
+        }
+        composable(route = Route.StatisticsScreen.route){
+            StatisticsScreen()
         }
         composable(route = Route.TransactionScreen.route) {
             TransactionScreen(navController = navController)
@@ -132,11 +143,13 @@ fun NavGraph(
         ) {backStackEntry ->
             EditTransactionScreen(transactionId = backStackEntry.arguments?.getInt("transId") ?: 1, fundId = backStackEntry.arguments?.getInt("fundId") ?: 1, navController = navController)
         }
-        composable(route = Route.SettingScreen.route) {
-            Text("SettingScreen")
-        }
+
         composable(route = Route.PayScreen.route){
             PaymentScreen(navController = navController)
         }
+        composable(route = Route.SettingScreen.route){
+            SettingScreen()
+        }
+
     }
 }

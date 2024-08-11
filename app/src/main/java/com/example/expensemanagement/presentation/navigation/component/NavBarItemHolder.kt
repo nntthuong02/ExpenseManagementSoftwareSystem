@@ -30,5 +30,10 @@ fun provideBottomNavItems() = listOf(
         "Payment",
         R.drawable.payments_24px,
         Route.PayScreen.route
+    ),
+    NavBarItemHolder(
+        "Payment",
+        R.drawable.settings_24px,
+        Route.SettingScreen.route
     )
 )

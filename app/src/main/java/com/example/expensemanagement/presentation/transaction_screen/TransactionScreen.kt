@@ -293,17 +293,17 @@ fun TransactionScreen(
                             coroutineScope.launch { snackbarHostState.showSnackbar("This function will be updated soon") }
 
                         } else {
-                            if (selectedFund != null) {
-                                funds.forEach { fund ->
-                                    if (fund.fundId == selectedFund!!.fundId) {
-
-                                        updateExpenseFund(
-                                            fund.fundId,
-                                            fund.fundName
-                                        )
-                                    }
-                                }
-                            }
+//                            if (selectedFund != null) {
+//                                funds.forEach { fund ->
+//                                    if (fund.fundId == selectedFund!!.fundId) {
+//
+//                                        updateExpenseFund(
+//                                            fund.fundId,
+//                                            fund.fundName
+//                                        )
+//                                    }
+//                                }
+//                            }
 
                             addNewTransaction(
 //                                0,
