@@ -3,16 +3,21 @@ package com.example.expensemanagement.presentation.home
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHost
@@ -28,8 +33,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -42,6 +49,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -102,14 +110,14 @@ fun HomeScreen(
             .padding(top = 5.dp),
     ) {
         Row(
-            Modifier.fillMaxWidth()
+            Modifier
+                .fillMaxWidth()
                 .padding(start = 10.dp),
             horizontalArrangement = Arrangement.Start
         ) {
             Text(text = buildAnnotatedString {
                 withStyle(
                     SpanStyle(
-
                         fontWeight = FontWeight.Normal,
                         fontSize = 16.sp,
                         letterSpacing = 0.4.sp,
@@ -190,7 +198,7 @@ fun HomeScreen(
             Text(
                 text = "Statistics",
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(start = 10.dp, top = 10.dp)
             )
             TabBarTransparent(
                 tab1 = TabContent.FUND,
@@ -199,21 +207,16 @@ fun HomeScreen(
             ) { tabContent ->
                 homeViewModel.setTabFund(tabContent)
             }
+            ArrowButton(buttonColor = Color.White, tint = Color.Black, iconId = R.drawable.east_24px) {
+                navController.navigate(Route.StatisticsScreen.route)
+            }
         }
-//        Row(
-//            Modifier.fillMaxWidth(),
-//            horizontalArrangement = Arrangement.SpaceBetween
-//        ) {
-//            Card(onClick = { navController.navigate(Route.StatisticsScreen.route)}) {
-//                Text(text = "StatisticsScreen")
-//            }
-////            TabBar(tab1 = , tab2 = , selectedTab = , onTabSelected = )
-//        }
+
         val fundExpense = fundExpenseUnPaid.map { (fund, expense) ->
-            fund to homeViewModel.formatDouble(expense / 1000.0)
+            fund to homeViewModel.formatAndScaleValue(expense)
         }
         val parExpense = parExpenseUnPaid.map { (par, expense) ->
-            par to homeViewModel.formatDouble(expense / 1000.0)
+            par to homeViewModel.formatAndScaleValue(expense)
         }
 
         if (fundExpenseUnPaid.isNotEmpty() && parExpenseUnPaid.isNotEmpty()) {
@@ -235,10 +238,11 @@ fun HomeScreen(
             }
         }
 
-        Spacer(Modifier.padding(5.dp))
+//        Spacer(Modifier.padding(5.dp))
         Row(
-            Modifier.fillMaxWidth()
-                .padding(start = 20.dp, end = 20.dp),
+            Modifier
+                .fillMaxWidth()
+                .padding(start = 20.dp, end = 20.dp, top = 10.dp),
             horizontalArrangement = Arrangement.Center,
             ) {
             Text(
@@ -249,6 +253,30 @@ fun HomeScreen(
     }
 }
 
+@Composable
+fun ArrowButton(
+    modifier: Modifier = Modifier,
+    buttonColor: Color,
+    tint: Color,
+    iconId: Int,
+    onClick: () -> Unit
+){
+    Button(
+        modifier = modifier,
+        contentPadding = PaddingValues(0.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = buttonColor
+        ),
+        onClick = onClick) {
+        Icon(
+            painter = painterResource(id = iconId),
+            contentDescription = null,
+            tint = tint,
+            modifier = Modifier
+                .size(32.dp)
+        )
+    }
+}
 
 @Preview(showSystemUi = true)
 @Composable

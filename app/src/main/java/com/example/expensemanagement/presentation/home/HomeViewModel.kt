@@ -59,6 +59,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.Collator
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -156,6 +158,8 @@ class HomeViewModel @Inject constructor(
     private val _parExpenseUnPaid = MutableStateFlow<List<Pair<Participant, Double>>>(emptyList())
     val parExpenseUnPaid: StateFlow<List<Pair<Participant, Double>>> = _parExpenseUnPaid
 
+    private val _numberTransOfFund = MutableStateFlow<List<Pair<Fund, Int>>>(emptyList())
+    val numberTransOfFund: StateFlow<List<Pair<Fund, Int>>> = _numberTransOfFund
 
     var expense = MutableStateFlow(0.0)
         private set
@@ -176,6 +180,8 @@ class HomeViewModel @Inject constructor(
     var tabFund = MutableStateFlow(TabContent.FUND)
         private set
     var tabPar = MutableStateFlow(TabContent.PARTICIPANT)
+        private set
+    var tabPaid = MutableStateFlow(TabContent.ALLTRANSACTIONS)
         private set
     var childCheckedStates = MutableStateFlow<List<Boolean>>(emptyList())
         private set
@@ -281,8 +287,59 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun getNumberTransByFund(fundId: Int) {
+        viewModelScope.launch(IO) {
+            getTransByFund(fundId).collect {
+                it?.let { listTransDto ->
+                    _transByFund.value = listTransDto.map { transDto ->
+                        transDto.toTransaction()
+                    }.sortedByDescending { trans -> trans.date }
+                }
+
+            }
+        }
+    }
+    fun getNumberTransOfFund(){
+        viewModelScope.launch(IO) {
+            getFundByGroupId(1).collect { listFundDto ->
+                listFundDto?.let {
+                    val listFund = it.map { fundDto -> fundDto.toFund() }
+                        .sortedWith { fund1, fund2 ->
+                            collator.compare(fund1.fundName, fund2.fundName)
+                        }
+
+                    val numberDeferred = listFund.map { fund ->
+                        async {
+                            val listTrans = getTransByFund(fund.fundId).first()
+                            fund to listTrans.size
+                        }
+                    }
+
+                    val numberTrans = numberDeferred.awaitAll()
+
+                    _numberTransOfFund.value = numberTrans
+                }
+            }
+        }
+    }
+
     fun formatDouble(value: Double): Double {
         return String.format(Locale.US, "%.1f", value).toDouble()
+    }
+
+    fun formatAmount(value: Double): String {
+        val symbols = DecimalFormatSymbols(Locale.US).apply {
+            decimalSeparator = ','
+            groupingSeparator = '.'
+        }
+        val format = DecimalFormat("#,###.0", symbols)
+
+        return format.format(value)
+    }
+
+    fun formatAndScaleValue(value: Double): Double {
+        val scaledValue = value / 1000
+        return String.format(Locale.US, "%.1f", scaledValue).toDouble()
     }
 
 
@@ -711,6 +768,10 @@ class HomeViewModel @Inject constructor(
 
     fun setTabPar(tab: TabContent) {
         tabPar.value = tab
+    }
+
+    fun setTabPaid(tab: TabContent) {
+        tabPaid.value = tab
     }
 
     fun setExpense(amount: Double) {

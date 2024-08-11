@@ -54,11 +54,13 @@ fun MainScreen(
             )
             //itemClick
             {
+                navController.popBackStack()
                 navController.navigate(it.route) {
                     popUpTo(navController.graph.startDestinationId)
                     launchSingleTop = true
                     restoreState = true
                 }
+
             }
         }
         }

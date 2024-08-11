@@ -4,6 +4,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 
 @Composable
-fun Test1() {
+fun Test2() {
     Text(text = "Test2")
 }

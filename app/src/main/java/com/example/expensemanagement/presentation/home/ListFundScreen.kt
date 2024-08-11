@@ -37,9 +37,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.expensemanagement.R
 import com.example.expensemanagement.common.Constants
 import com.example.expensemanagement.presentation.home.component.AddEntity
+import com.example.expensemanagement.presentation.home.component.CenterAlignedTopAppBar
 import com.example.expensemanagement.presentation.home.component.DetailEntityItem
+import com.example.expensemanagement.presentation.home.component.DialogAddName
 import com.example.expensemanagement.presentation.home.component.EntityItem
 import com.example.expensemanagement.presentation.navigation.Route
 import kotlinx.coroutines.launch
@@ -54,8 +57,10 @@ fun ListFundScreen(
     val transByFund by homeViewModel.transByFund.collectAsState()
     val expense by homeViewModel.expense.collectAsState()
     val fundAndExpense by homeViewModel.fundAndExpense.collectAsState()
+    val numberTransOfFund by homeViewModel.numberTransOfFund.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
+    val openAlertDialog = remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val fundTitle by remember { mutableStateOf(homeViewModel.fundName) }
@@ -63,124 +68,130 @@ fun ListFundScreen(
     LaunchedEffect(Unit) {
         launch { homeViewModel.getFundByGroup() }
         launch { homeViewModel.fetchFundAndExpense() }
+        launch { homeViewModel.getNumberTransOfFund() }
+
     }
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 10.dp),
-        verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    CenterAlignedTopAppBar(
+        name = "Fund",
+        rightIcon = R.drawable.add_24px,
+        editOnclick = { openAlertDialog.value = true },
+        showIconRight = true,
+        showIconLeft = true,
+        navController = navController
+    ) {innerPadding ->
         Column(
             modifier = Modifier
-                .fillMaxWidth(),
-            // Chiếm 10% không gian
+                .fillMaxSize()
+                .padding(paddingValues = innerPadding),
+            verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-
-            AddEntity(nameEntity = "Fund", name = fundNameFieldValue.text, onNameChange = {
-                homeViewModel.setFundName(it)
-            }) {
-                coroutineScope.launch {
-                    if (fundNameFieldValue.text.isEmpty()) {
-                        // Hiển thị Snackbar thông báo lỗi
+            if(openAlertDialog.value == true){
+                DialogAddName(
+                    onDismissRequest = { openAlertDialog.value = false },
+                    onConfirmation = {
                         coroutineScope.launch {
-                            snackbarHostState.showSnackbar("Please enter name")
+                        if (fundNameFieldValue.text.isEmpty()) {
+                            // Hiển thị Snackbar thông báo lỗi
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Please enter name")
+                            }
+                        } else {
+                            openAlertDialog.value = false
+                            homeViewModel.insertFund(fundTitle.value, 1)
+//
+                            navController.navigate("${Route.ListFundScreen.route}")
+                            Toast.makeText(context, "Additional funds successfully", Toast.LENGTH_SHORT).show()
                         }
-                    } else {
-                        homeViewModel.insertFund(fundTitle.value, 1)
-                        navController.navigateUp()
-                        navController.navigate("${Route.ListFundScreen.route}")
-                        Toast.makeText(context, "Add successfully", Toast.LENGTH_SHORT).show()
                     }
-                }
-            }
-            Box(
-                modifier = Modifier
-                    .background(Color.Green) // Màu nền cho văn bản
-                    .padding(0.dp) // Khoảng cách giữa văn bản và viền nền
-            ) {
-                Text(
-                    text = "List Fund",
-                    modifier = Modifier
-                        .border(2.dp, Color.Black, RoundedCornerShape(4.dp))
-                        .padding(8.dp), // Tạo khoảng cách giữa văn bản và đường viền
-
+                                     },
+                    name = fundNameFieldValue.text,
+                    onNameChange = {text ->
+                                   homeViewModel.setFundName(text)
+                    },
+                    dialogTitle = "Enter the name of the fund you want to create!",
+                    dialogText = "fund",
+                    iconId = R.drawable.post_add_24px
                 )
             }
-            Spacer(modifier = Modifier.padding(10.dp))
-        }
+//            Column(
+//                modifier = Modifier
+//                    .fillMaxWidth(),
+//                // Chiếm 10% không gian
+//                horizontalAlignment = Alignment.CenterHorizontally
+//            ) {
+//
+//
+//                AddEntity(nameEntity = "Fund", name = fundNameFieldValue.text, onNameChange = {
+//                    homeViewModel.setFundName(it)
+//                }) {
+//                    coroutineScope.launch {
+//                        if (fundNameFieldValue.text.isEmpty()) {
+//                            // Hiển thị Snackbar thông báo lỗi
+//                            coroutineScope.launch {
+//                                snackbarHostState.showSnackbar("Please enter name")
+//                            }
+//                        } else {
+//                            homeViewModel.insertFund(fundTitle.value, 1)
+//                            navController.navigateUp()
+//                            navController.navigate("${Route.ListFundScreen.route}")
+//                            Toast.makeText(context, "Add successfully", Toast.LENGTH_SHORT).show()
+//                        }
+//                    }
+//                }
+//                Box(
+//                    modifier = Modifier
+//                        .background(Color.Green) // Màu nền cho văn bản
+//                        .padding(0.dp) // Khoảng cách giữa văn bản và viền nền
+//                ) {
+//                    Text(
+//                        text = "List Fund",
+//                        modifier = Modifier
+//                            .border(2.dp, Color.Black, RoundedCornerShape(4.dp))
+//                            .padding(8.dp), // Tạo khoảng cách giữa văn bản và đường viền
+//
+//                    )
+//                }
+//                Spacer(modifier = Modifier.padding(10.dp))
+//            }
 //        Column(
 //            modifier = Modifier
 //                .fillMaxWidth(),
 //            verticalArrangement = Arrangement.SpaceBetween,
 //            horizontalAlignment = Alignment.CenterHorizontally
 //        ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 4.dp, // Độ cao của Surface
-            shape = RoundedCornerShape(16.dp)
-        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
 
-            LazyColumn {
-//                    stickyHeader {
-//                        Column(
-//                            modifier = Modifier
-//                                .fillMaxWidth(),
-//                            horizontalAlignment = Alignment.CenterHorizontally
-//                        ) {
-//                            Text(
-//                                text = "List Fund",
-//                                modifier = Modifier
-//                                    .border(2.dp, Color.Black, RoundedCornerShape(4.dp))
-//                                    .padding(8.dp) // Tạo khoảng cách giữa văn bản và đường viền
-//                            )
-//                            Spacer(modifier = Modifier.padding(10.dp))
-//                        }
-//                    }
+                LazyColumn {
 
+                    itemsIndexed(fundAndExpense) { _, (fund, expense) ->
+                        var numberTrans = 0
+                        numberTransOfFund.forEach { (fund2, number) ->
+                            if(fund2.fundId == fund.fundId ){numberTrans = number}
+                        }
+                        DetailEntityItem(
+                            name = fund.fundName,
+                            numberTransaction = numberTrans,
+                            amount = homeViewModel.formatAmount(expense),
+                            itemOnClick = { navController.navigate("${Route.EditFundScreen.route}/${fund!!.fundId}") },
+                            backgroundColor = Color.DarkGray.copy(alpha = 0.1f),
+                            amountType = "EXPENSE: ",
+                            surfaceColor = Color.Blue.copy(alpha = 0.5f)
+                        )
 
-                itemsIndexed(fundAndExpense) { _, (fund, expense) ->
-//                    coroutineScope.launch {
-//                        homeViewModel.getTransactionByFund(fund.fundId)
-//                        var sum = 0.0
-//                        transByFund.forEach { trans ->
-//                            if (trans.transactionType == Constants.EXPENSE) {
-//                                sum += trans.amount
-//                            }
-//                        }
-//                        homeViewModel.setExpense(sum)
-//                    }
-                    DetailEntityItem(
-                        name = fund.fundName,
-                        numberTransaction = transByFund.size,
-                        amount = expense,
-                        itemOnClick = { navController.navigate("${Route.EditFundScreen.route}/${fund!!.fundId}") },
-                        backgroundColor = Color.DarkGray.copy(alpha = 0.3f),
-                        amountType = "EXPENSE: ",
-                        surfaceColor = Color.Blue.copy(alpha = 0.8f)
-                    )
-
+                    }
                 }
+                SnackbarHost(hostState = snackbarHostState)
             }
-            SnackbarHost(hostState = snackbarHostState)
+
+
 
         }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-        }
-
-
     }
+
 }
 
 @Preview(showSystemUi = true)

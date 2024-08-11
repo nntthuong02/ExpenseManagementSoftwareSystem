@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.sp
 fun DetailEntityItem(
     name: String,
     numberTransaction: Int,
-    amount: Double,
+    amount: String,
     amountType: String,
     itemOnClick: () -> Unit,
     backgroundColor: Color,
@@ -55,7 +55,7 @@ fun DetailEntityItem(
                 )
         ) {
             Text(
-                text = "Name: " + "$name",
+                text = "$name",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(top = 10.dp),
@@ -141,7 +141,7 @@ fun DetailEntityPreview() {
     DetailEntityItem(
         name = "My Fund",
         numberTransaction = 1,
-        amount = 1.0,
+        amount = "1.0",
         itemOnClick = { /*TODO*/ },
         backgroundColor = Color.DarkGray.copy(alpha = 0.1f),
         amountType = "Expense",

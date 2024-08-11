@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,10 +45,10 @@ fun NavBarItem(item: NavBarItemHolder, onClick: () -> Unit, selected: Boolean) {
             .background(backgroundColor)
             .clickable { onClick() }
     ) {
-        Row(
-            modifier = Modifier.padding(vertical = 12.dp, horizontal = 20.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+        Column(
+            modifier = Modifier.padding(horizontal = 10.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
 
         ) {
             Icon(
@@ -55,15 +56,13 @@ fun NavBarItem(item: NavBarItemHolder, onClick: () -> Unit, selected: Boolean) {
                 tint = contentColor,
                 contentDescription = item.title
             )
-            AnimatedVisibility(visible = selected) {
                 Text(
                     text = item.title,
                     textAlign = TextAlign.Center,
                     color = contentColor,
-                    fontSize = 14.sp,
+                    fontSize = 8.sp,
                     fontWeight = FontWeight.Bold
                 )
-            }
         }
     }
 }

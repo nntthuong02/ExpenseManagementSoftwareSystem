@@ -159,7 +159,7 @@ fun ListParticipantScreen(
                     DetailEntityItem(
                         name = par.participantName,
                         numberTransaction = transByPar.size,
-                        amount = expense,
+                        amount = homeViewModel.formatAmount(expense),
                         itemOnClick = { navController.navigate("${Route.EditParticipantScreen.route}/${par!!.participantId}") },
                         backgroundColor = Color.DarkGray.copy(alpha = 0.3f),
                         amountType = "Expense: ",

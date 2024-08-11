@@ -106,22 +106,26 @@ fun EditFundScreen(
             getTransWithParByFund()
         }
     }
-        if (transByFund != null) {
-            var sum = 0.0
-            transByFund.forEach { trans ->
-                if (trans.transactionType == Constants.EXPENSE) {
-                    sum += trans.amount
-                }
+    if (transByFund != null) {
+        var sum = 0.0
+        transByFund.forEach { trans ->
+            if (trans.transactionType == Constants.EXPENSE) {
+                sum += trans.amount
             }
-            homeViewModel.setExpense(sum)
         }
+        homeViewModel.setExpense(sum)
+    }
 
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         // Row with buttons to switch between tabs
-        TabBar(tab1 = TabContent.FUND, tab2 = TabContent.TRANSACTION, selectedTab = selectedTab) { tabContent ->
+        TabBar(
+            tab1 = TabContent.FUND,
+            tab2 = TabContent.TRANSACTION,
+            selectedTab = selectedTab
+        ) { tabContent ->
             homeViewModel.setTabFund(tabContent)
         }
 
@@ -156,8 +160,8 @@ fun EditFundScreen(
                         val selectedParticipants = allParticipant.filterIndexed { index, _ ->
                             listChecked[index]
                         }
-                        coroutineScope.launch{
-                            if(selectedParticipants.isEmpty()){
+                        coroutineScope.launch {
+                            if (selectedParticipants.isEmpty()) {
                                 snackbarHostState.showSnackbar("You must select at least one participant")
                             } else {
                                 homeViewModel.addParticipantToFund(selectedParticipants, fundId)
@@ -171,19 +175,19 @@ fun EditFundScreen(
 
                     },
                     deleteFund = {
-                        if (fundId != 1){
+                        if (fundId != 1) {
                             coroutineScope.launch {
                                 homeViewModel.eraseFundByFundId(fundId)
                             }
 //                        navController.navigate("${Route.ListFundScreen.route}")
 
-                        navController.navigateUp()
-                        Toast.makeText(context, "erase successfully", Toast.LENGTH_SHORT).show()
-                    } else{
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar("Cannot delete default fund!")
+                            navController.navigateUp()
+                            Toast.makeText(context, "erase successfully", Toast.LENGTH_SHORT).show()
+                        } else {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Cannot delete default fund!")
 //                            Toast.makeText(context, "Cannot delete default fund!", Toast.LENGTH_SHORT).show()
-                        }
+                            }
                         }
                     }
                 )
@@ -212,10 +216,10 @@ fun FundContent(
     onSave: () -> Unit,
     deleteFund: () -> Unit,
     allParticipant: List<Participant>,
-    saveParticipant: (List<Boolean>)  -> Unit,
+    saveParticipant: (List<Boolean>) -> Unit,
 ) {
     val childCheckedStates = remember { mutableStateListOf<Boolean>() }
-    LaunchedEffect(allParticipant.size){
+    LaunchedEffect(allParticipant.size) {
         childCheckedStates.addAll(List(allParticipant.size) { false })
     }
     val parentState = when {
@@ -228,102 +232,102 @@ fun FundContent(
 //            .fillMaxWidth(),
 //        verticalArrangement = Arrangement.SpaceBetween
 //    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween
-            ) {
-            EditNameEntity(
-                nameEntity = "Fund",
-                name = fundNameFieldValue.text,
-                onNameChange = onChange
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        EditNameEntity(
+            nameEntity = "Fund",
+            name = fundNameFieldValue.text,
+            onNameChange = onChange
 //                {
 //                    homeViewModel.setFundName(it)
 //                }
-            ) {
-                onSave()
-            }
+        ) {
+            onSave()
+        }
 
-            Column(
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 5.dp, end = 5.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Parent TriStateCheckbox
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 5.dp, end = 5.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // Parent TriStateCheckbox
-                Box(
-                    modifier = Modifier
-                        .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
+                    .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
 //                        .background(Color.LightGray) // Màu nền cho văn bản
-                        .padding(0.dp) // Khoảng cách giữa văn bản và viền nền
-                        .fillMaxWidth()
-                ) {
-                    Text(
-                        text = "Add paritcipant",
-                        modifier = Modifier
+                    .padding(0.dp) // Khoảng cách giữa văn bản và viền nền
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = "Add paritcipant",
+                    modifier = Modifier
 
-                            .align(Alignment.Center)
-                            .padding(8.dp), // Tạo khoảng cách giữa văn bản và đường viền
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        )
-                }
+                        .align(Alignment.Center)
+                        .padding(8.dp), // Tạo khoảng cách giữa văn bản và đường viền
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
 //                Text("Add participant")
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text("Select all        ")
-                    TriStateCheckbox(
-                        state = parentState,
-                        onClick = {
-                            val newState = parentState != ToggleableState.On
-                            childCheckedStates.forEachIndexed { index, _ ->
-                                childCheckedStates[index] = newState
-                            }
-                        }
-                    )
-                }
-                LazyColumn {
-                    itemsIndexed(childCheckedStates) { index, checked ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text("${allParticipant[index].participantName}     ")
-                            Checkbox(
-                                checked = checked,
-                                onCheckedChange = { isChecked ->
-                                    childCheckedStates[index] = isChecked
-                                }
-                            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Select all        ")
+                TriStateCheckbox(
+                    state = parentState,
+                    onClick = {
+                        val newState = parentState != ToggleableState.On
+                        childCheckedStates.forEachIndexed { index, _ ->
+                            childCheckedStates[index] = newState
                         }
                     }
-                }
-
+                )
             }
-//            }
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                SnackbarHost(hostState = snackbarHostState)
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = { saveParticipant(childCheckedStates) }
-                ) {
-                    Text(text = "Save participant")
-                }
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = deleteFund
-                ) {
-                    Text(text = "Delete fund")
+            LazyColumn {
+                itemsIndexed(childCheckedStates) { index, checked ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text("${allParticipant[index].participantName}     ")
+                        Checkbox(
+                            checked = checked,
+                            onCheckedChange = { isChecked ->
+                                childCheckedStates[index] = isChecked
+                            }
+                        )
+                    }
                 }
             }
 
         }
+//            }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            SnackbarHost(hostState = snackbarHostState)
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { saveParticipant(childCheckedStates) }
+            ) {
+                Text(text = "Save participant")
+            }
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = deleteFund
+            ) {
+                Text(text = "Delete fund")
+            }
+        }
+
+    }
 //    }
 }
 
@@ -344,7 +348,7 @@ fun TransactionContent(
             top = 5.dp
         )
     ) {
-        if(transByFund.isEmpty()) {
+        if (transByFund.isEmpty()) {
             Box(
                 modifier = Modifier
                     .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
@@ -365,7 +369,7 @@ fun TransactionContent(
                     )
             }
 
-        } else{
+        } else {
             LazyColumn(
                 contentPadding = PaddingValues(
                     start = 5.dp,
@@ -429,5 +433,5 @@ fun FundContentPreview() {
         allParticipant = fakeParticipants,
         saveParticipant = {},
         deleteFund = {}
-        )
+    )
 }

@@ -23,7 +23,7 @@ fun provideBottomNavItems() = listOf(
     ),
     NavBarItemHolder(
         "Insight",
-        R.drawable.insight_24,
+        R.drawable.list_alt_24px,
         Route.InsightScreen.route
     ),
     NavBarItemHolder(
@@ -32,7 +32,7 @@ fun provideBottomNavItems() = listOf(
         Route.PayScreen.route
     ),
     NavBarItemHolder(
-        "Payment",
+        "Setting",
         R.drawable.settings_24px,
         Route.SettingScreen.route
     )
