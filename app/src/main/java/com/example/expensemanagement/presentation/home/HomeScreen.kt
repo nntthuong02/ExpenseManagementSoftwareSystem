@@ -31,11 +31,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -100,7 +102,8 @@ fun HomeScreen(
             .padding(top = 5.dp),
     ) {
         Row(
-            Modifier.fillMaxWidth(),
+            Modifier.fillMaxWidth()
+                .padding(start = 10.dp),
             horizontalArrangement = Arrangement.Start
         ) {
             Text(text = buildAnnotatedString {
@@ -132,7 +135,9 @@ fun HomeScreen(
         Spacer(modifier = Modifier.padding(10.dp))
 
         Text(
+            modifier = Modifier.padding(10.dp),
             fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleLarge,
             color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.background),
             text = "Overview"
@@ -217,79 +222,30 @@ fun HomeScreen(
                 when (targetTab) {
                     TabContent.FUND -> FundBarChart(
                         oxLabel = "Fund",
-                        oyLabel = "Money(thousand)",
+                        oyLabel = "Money",
                         chartData = fundExpense
                     )
 
                     else -> ParBarChart(
                         oxLabel = "Participant",
-                        oyLabel = "Money(thousand)",
+                        oyLabel = "Money",
                         chartData = parExpense
                     )
                 }
             }
         }
 
-        // List fund
-//        EntityItem(
-//            nameEntity = "Fund",
-//            number = fundsByGroup.size.toString(),
-//            itemOnClick = {
-//                          navController.navigate(Route.ListFundScreen.route)
-//                          },
-//            backgroundColor = Color.DarkGray.copy(alpha= 0.1f),
-//            surfaceColor = Color.Blue
-//        )
-//        Spacer(modifier = Modifier.padding(5.dp))
-//        //List participant
-//        EntityItem(
-//            nameEntity = "Participant",
-//            number = allPar.size.toString(),
-//            itemOnClick = {
-//                          navController.navigate(Route.ListParticipantScreen.route)
-//                          },
-//            backgroundColor = Color.DarkGray.copy(alpha= 0.1f),
-//            surfaceColor = Color.Green
-//        )
-//        Spacer(modifier = Modifier.padding(5.dp))
-//        if (openAlertDialog.value == true) {
-//            AlertDialogComponent(
-//                onDismissRequest = { openAlertDialog.value = false },
-//                onConfirmation = {
-//                    openAlertDialog.value = false
-//                    // Add logic here to handle confirmation.
-//                    coroutineScope.launch {
-//                        try {
-////                                navController.navigateUp()
-//
-//                            homeViewModel.eraseAllTransactions()
-//
-//                            navController.navigate(Route.HomeScreen.route)
-//                            Toast.makeText(context, "Erased successfully!", Toast.LENGTH_SHORT).show()
-//                        } catch (e: Exception) {
-//                            // Handle exception if needed
-//                            Log.e("YourComposable", "Error deleting transaction", e)
-//                        }
-//                    }
-//                },
-//                dialogTitle = "Confirmation delete",
-//                dialogText = "Do you want to delete all transactions?",
-//                icon = Icons.Default.Info
-//            )
-//        }
-//        Spacer(modifier = Modifier.padding(5.dp))
-//        Row(modifier = Modifier.fillMaxWidth()) {
-//            Button(
-//                onClick = { openAlertDialog.value = true },
-//                shape = MaterialTheme.shapes.small,
-//                modifier = Modifier
-//                    .padding(5.dp)
-//                    .weight(1f)
-//            ) {
-//                Text(text = "Delete All Transactions")
-//            }
-//
-//        }
+        Spacer(Modifier.padding(5.dp))
+        Row(
+            Modifier.fillMaxWidth()
+                .padding(start = 20.dp, end = 20.dp),
+            horizontalArrangement = Arrangement.Center,
+            ) {
+            Text(
+                text = "The chart shows the total amount of unpaid expenses (Unit: thousands)",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Normal, fontFamily = FontFamily.SansSerif)
+            )
+        }
     }
 }
 

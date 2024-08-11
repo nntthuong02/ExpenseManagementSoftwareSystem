@@ -1,4 +1,4 @@
-package com.example.expensemanagement.presentation.home.component
+package com.example.expensemanagement.presentation.common
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
@@ -110,4 +111,22 @@ fun TestTextStyle() {
 @Composable
 fun TestTextStylePreview() {
     TestTextStyle()
+}
+
+@Composable
+fun TestFontFamily(){
+    Column(Modifier.fillMaxSize()) {
+        Text(text = "Monospace", fontFamily = FontFamily.Monospace)
+        Text(text = "Cursive", fontFamily = FontFamily.Cursive)
+        Text(text = "Serif", fontFamily = FontFamily.Serif)
+        Text(text = "SansSerif", fontFamily = FontFamily.SansSerif)
+        Text(text = "Default", fontFamily = FontFamily.Default)
+
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+fun TestFontFamilyPreview() {
+    TestFontFamily()
 }

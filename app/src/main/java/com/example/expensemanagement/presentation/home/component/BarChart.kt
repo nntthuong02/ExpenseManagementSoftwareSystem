@@ -47,7 +47,7 @@ fun FundBarChart(
     androidx.compose.foundation.Canvas(
         modifier = Modifier
             .fillMaxWidth()
-            .height(400.dp)
+            .height(350.dp)
             .background(Color.White)
             .padding(16.dp)
     ) {
@@ -56,7 +56,7 @@ fun FundBarChart(
         val canvasWidth = size.width
         val spacePerData = (canvasWidth - spacingFromLeft) / chartData.size
         val spaceName = 90f
-        val topOy = 30f
+        val topOy = 50f
         val rightOx = 40f
         val maxValueColumn = canvasHeight - spacingFromBottom - topOy
 
@@ -103,7 +103,7 @@ fun FundBarChart(
                 drawText(
                     chartPair.second.toString(),
                     spacingFromLeft + spaceName + index * spacePerData,
-                    ((upperValue - chartPair.second.toFloat()) / upperValue * maxValueColumn).toFloat(),
+                    ((upperValue - chartPair.second.toFloat()) / upperValue * maxValueColumn + 40f).toFloat(),
                     textPaint
                 )
             }
@@ -190,7 +190,7 @@ fun ParBarChart(
     androidx.compose.foundation.Canvas(
         modifier = Modifier
             .fillMaxWidth()
-            .height(400.dp)
+            .height(350.dp)
             .background(Color.White)
             .padding(16.dp)
     ) {
@@ -199,7 +199,7 @@ fun ParBarChart(
         val canvasWidth = size.width
         val spacePerData = (canvasWidth - spacingFromLeft) / chartData.size
         val spaceName = 90f
-        val topOy = 30f
+        val topOy = 50f
         val rightOx = 40f
         val maxValueColumn = canvasHeight - spacingFromBottom - topOy
 
@@ -210,7 +210,6 @@ fun ParBarChart(
                 "${chartData[i].first.participantName.take(6)}..."
             } else {
                 chartData[i].first.participantName
-
             }
 //            val  = chartData[i].first.fundName
             drawContext.canvas.nativeCanvas.apply {
@@ -247,7 +246,7 @@ fun ParBarChart(
                 drawText(
                     chartPair.second.toString(),
                     spacingFromLeft + spaceName + index * spacePerData,
-                    ((upperValue - chartPair.second.toFloat()) / upperValue * maxValueColumn).toFloat(),
+                    ((upperValue - chartPair.second.toFloat()) / upperValue * maxValueColumn + 40f).toFloat(),
                     textPaint
                 )
             }
