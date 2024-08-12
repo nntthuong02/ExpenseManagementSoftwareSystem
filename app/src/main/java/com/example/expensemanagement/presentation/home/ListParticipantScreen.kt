@@ -33,9 +33,12 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.example.expensemanagement.R
 import com.example.expensemanagement.common.Constants
 import com.example.expensemanagement.presentation.home.component.AddEntity
+import com.example.expensemanagement.presentation.home.component.CenterAlignedTopAppBar
 import com.example.expensemanagement.presentation.home.component.DetailEntityItem
+import com.example.expensemanagement.presentation.home.component.DialogAddName
 import com.example.expensemanagement.presentation.navigation.Route
 import kotlinx.coroutines.launch
 
@@ -44,13 +47,13 @@ fun ListParticipantScreen(
     navController: NavHostController,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
-    val allPar by homeViewModel.allParticipant.collectAsState()
-    val transByPar by homeViewModel.transByPar.collectAsState()
-    val expense by homeViewModel.expense.collectAsState()
-    val income by homeViewModel.income.collectAsState()
     val parAndExpense by homeViewModel.parAndExpense.collectAsState()
+    val numberTransOfPar by homeViewModel.numberTransOfParticipant.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
+    val openAlertDialog = remember{ mutableStateOf(false) }
+    val showSnack = remember { mutableStateOf(false) }
+
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val parTitle by remember { mutableStateOf(homeViewModel.parName) }
@@ -59,127 +62,86 @@ fun ListParticipantScreen(
     LaunchedEffect(Unit){
         launch { homeViewModel.getAllPars() }
         launch { homeViewModel.fetchParAndExpense() }
+        launch { homeViewModel.getNumberTransOfPar() }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 10.dp),
-        verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(),
-            // Chiếm 10% không gian
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
 
+    CenterAlignedTopAppBar(
+        name = "Participant",
+        rightIcon = R.drawable.add_24px,
+        editOnclick = { openAlertDialog.value = true },
+        showIconRight = true,
+        showIconLeft = true,
+        showSnackbar = showSnack,
+        navController = navController
+    ) {innerPadding ->
 
-            AddEntity(nameEntity = "Participant", name = parNameTextField.text, onNameChange = {
-                homeViewModel.setParName(it)
-            }) {
-                coroutineScope.launch {
-                    if (parNameTextField.text.isEmpty()) {
-                        // Hiển thị Snackbar thông báo lỗi
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar("Please enter name")
-                        }
-                    } else {
-                        homeViewModel.insertParticipant(parTitle.value)
-                        navController.navigateUp()
-                        navController.navigate("${Route.ListParticipantScreen.route}")
-                        Toast.makeText(context, "Add successfully", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-            Box(
+            Column(
                 modifier = Modifier
-                    .background(Color.Green) // Màu nền cho văn bản
-                    .padding(0.dp) // Khoảng cách giữa văn bản và viền nền
+                    .fillMaxSize()
+                    .padding(paddingValues = innerPadding),
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = "List Participant",
-                    modifier = Modifier
-                        .border(2.dp, Color.Black, RoundedCornerShape(4.dp))
-                        .padding(8.dp), // Tạo khoảng cách giữa văn bản và đường viền
 
-                )
-            }
-            Spacer(modifier = Modifier.padding(10.dp))
-        }
-//        Column(
-//            modifier = Modifier
-//                .fillMaxWidth(),
-//            verticalArrangement = Arrangement.SpaceBetween,
-//            horizontalAlignment = Alignment.CenterHorizontally
-//        ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 4.dp, // Độ cao của Surface
-            shape = RoundedCornerShape(16.dp)
-        ) {
-
-            LazyColumn {
-//                    stickyHeader {
-//                        Column(
-//                            modifier = Modifier
-//                                .fillMaxWidth(),
-//                            horizontalAlignment = Alignment.CenterHorizontally
-//                        ) {
-//                            Text(
-//                                text = "List Participant",
-//                                modifier = Modifier
-//                                    .border(2.dp, Color.Black, RoundedCornerShape(4.dp))
-//                                    .padding(8.dp) // Tạo khoảng cách giữa văn bản và đường viền
-//                            )
-//                            Spacer(modifier = Modifier.padding(10.dp))
-//                        }
-//                    }
-
-
-                itemsIndexed(parAndExpense) { _, (par, expense) ->
-//                    coroutineScope.launch {
-//                        homeViewModel.getTransactionByPar(par.participantId)
-//                        var sumExpense = 0.0
-//                        var sumIncome = 0.0
-//                        transByPar.forEach { trans ->
-//                            if (trans.transactionType == Constants.EXPENSE) {
-//                                sumExpense += trans.amount
-//                            } else {
-//                                sumIncome += trans.amount
-//                            }
-//                        }
-//                        homeViewModel.setIncome(sumIncome)
-//                        homeViewModel.setExpense(sumExpense)
-//                    }
-                    DetailEntityItem(
-                        name = par.participantName,
-                        numberTransaction = transByPar.size,
-                        amount = homeViewModel.formatAmount(expense),
-                        itemOnClick = { navController.navigate("${Route.EditParticipantScreen.route}/${par!!.participantId}") },
-                        backgroundColor = Color.DarkGray.copy(alpha = 0.3f),
-                        amountType = "Expense: ",
-                        surfaceColor = Color.Blue.copy(alpha = 0.8f)
+                if(openAlertDialog.value == true){
+                    DialogAddName(
+                        onDismissRequest = { openAlertDialog.value = false },
+                        onConfirmation = {
+                            coroutineScope.launch {
+                                if (parNameTextField.text.isEmpty()){
+                                    openAlertDialog.value = false
+                                    showSnack.value = true
+                                }else {
+                                    openAlertDialog.value = false
+                                    homeViewModel.insertParticipant(parTitle.value)
+                                    navController.navigate(Route.ListParticipantScreen.route)
+                                    Toast.makeText(context, "Additional participant successfully", Toast.LENGTH_SHORT)
+                                }
+                            }
+                        },
+                        name = parNameTextField.text,
+                        onNameChange = {text ->
+                            homeViewModel.setParName(text)
+                        },
+                        dialogTitle = "Enter the name of the participant you want to create!",
+                        dialogText = "participant",
+                        iconId = R.drawable.person_add_24px
                     )
+                }
+
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+
+                    LazyColumn {
+                        itemsIndexed(parAndExpense) { _, (par, expense) ->
+                            var numberTrans = 0
+                            numberTransOfPar.forEach { (par2, number) ->
+                                if(par.participantId == par2.participantId){
+                                    numberTrans = number
+                                }
+                            }
+
+                            DetailEntityItem(
+                                name = par.participantName,
+                                numberTransaction = numberTrans,
+                                amount = homeViewModel.formatAmount(expense),
+                                itemOnClick = { navController.navigate("${Route.EditParticipantScreen.route}/${par!!.participantId}") },
+                                backgroundColor = Color.DarkGray.copy(alpha = 0.1f),
+                                amountType = "Expense: ",
+                                surfaceColor = Color.Blue.copy(0.5f)
+                            )
+                        }
+                    }
+
 
                 }
             }
-            SnackbarHost(hostState = snackbarHostState)
 
-        }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-        }
 
 
     }
+
 }

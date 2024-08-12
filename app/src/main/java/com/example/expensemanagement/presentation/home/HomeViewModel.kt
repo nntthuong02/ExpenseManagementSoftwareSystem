@@ -161,6 +161,9 @@ class HomeViewModel @Inject constructor(
     private val _numberTransOfFund = MutableStateFlow<List<Pair<Fund, Int>>>(emptyList())
     val numberTransOfFund: StateFlow<List<Pair<Fund, Int>>> = _numberTransOfFund
 
+    private val _numberTransOfParticipant = MutableStateFlow<List<Pair<Participant, Int>>>(emptyList())
+    val numberTransOfParticipant: StateFlow<List<Pair<Participant, Int>>> = _numberTransOfParticipant
+
     var expense = MutableStateFlow(0.0)
         private set
     var income = MutableStateFlow(0.0)
@@ -302,12 +305,8 @@ class HomeViewModel @Inject constructor(
     fun getNumberTransOfFund(){
         viewModelScope.launch(IO) {
             getFundByGroupId(1).collect { listFundDto ->
-                listFundDto?.let {
+                listFundDto.let {
                     val listFund = it.map { fundDto -> fundDto.toFund() }
-                        .sortedWith { fund1, fund2 ->
-                            collator.compare(fund1.fundName, fund2.fundName)
-                        }
-
                     val numberDeferred = listFund.map { fund ->
                         async {
                             val listTrans = getTransByFund(fund.fundId).first()
@@ -323,11 +322,30 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun getNumberTransOfPar(){
+        viewModelScope.launch(IO) {
+            val listPar = getAllParticipants().first().map { parDto ->
+                parDto.toParticipant()
+            }
+            val numberDeferred = listPar.map { par ->
+                async {
+                    val listTrans = getTransactionByParticipant(par.participantId).first()
+                    par to listTrans.size
+                }
+            }
+            val numberTrans = numberDeferred.awaitAll()
+            _numberTransOfParticipant.value = numberTrans
+        }
+    }
+
     fun formatDouble(value: Double): Double {
         return String.format(Locale.US, "%.1f", value).toDouble()
     }
 
     fun formatAmount(value: Double): String {
+        if (value == 0.0) {
+            return "0,0"
+        }
         val symbols = DecimalFormatSymbols(Locale.US).apply {
             decimalSeparator = ','
             groupingSeparator = '.'

@@ -86,7 +86,7 @@ fun DetailEntityItem(
                         Text(text = buildAnnotatedString {
                             withStyle(
                                 SpanStyle(
-                                    fontWeight = FontWeight.Thin,
+                                    fontWeight = FontWeight.ExtraLight,
                                     fontSize = 14.sp,
                                     letterSpacing = 0.4.sp,
                                     color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary)
@@ -96,7 +96,7 @@ fun DetailEntityItem(
                             }
                             withStyle(
                                 SpanStyle(
-                                    fontWeight = FontWeight.Thin,
+                                    fontWeight = FontWeight.ExtraLight,
                                     fontSize = 14.sp,
                                     letterSpacing = 0.2.sp,
                                     color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary)
@@ -109,7 +109,7 @@ fun DetailEntityItem(
                         Text(text = buildAnnotatedString {
                             withStyle(
                                 SpanStyle(
-                                    fontWeight = FontWeight.Thin,
+                                    fontWeight = FontWeight.ExtraLight,
                                     fontSize = 14.sp,
                                     letterSpacing = 0.4.sp,
                                     color = Color.Red
@@ -119,7 +119,7 @@ fun DetailEntityItem(
                             }
                             withStyle(
                                 SpanStyle(
-                                    fontWeight = FontWeight.Thin,
+                                    fontWeight = FontWeight.ExtraLight,
                                     fontSize = 14.sp,
                                     letterSpacing = 0.2.sp,
                                     color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary)

@@ -45,6 +45,7 @@ import com.example.expensemanagement.presentation.home.component.DetailEntityIte
 import com.example.expensemanagement.presentation.home.component.DialogAddName
 import com.example.expensemanagement.presentation.home.component.EntityItem
 import com.example.expensemanagement.presentation.navigation.Route
+import com.example.expensemanagement.ui.theme.Blue1
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -53,11 +54,9 @@ fun ListFundScreen(
     navController: NavHostController,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
-    val fundByGroupId by homeViewModel.fundByGroupId.collectAsState()
-    val transByFund by homeViewModel.transByFund.collectAsState()
-    val expense by homeViewModel.expense.collectAsState()
     val fundAndExpense by homeViewModel.fundAndExpense.collectAsState()
     val numberTransOfFund by homeViewModel.numberTransOfFund.collectAsState()
+    val showSnack = remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
     val openAlertDialog = remember { mutableStateOf(false) }
@@ -65,18 +64,21 @@ fun ListFundScreen(
     val context = LocalContext.current
     val fundTitle by remember { mutableStateOf(homeViewModel.fundName) }
     var fundNameFieldValue = TextFieldValue(fundTitle.collectAsState().value)
+
     LaunchedEffect(Unit) {
         launch { homeViewModel.getFundByGroup() }
         launch { homeViewModel.fetchFundAndExpense() }
         launch { homeViewModel.getNumberTransOfFund() }
 
     }
+
     CenterAlignedTopAppBar(
         name = "Fund",
         rightIcon = R.drawable.add_24px,
         editOnclick = { openAlertDialog.value = true },
         showIconRight = true,
         showIconLeft = true,
+        showSnackbar = showSnack,
         navController = navController
     ) {innerPadding ->
         Column(
@@ -92,10 +94,10 @@ fun ListFundScreen(
                     onConfirmation = {
                         coroutineScope.launch {
                         if (fundNameFieldValue.text.isEmpty()) {
-                            // Hiển thị Snackbar thông báo lỗi
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar("Please enter name")
-                            }
+                            openAlertDialog.value = false
+                           showSnack.value = true
+//                                snackbarHostState.showSnackbar("Please enter name")
+
                         } else {
                             openAlertDialog.value = false
                             homeViewModel.insertFund(fundTitle.value, 1)
@@ -114,52 +116,6 @@ fun ListFundScreen(
                     iconId = R.drawable.post_add_24px
                 )
             }
-//            Column(
-//                modifier = Modifier
-//                    .fillMaxWidth(),
-//                // Chiếm 10% không gian
-//                horizontalAlignment = Alignment.CenterHorizontally
-//            ) {
-//
-//
-//                AddEntity(nameEntity = "Fund", name = fundNameFieldValue.text, onNameChange = {
-//                    homeViewModel.setFundName(it)
-//                }) {
-//                    coroutineScope.launch {
-//                        if (fundNameFieldValue.text.isEmpty()) {
-//                            // Hiển thị Snackbar thông báo lỗi
-//                            coroutineScope.launch {
-//                                snackbarHostState.showSnackbar("Please enter name")
-//                            }
-//                        } else {
-//                            homeViewModel.insertFund(fundTitle.value, 1)
-//                            navController.navigateUp()
-//                            navController.navigate("${Route.ListFundScreen.route}")
-//                            Toast.makeText(context, "Add successfully", Toast.LENGTH_SHORT).show()
-//                        }
-//                    }
-//                }
-//                Box(
-//                    modifier = Modifier
-//                        .background(Color.Green) // Màu nền cho văn bản
-//                        .padding(0.dp) // Khoảng cách giữa văn bản và viền nền
-//                ) {
-//                    Text(
-//                        text = "List Fund",
-//                        modifier = Modifier
-//                            .border(2.dp, Color.Black, RoundedCornerShape(4.dp))
-//                            .padding(8.dp), // Tạo khoảng cách giữa văn bản và đường viền
-//
-//                    )
-//                }
-//                Spacer(modifier = Modifier.padding(10.dp))
-//            }
-//        Column(
-//            modifier = Modifier
-//                .fillMaxWidth(),
-//            verticalArrangement = Arrangement.SpaceBetween,
-//            horizontalAlignment = Alignment.CenterHorizontally
-//        ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
@@ -179,7 +135,7 @@ fun ListFundScreen(
                             itemOnClick = { navController.navigate("${Route.EditFundScreen.route}/${fund!!.fundId}") },
                             backgroundColor = Color.DarkGray.copy(alpha = 0.1f),
                             amountType = "EXPENSE: ",
-                            surfaceColor = Color.Blue.copy(alpha = 0.5f)
+                            surfaceColor = Blue1
                         )
 
                     }
