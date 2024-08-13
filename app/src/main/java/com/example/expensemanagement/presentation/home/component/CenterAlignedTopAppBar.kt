@@ -1,6 +1,7 @@
 package com.example.expensemanagement.presentation.home.component
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -27,6 +28,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.expensemanagement.R
@@ -35,10 +37,14 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CenterAlignedTopAppBar(
+    showSnackbarText: String,
     name: String,
-    rightIcon: Int,
-    editOnclick: () -> Unit,
-    showIconRight: Boolean,
+    rightIcon1: Int,
+    rightIcon2: Int,
+    iconOnclick1: () -> Unit,
+    iconOnlick2: () -> Unit,
+    showIconRight1: Boolean,
+    showIconRight2: Boolean,
     showIconLeft: Boolean,
     navController: NavHostController,
     showSnackbar: MutableState<Boolean>,
@@ -64,7 +70,7 @@ fun CenterAlignedTopAppBar(
                     )
                 },
                 navigationIcon = {
-                    if (showIconLeft == true){
+                    if (showIconLeft){
                         IconButton(onClick = { navController.navigateUp() }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -74,14 +80,26 @@ fun CenterAlignedTopAppBar(
                     }
                 },
                 actions = {
-                    if (showIconRight == true){
-                        IconButton(onClick = editOnclick) {
-                            Icon(
-                                painter = painterResource(id = rightIcon),
-                                contentDescription = "Localized description"
-                            )
+                    Row(Modifier.padding(5.dp)) {
+                        if (showIconRight2){
+                            IconButton(onClick = iconOnlick2) {
+                                Icon(
+                                    painter = painterResource(id = rightIcon2),
+                                    contentDescription = "Localized description"
+                                )
+                            }
                         }
+                        if (showIconRight1){
+                            IconButton(onClick = iconOnclick1) {
+                                Icon(
+                                    painter = painterResource(id = rightIcon1),
+                                    contentDescription = "Localized description"
+                                )
+                            }
+                        }
+
                     }
+
                 },
                 scrollBehavior = scrollBehavior,
             )
@@ -90,7 +108,7 @@ fun CenterAlignedTopAppBar(
             if(showSnackbar.value){
                 scope.launch {
                     snackbarHostState.showSnackbar(
-                        "Please enter name"
+                        showSnackbarText
                     )
                     showSnackbar.value = false
                 }
@@ -115,11 +133,15 @@ fun Preview(){
     val showSnackbar = remember { mutableStateOf(false) }
     showSnackbar.value = false
     CenterAlignedTopAppBar(
+        showSnackbarText = "test",
         name = "Fund",
-        rightIcon = R.drawable.edit_square_24px,
-        editOnclick = { /*TODO*/ },
-        showIconLeft = false,
-        showIconRight = false,
+        rightIcon1 = R.drawable.edit_square_24px,
+        rightIcon2 = R.drawable.delete_24px,
+        iconOnclick1 = { /*TODO*/ },
+        iconOnlick2 = {},
+        showIconLeft = true,
+        showIconRight1 = true,
+        showIconRight2 = true,
         showSnackbar = showSnackbar,
         content = content,
         navController = rememberNavController()

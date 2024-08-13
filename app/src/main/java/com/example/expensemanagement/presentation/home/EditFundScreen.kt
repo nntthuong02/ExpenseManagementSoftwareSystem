@@ -1,5 +1,6 @@
 package com.example.expensemanagement.presentation.home
 
+import android.graphics.drawable.Icon
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
@@ -16,15 +17,21 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Divider
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -58,15 +66,20 @@ import androidx.compose.ui.unit.Density
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.expensemanagement.R
 import com.example.expensemanagement.common.Constants
 import com.example.expensemanagement.domain.models.Participant
 import com.example.expensemanagement.domain.models.Transaction
 import com.example.expensemanagement.presentation.common.TabContent
+import com.example.expensemanagement.presentation.home.component.CenterAlignedTopAppBar
+import com.example.expensemanagement.presentation.home.component.CheckBoxItem
 
 import com.example.expensemanagement.presentation.home.component.DetailEntityItem
+import com.example.expensemanagement.presentation.home.component.DialogName
 import com.example.expensemanagement.presentation.home.component.EditNameEntity
 import com.example.expensemanagement.presentation.home.component.TabBar
 import com.example.expensemanagement.presentation.home.component.TransItem
+import com.example.expensemanagement.presentation.insight_screen.component.AlertDialogComponent
 import com.example.expensemanagement.presentation.insight_screen.component.TransactionItem
 import com.example.expensemanagement.presentation.insight_screen.component.getCategory
 import com.example.expensemanagement.presentation.navigation.Route
@@ -84,15 +97,19 @@ fun EditFundScreen(
     val selectedTab by homeViewModel.tabFund.collectAsState()
     val fundById by homeViewModel.fundById.collectAsState()
     val transByFund by homeViewModel.transByFund.collectAsState()
-    val expense by homeViewModel.expense.collectAsState()
     val allParticipant by homeViewModel.allParticipant.collectAsState()
-    val participantByFund by homeViewModel.parByFund.collectAsState()
     val currencyCode by homeViewModel.selectedCurrencyCode.collectAsState()
-    val parById by homeViewModel.parById.collectAsState()
     val transWithPar by homeViewModel.transWithPar.collectAsState()
-
+    val participantsInFund by homeViewModel.parByFund.collectAsState()
     val coroutineScope = rememberCoroutineScope()
+    val showSnack = remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
+    val openAlertDialog = remember { mutableStateOf(false) }
+    val openDelelteDialog = remember { mutableStateOf(false) }
+    val showContent = remember { mutableStateOf(false) }
+    val childCheckedStates = homeViewModel.childCheckedStates
+    val showSnackbarText = remember{ mutableStateOf("") }
+
     val context = LocalContext.current
     var visible by remember { mutableStateOf(false) }
     val density = LocalDensity.current
@@ -104,8 +121,12 @@ fun EditFundScreen(
             getTransactionByFund(fundId)
             getAllPars()
             getTransWithParByFund()
+            getParByFundId(fundId)
+
         }
     }
+
+    coroutineScope.launch { homeViewModel.initializeStates(allParticipant, participantsInFund) }
     if (transByFund != null) {
         var sum = 0.0
         transByFund.forEach { trans ->
@@ -115,112 +136,206 @@ fun EditFundScreen(
         }
         homeViewModel.setExpense(sum)
     }
+    if (fundById != null) {
+        showContent.value = true
+    }
 
+    AnimatedContent(targetState = showContent.value, label = "VisibilityAnimation") { isVisible ->
+        if (isVisible) {
+            CenterAlignedTopAppBar(
+                showSnackbarText = showSnackbarText.value,
+                name = fundById!!.fundName,
+                rightIcon1 = R.drawable.edit_square_24px,
+                rightIcon2 = R.drawable.delete_24px,
+                iconOnclick1 = { openAlertDialog.value = true },
+                iconOnlick2 = { openDelelteDialog.value = true },
+                showIconRight1 = true,
+                showIconRight2 = true,
+                showIconLeft = true,
+                navController = navController,
+                showSnackbar = showSnack
+            ) { innerPadding ->
+                if (openAlertDialog.value == true) {
+                    DialogName(
+                        onDismissRequest = { openAlertDialog.value = false },
+                        onConfirmation = {
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        // Row with buttons to switch between tabs
-        TabBar(
-            tab1 = TabContent.FUND,
-            tab2 = TabContent.TRANSACTION,
-            selectedTab = selectedTab
-        ) { tabContent ->
-            homeViewModel.setTabFund(tabContent)
-        }
+                            if (fundNameFieldValue.text.isEmpty()) {
+                                openAlertDialog.value = false
+                                showSnackbarText.value = "Please enter name"
+                                showSnack.value = true
+//                                snackbarHostState.showSnackbar("Please enter name")
 
-        // Content below changes based on the content variable
-//        content()
-        AnimatedContent(targetState = selectedTab) { targetTab ->
-            when (targetTab) {
-                TabContent.FUND -> FundContent(
-                    fundNameFieldValue = fundNameFieldValue,
-                    snackbarHostState = snackbarHostState,
-                    onChange = {
-                        homeViewModel.setFundName(it)
-                    },
-                    onSave = {
-                        if (fundNameFieldValue.text.isEmpty()) {
-                            // Hiển thị Snackbar thông báo lỗi
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar("Please enter name")
-                            }
-                        } else {
-                            coroutineScope.launch {
-                                homeViewModel.apply {
-                                    updateFundById(fundId, fundName.value, 1)
-                                    navController.navigateUp()
-                                    navController.navigate("${Route.EditFundScreen.route}/${fundById!!.fundId}")
+                            } else {
+                                openAlertDialog.value = false
+                                coroutineScope.launch {
+                                    homeViewModel.apply {
+                                        updateFundById(fundId, fundName.value, 1)
+//                                    navController.navigateUp()
+                                        navController.navigate("${Route.EditFundScreen.route}/${fundById!!.fundId}")
+                                        Toast.makeText(
+                                            context,
+                                            "Fund name updated successfully",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
                                 }
                             }
-                        }
-                    },
-                    allParticipant = allParticipant,
-                    saveParticipant = { listChecked ->
-                        val selectedParticipants = allParticipant.filterIndexed { index, _ ->
-                            listChecked[index]
-                        }
-                        coroutineScope.launch {
-                            if (selectedParticipants.isEmpty()) {
-                                snackbarHostState.showSnackbar("You must select at least one participant")
+
+                        },
+                        name = fundNameFieldValue.text,
+                        onNameChange = { text ->
+                            homeViewModel.setFundName(text)
+                        },
+                        dialogTitle = "Enter the name of the fund you want to create!",
+                        dialogText = "fund",
+                        iconId = R.drawable.post_add_24px
+                    )
+                }
+
+                if (openDelelteDialog.value) {
+                    AlertDialogComponent(
+                        onDismissRequest = { openDelelteDialog.value = false },
+                        onConfirmation = {
+                            if (fundId != 1) {
+                                openDelelteDialog.value = false
+                                navController.navigateUp()
+                                Toast.makeText(context, "erase successfully", Toast.LENGTH_SHORT)
+                                    .show()
+                                coroutineScope.launch {
+                                    homeViewModel.eraseFundByFundId(fundId)
+                                }
                             } else {
-                                homeViewModel.addParticipantToFund(selectedParticipants, fundId)
-                                Toast.makeText(
-                                    context,
-                                    "save participant successfully",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
 
-                    },
-                    deleteFund = {
-                        if (fundId != 1) {
-                            coroutineScope.launch {
-                                homeViewModel.eraseFundByFundId(fundId)
-                            }
-//                        navController.navigate("${Route.ListFundScreen.route}")
-
-                            navController.navigateUp()
-                            Toast.makeText(context, "erase successfully", Toast.LENGTH_SHORT).show()
-                        } else {
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar("Cannot delete default fund!")
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar("Cannot delete default fund!")
 //                            Toast.makeText(context, "Cannot delete default fund!", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        },
+                        dialogTitle = "Confirm deletion",
+                        dialogText = "Are you sure you want to delete this fund?",
+                        icon = Icons.Filled.Delete
+                    )
+                }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues = innerPadding)
+                ) {
+                    // Row with buttons to switch between tabs
+                    TabBar(
+                        tab1 = TabContent.FUND,
+                        tab2 = TabContent.TRANSACTION,
+                        selectedTab = selectedTab
+                    ) { tabContent ->
+                        homeViewModel.setTabFund(tabContent)
+                    }
+
+                    AnimatedContent(targetState = selectedTab, label = "null") { targetTab ->
+                        when (targetTab) {
+                            TabContent.FUND -> FundContent(
+                                childCheckedStates = childCheckedStates,
+//                                participantsInFund = participantsInFund,
+                                allParticipant = allParticipant,
+                                saveParticipant = {
+                                    val selectedParticipants =
+                                        allParticipant.filterIndexed { index, _ ->
+                                            childCheckedStates[index]
+                                        }
+                                    coroutineScope.launch {
+                                        if (selectedParticipants.isEmpty()) {
+                                            showSnackbarText.value = "You must select at least one participant"
+                                                showSnack.value = true
+//                                            snackbarHostState.showSnackbar("You must select at least one participant")
+                                        } else {
+                                            homeViewModel.addParticipantToFund(
+                                                allParticipant,
+                                                selectedParticipants,
+                                                fundId
+                                            )
+                                            Toast.makeText(
+                                                context,
+                                                "save participant successfully",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    }
+
+                                },
+                                triStateOnClick = {index, check ->
+                                    homeViewModel.updateCheckedState(index, check)
+
+                                }
+//                            deleteFund = {
+//                                if (fundId != 1) {
+//                                    coroutineScope.launch {
+//                                        homeViewModel.eraseFundByFundId(fundId)
+//                                    }
+//
+//                                    navController.navigateUp()
+//                                    Toast.makeText(
+//                                        context,
+//                                        "erase successfully",
+//                                        Toast.LENGTH_SHORT
+//                                    ).show()
+//                                } else {
+//                                    coroutineScope.launch {
+//                                        snackbarHostState.showSnackbar("Cannot delete default fund!")
+////                            Toast.makeText(context, "Cannot delete default fund!", Toast.LENGTH_SHORT).show()
+//                                    }
+//                                }
+//                            }
+                            ){ index, check ->
+                                homeViewModel.updateCheckedState(index, check)
+                            }
+
+                            else -> {
+                                TransactionContent(
+                                    currencyCode = currencyCode,
+                                    transByFund = transByFund,
+                                    transWithPar = transWithPar,
+                                    onItemClick = {
+                                    }
+                                )
                             }
                         }
                     }
-                )
-
-                else -> {
-                    TransactionContent(
-                        currencyCode = currencyCode,
-                        transByFund = transByFund,
-                        transWithPar = transWithPar,
-                        onItemClick = {
-                        }
-                    )
                 }
             }
         }
     }
+    fundById?.let {
 
+    }
 }
 
 
 @Composable
 fun FundContent(
-    fundNameFieldValue: TextFieldValue,
-    snackbarHostState: SnackbarHostState,
-    onChange: (String) -> Unit,
-    onSave: () -> Unit,
-    deleteFund: () -> Unit,
+//    fundNameFieldValue: TextFieldValue,
+//    snackbarHostState: SnackbarHostState,
+//    onChange: (String) -> Unit,
+//    onSave: () -> Unit,
+//    deleteFund: () -> Unit,
+
     allParticipant: List<Participant>,
-    saveParticipant: (List<Boolean>) -> Unit,
+    saveParticipant: () -> Unit,
+    childCheckedStates: List<Boolean>,
+    triStateOnClick: (Int, Boolean) -> Unit,
+    onchangeCheck: (Int, Boolean) -> Unit,
 ) {
-    val childCheckedStates = remember { mutableStateListOf<Boolean>() }
+//    val childCheckedStates = remember { mutableStateListOf<Boolean>() }
     LaunchedEffect(allParticipant.size) {
-        childCheckedStates.addAll(List(allParticipant.size) { false })
+//        childCheckedStates.addAll(List(allParticipant.size) { false })
+//        allParticipant.forEachIndexed { index, participant ->
+//            if (participantsInFund.contains(participant)) {
+//                childCheckedStates[index] = true
+//            } else {
+//                childCheckedStates[index] = false
+//            }
+//        }
     }
     val parentState = when {
         childCheckedStates.all { it } -> ToggleableState.On
@@ -237,16 +352,16 @@ fun FundContent(
             .fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        EditNameEntity(
-            nameEntity = "Fund",
-            name = fundNameFieldValue.text,
-            onNameChange = onChange
-//                {
-//                    homeViewModel.setFundName(it)
-//                }
-        ) {
-            onSave()
-        }
+//        EditNameEntity(
+//            nameEntity = "Fund",
+//            name = fundNameFieldValue.text,
+//            onNameChange = onChange
+////                {
+////                    homeViewModel.setFundName(it)
+////                }
+//        ) {
+//            onSave()
+//        }
 
         Column(
             modifier = Modifier
@@ -275,31 +390,58 @@ fun FundContent(
             }
 //                Text("Add participant")
             Row(
-                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 5.dp, end = 5.dp)
+                    .height(IntrinsicSize.Min)
+                    .border(1.dp, Color.Black)
             ) {
-                Text("Select all        ")
-                TriStateCheckbox(
-                    state = parentState,
-                    onClick = {
-                        val newState = parentState != ToggleableState.On
-                        childCheckedStates.forEachIndexed { index, _ ->
-                            childCheckedStates[index] = newState
-                        }
-                    }
+                Box(
+                    modifier = Modifier
+                        .weight(0.7f)
+                        .padding(0.dp)
+                        .align(Alignment.CenterVertically)
+                ) {
+                    Text(
+                        text = "Select all",
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .fillMaxWidth()
+                    )
+                }
+
+                Divider(
+                    color = Color.Black,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(1.dp)
                 )
+
+                Box(
+                    modifier = Modifier
+                        .weight(0.3f)
+                        .padding(0.dp)
+                ) {
+                    TriStateCheckbox(
+                        modifier = Modifier
+                            .padding(0.dp)
+                            .align(Alignment.Center),
+                        state = parentState,
+                        onClick = {
+                            val newState = parentState != ToggleableState.On
+
+                            childCheckedStates.forEachIndexed { index, _ ->
+                                triStateOnClick(index, newState)
+                            }
+                        }
+                    )
+                }
             }
+            Spacer(modifier = Modifier.padding(15.dp))
             LazyColumn {
                 itemsIndexed(childCheckedStates) { index, checked ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text("${allParticipant[index].participantName}     ")
-                        Checkbox(
-                            checked = checked,
-                            onCheckedChange = { isChecked ->
-                                childCheckedStates[index] = isChecked
-                            }
-                        )
+                    CheckBoxItem(name = allParticipant[index].participantName, check = checked){isCheck ->
+                        onchangeCheck(index, isCheck)
                     }
                 }
             }
@@ -312,19 +454,14 @@ fun FundContent(
                 .padding(16.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            SnackbarHost(hostState = snackbarHostState)
+//            SnackbarHost(hostState = snackbarHostState)
             Button(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = { saveParticipant(childCheckedStates) }
+                onClick = saveParticipant
             ) {
                 Text(text = "Save participant")
             }
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = deleteFund
-            ) {
-                Text(text = "Delete fund")
-            }
+
         }
 
     }
@@ -416,22 +553,24 @@ fun TransactionContent(
 //    EditFundScreen(1, navController = rememberNavController())
 //}
 
-@Preview(showBackground = true)
-@Composable
-fun FundContentPreview() {
-    val fakeParticipants = listOf(
-        Participant(1, participantName = "Participant 1"),
-        Participant(2, participantName = "Participant 2"),
-        Participant(3, participantName = "Participant 3")
-    )
-
-    FundContent(
-        fundNameFieldValue = TextFieldValue("Sample Fund"),
-        snackbarHostState = remember { SnackbarHostState() },
-        onSave = {},
-        onChange = {},
-        allParticipant = fakeParticipants,
-        saveParticipant = {},
-        deleteFund = {}
-    )
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun FundContentPreview() {
+//    val fakeParticipants = listOf(
+//        Participant(1, participantName = "Participant 1"),
+//        Participant(2, participantName = "Participant 2"),
+//        Participant(3, participantName = "Participant 3")
+//    )
+//
+//    FundContent(
+////        fundNameFieldValue = TextFieldValue("Sample Fund"),
+////        snackbarHostState = remember { SnackbarHostState() },
+////        onSave = {},
+////        onChange = {},
+//        allParticipant = fakeParticipants,
+//        participantsInFund = fakeParticipants,
+//        saveParticipant = {},
+//
+////        deleteFund = {}
+//    )
+//}

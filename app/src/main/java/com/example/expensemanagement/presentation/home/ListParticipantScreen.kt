@@ -38,7 +38,7 @@ import com.example.expensemanagement.common.Constants
 import com.example.expensemanagement.presentation.home.component.AddEntity
 import com.example.expensemanagement.presentation.home.component.CenterAlignedTopAppBar
 import com.example.expensemanagement.presentation.home.component.DetailEntityItem
-import com.example.expensemanagement.presentation.home.component.DialogAddName
+import com.example.expensemanagement.presentation.home.component.DialogName
 import com.example.expensemanagement.presentation.navigation.Route
 import kotlinx.coroutines.launch
 
@@ -67,10 +67,14 @@ fun ListParticipantScreen(
 
 
     CenterAlignedTopAppBar(
+        showSnackbarText = "Please enter name",
         name = "Participant",
-        rightIcon = R.drawable.add_24px,
-        editOnclick = { openAlertDialog.value = true },
-        showIconRight = true,
+        rightIcon1 = R.drawable.add_24px,
+        rightIcon2 = 0,
+        iconOnclick1 = { openAlertDialog.value = true },
+        iconOnlick2 = {},
+        showIconRight1 = true,
+        showIconRight2 = false,
         showIconLeft = true,
         showSnackbar = showSnack,
         navController = navController
@@ -85,7 +89,7 @@ fun ListParticipantScreen(
             ) {
 
                 if(openAlertDialog.value == true){
-                    DialogAddName(
+                    DialogName(
                         onDismissRequest = { openAlertDialog.value = false },
                         onConfirmation = {
                             coroutineScope.launch {

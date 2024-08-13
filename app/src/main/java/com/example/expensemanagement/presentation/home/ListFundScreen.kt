@@ -1,5 +1,6 @@
 package com.example.expensemanagement.presentation.home
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -42,7 +43,7 @@ import com.example.expensemanagement.common.Constants
 import com.example.expensemanagement.presentation.home.component.AddEntity
 import com.example.expensemanagement.presentation.home.component.CenterAlignedTopAppBar
 import com.example.expensemanagement.presentation.home.component.DetailEntityItem
-import com.example.expensemanagement.presentation.home.component.DialogAddName
+import com.example.expensemanagement.presentation.home.component.DialogName
 import com.example.expensemanagement.presentation.home.component.EntityItem
 import com.example.expensemanagement.presentation.navigation.Route
 import com.example.expensemanagement.ui.theme.Blue1
@@ -69,14 +70,17 @@ fun ListFundScreen(
         launch { homeViewModel.getFundByGroup() }
         launch { homeViewModel.fetchFundAndExpense() }
         launch { homeViewModel.getNumberTransOfFund() }
-
     }
 
     CenterAlignedTopAppBar(
+        showSnackbarText = "Please enter name",
         name = "Fund",
-        rightIcon = R.drawable.add_24px,
-        editOnclick = { openAlertDialog.value = true },
-        showIconRight = true,
+        rightIcon1 = R.drawable.add_24px,
+        rightIcon2 = 0,
+        iconOnclick1 = { openAlertDialog.value = true },
+        iconOnlick2 = {},
+        showIconRight1 = true,
+        showIconRight2 = false,
         showIconLeft = true,
         showSnackbar = showSnack,
         navController = navController
@@ -89,7 +93,7 @@ fun ListFundScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if(openAlertDialog.value == true){
-                DialogAddName(
+                DialogName(
                     onDismissRequest = { openAlertDialog.value = false },
                     onConfirmation = {
                         coroutineScope.launch {
@@ -116,14 +120,16 @@ fun ListFundScreen(
                     iconId = R.drawable.post_add_24px
                 )
             }
+
             Surface(
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
 
-                LazyColumn {
 
+                LazyColumn {
                     itemsIndexed(fundAndExpense) { _, (fund, expense) ->
+
                         var numberTrans = 0
                         numberTransOfFund.forEach { (fund2, number) ->
                             if(fund2.fundId == fund.fundId ){numberTrans = number}
@@ -132,7 +138,11 @@ fun ListFundScreen(
                             name = fund.fundName,
                             numberTransaction = numberTrans,
                             amount = homeViewModel.formatAmount(expense),
-                            itemOnClick = { navController.navigate("${Route.EditFundScreen.route}/${fund!!.fundId}") },
+                            itemOnClick = {
+
+                                navController.navigate("${Route.EditFundScreen.route}/${fund!!.fundId}")
+
+                                          },
                             backgroundColor = Color.DarkGray.copy(alpha = 0.1f),
                             amountType = "EXPENSE: ",
                             surfaceColor = Blue1

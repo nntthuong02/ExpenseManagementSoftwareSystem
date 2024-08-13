@@ -2,6 +2,7 @@ package com.example.expensemanagement.presentation.home
 
 import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
@@ -140,6 +141,8 @@ class HomeViewModel @Inject constructor(
     private val _unpaidTrans = MutableStateFlow<List<Transaction>>(emptyList())
     val unpaidTrans: StateFlow<List<Transaction>> = _unpaidTrans
 
+
+
     private val _numberPar = MutableStateFlow(0)
     val numberPar: StateFlow<Int> = _numberPar
 
@@ -186,7 +189,7 @@ class HomeViewModel @Inject constructor(
         private set
     var tabPaid = MutableStateFlow(TabContent.ALLTRANSACTIONS)
         private set
-    var childCheckedStates = MutableStateFlow<List<Boolean>>(emptyList())
+    var childCheckedStates = mutableStateListOf<Boolean>()
         private set
     var fundNameFieldValue by mutableStateOf(TextFieldValue(""))
 
@@ -195,6 +198,7 @@ class HomeViewModel @Inject constructor(
     init {
         fetchSelectedCurrency()
     }
+
 
     fun fetchFundExpenseUnPaid(){
         viewModelScope.launch(IO) {
@@ -211,7 +215,6 @@ class HomeViewModel @Inject constructor(
                             fund to expense
                         }
                     }
-
                     val fundExpenses = fundExpensesDeferred.awaitAll()
 
                     _fundExpenseUnPaid.value = fundExpenses
@@ -668,24 +671,54 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun addParticipantToFund(selectedParticipants: List<Participant>, fundId: Int) {
-
-        viewModelScope.launch(IO) {
-            selectedParticipants.forEach { participant ->
-                val parFundDto =
-                    getParFundByParAndFund(participant.participantId, fundId).firstOrNull()
-                if (parFundDto == null) {
-                    val newParFund = ParticipantFundDto(
-                        parFundId = 0,
-                        participantId = participant.participantId,
-                        fundId = fundId
-                    )
-                    insertNewParticipantFund(newParFund)
-                } else {
-                }
-
+    fun initializeStates(allPars: List<Participant>, parInFund: List<Participant>){
+        childCheckedStates.clear()
+        childCheckedStates.addAll(List(allPars.size) { false })
+        allPars.forEachIndexed { index, participant ->
+            if (parInFund.contains(participant)) {
+                childCheckedStates[index] = true
+            } else {
+                childCheckedStates[index] = false
             }
         }
+
+    }
+
+    fun updateCheckedState(index: Int, isChecked: Boolean) {
+
+        childCheckedStates[index] = isChecked
+    }
+
+    fun addParticipantToFund(allPars: List<Participant>, selectedParticipants: List<Participant>, fundId: Int) {
+
+        viewModelScope.launch(IO) {
+            allPars.forEachIndexed { index, participant ->
+                if (selectedParticipants.contains(participant)) {
+                    val parFundDto = getParFundByParAndFund(participant.participantId, fundId).firstOrNull()
+                    if (parFundDto == null) {
+                        val newParFund = ParticipantFundDto(
+                            parFundId = 0,
+                            participantId = participant.participantId,
+                            fundId = fundId
+                        )
+                        insertNewParticipantFund(newParFund)
+                    }
+                } else {
+                    val parFundDto = getParFundByParAndFund(participant.participantId, fundId).firstOrNull()
+                    parFundDto?.let { eraseParFundById(parFundDto.parFundId) }
+                }
+            }
+        }
+    }
+
+    fun containsInitialParticipants(initialParticipants: List<Participant>, selectedParticipants: List<Participant>): Boolean{
+        if (initialParticipants.size > selectedParticipants.size) return false
+        initialParticipants.forEachIndexed { index, participant ->
+            if (!selectedParticipants.contains(participant)) {
+                return false
+            }
+        }
+        return true
     }
 
     fun eraseParticipantToFund(parId: Int, fundId: Int) {

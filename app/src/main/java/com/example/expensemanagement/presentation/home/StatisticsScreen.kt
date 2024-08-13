@@ -38,7 +38,6 @@ fun StatisticsScreen(
         launch { homeViewModel.fetchParExpenseUnPaid() }
     }
 
-    Log.d("fundExpenseUnPaid", fundExpenseUnPaid.toString())
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -47,7 +46,6 @@ fun StatisticsScreen(
             tab2 = TabContent.UNPAID,
             selectedTab = selectedTab
         ) {tabContent ->
-            Log.d("tabContent", tabContent.title)
             homeViewModel.setTabPaid(tabContent)
         }
         val fundExpense = fundAndExpense.map { (fund, expense) ->

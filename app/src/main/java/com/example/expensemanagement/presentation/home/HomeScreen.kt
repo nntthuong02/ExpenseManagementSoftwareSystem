@@ -88,8 +88,6 @@ fun HomeScreen(
 
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    Log.d("_parExpenseUnPaid", fundExpenseUnPaid.toString())
-    Log.d("selectedTab", selectedTab.title)
 
 //    var initialGroupName = remember { String() }
     LaunchedEffect(fundExpenseUnPaid) {
