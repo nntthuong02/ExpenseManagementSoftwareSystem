@@ -32,6 +32,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -109,6 +110,7 @@ fun EditFundScreen(
     val showContent = remember { mutableStateOf(false) }
     val childCheckedStates = homeViewModel.childCheckedStates
     val showSnackbarText = remember{ mutableStateOf("") }
+    val openParDialog = remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     var visible by remember { mutableStateOf(false) }
@@ -126,6 +128,7 @@ fun EditFundScreen(
         }
     }
 
+    val initialPars = participantsInFund
     coroutineScope.launch { homeViewModel.initializeStates(allParticipant, participantsInFund) }
     if (transByFund != null) {
         var sum = 0.0
@@ -262,6 +265,9 @@ fun EditFundScreen(
                                             ).show()
                                         }
                                     }
+                                    coroutineScope.launch{
+                                        homeViewModel.eraseTransByParFund(initialPars, selectedParticipants, fundId)
+                                    }
 
                                 },
                                 triStateOnClick = {index, check ->
@@ -326,6 +332,7 @@ fun FundContent(
     triStateOnClick: (Int, Boolean) -> Unit,
     onchangeCheck: (Int, Boolean) -> Unit,
 ) {
+    val openParDialog = remember { mutableStateOf(false) }
 //    val childCheckedStates = remember { mutableStateListOf<Boolean>() }
     LaunchedEffect(allParticipant.size) {
 //        childCheckedStates.addAll(List(allParticipant.size) { false })
@@ -352,6 +359,18 @@ fun FundContent(
             .fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
+        if(openParDialog.value){
+            AlertDialogComponent(
+                onDismissRequest = { openParDialog.value = false },
+                onConfirmation = {
+                    saveParticipant()
+                    openParDialog.value = false
+                },
+                dialogTitle = "Warning",
+                dialogText = "Deleting a participant will result in the deletion of all their transactions within the fund!",
+                icon = Icons.Filled.Info
+            )
+        }
 //        EditNameEntity(
 //            nameEntity = "Fund",
 //            name = fundNameFieldValue.text,
@@ -457,7 +476,9 @@ fun FundContent(
 //            SnackbarHost(hostState = snackbarHostState)
             Button(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = saveParticipant
+                onClick = {
+                    openParDialog.value = true
+                }
             ) {
                 Text(text = "Save participant")
             }

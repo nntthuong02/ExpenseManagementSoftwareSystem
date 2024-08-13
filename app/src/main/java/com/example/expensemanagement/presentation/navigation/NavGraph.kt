@@ -25,7 +25,6 @@ import com.example.expensemanagement.presentation.insight_screen.TransactionDeta
 import com.example.expensemanagement.presentation.onboarding.OnboardingScreen
 import com.example.expensemanagement.presentation.payment_screen.PaymentScreen
 import com.example.expensemanagement.presentation.setting.SettingScreen
-import com.example.expensemanagement.presentation.setting.Test1
 import com.example.expensemanagement.presentation.setting.Test2
 import com.example.expensemanagement.presentation.transaction_screen.TransactionScreen
 

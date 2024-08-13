@@ -29,6 +29,7 @@ import com.example.expensemanagement.domain.usecase.read_database.GetParFundByPa
 import com.example.expensemanagement.domain.usecase.read_database.GetParticipantByFundId
 import com.example.expensemanagement.domain.usecase.read_database.GetParticipantById
 import com.example.expensemanagement.domain.usecase.read_database.GetTransByFund
+import com.example.expensemanagement.domain.usecase.read_database.GetTransByFundAndPar
 import com.example.expensemanagement.domain.usecase.read_database.GetTransactionById
 import com.example.expensemanagement.domain.usecase.read_database.GetTransactionByParticipant
 import com.example.expensemanagement.domain.usecase.read_datastore.GetCurrencyUseCase
@@ -36,6 +37,7 @@ import com.example.expensemanagement.domain.usecase.write_database.EraseFundById
 import com.example.expensemanagement.domain.usecase.write_database.EraseParFundById
 import com.example.expensemanagement.domain.usecase.write_database.EraseParticipantById
 import com.example.expensemanagement.domain.usecase.write_database.EraseTransaction
+import com.example.expensemanagement.domain.usecase.write_database.EraseTransactionById
 import com.example.expensemanagement.domain.usecase.write_database.InsertNewFund
 import com.example.expensemanagement.domain.usecase.write_database.InsertNewParticipant
 import com.example.expensemanagement.domain.usecase.write_database.InsertNewParticipantFund
@@ -92,7 +94,9 @@ class HomeViewModel @Inject constructor(
     private val updateParticipant: UpdateParticipant,
     private val getTransByFund: GetTransByFund,
     private val getParticipantByFundId: GetParticipantByFundId,
-    private val eraseAllTransaction: EraseTransaction
+    private val eraseAllTransaction: EraseTransaction,
+    private val getTransByFundAndPar: GetTransByFundAndPar,
+    private val eraseTransactionById: EraseTransactionById
 //    private val getTransactionByParticipant: GetTransactionByParticipant
 ) : ViewModel() {
 
@@ -528,6 +532,11 @@ class HomeViewModel @Inject constructor(
             eraseAllTransaction()
         }
     }
+    fun eraseTransById(Id: Int){
+        viewModelScope.launch(IO){
+            eraseTransactionById(Id)
+        }
+    }
 
     fun fetchAllTransactions() {
         viewModelScope.launch(IO) {
@@ -711,14 +720,19 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun containsInitialParticipants(initialParticipants: List<Participant>, selectedParticipants: List<Participant>): Boolean{
-        if (initialParticipants.size > selectedParticipants.size) return false
+    fun eraseTransByParFund(initialParticipants: List<Participant>, selectedParticipants: List<Participant>, fundId: Int) {
+        viewModelScope.launch(IO) {
         initialParticipants.forEachIndexed { index, participant ->
             if (!selectedParticipants.contains(participant)) {
-                return false
+                val listTrans = getTransByFundAndPar(fundId, participant.participantId).firstOrNull()
+                listTrans?.let {
+                    listTrans.forEach { trans ->
+                        eraseTransById(trans.transactionId)
+                    }
+                }
             }
         }
-        return true
+    }
     }
 
     fun eraseParticipantToFund(parId: Int, fundId: Int) {
