@@ -45,6 +45,7 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -66,6 +67,8 @@ import com.example.expensemanagement.presentation.insight_screen.component.Alert
 import com.example.expensemanagement.presentation.insight_screen.component.getCategory
 import com.example.expensemanagement.presentation.navigation.Route
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
 
 
 @Composable
@@ -308,7 +311,18 @@ fun TransactionContent2(
             ) {
                 itemsIndexed(transWithFund) { index, (trans, fund) ->
                     val category = getCategory(trans.category)
-
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        Text(
+                            text = getFormattedDate(trans.date),
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Start
+                        )
+                    }
                     TransItem(
                         transaction = trans,
                         category = category,
@@ -323,6 +337,10 @@ fun TransactionContent2(
 
 
     }
+}
+
+private  fun getFormattedDate(date: Date): String {
+    return SimpleDateFormat("yyyy-MM-dd").format(date)
 }
 
 @Preview(showSystemUi = true)

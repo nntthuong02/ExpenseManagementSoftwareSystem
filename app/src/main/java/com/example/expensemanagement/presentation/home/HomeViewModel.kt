@@ -128,6 +128,9 @@ class HomeViewModel @Inject constructor(
     private val _transByFund = MutableStateFlow<List<Transaction>>(emptyList())
     val transByFund: StateFlow<List<Transaction>> = _transByFund
 
+    private val _mapTransByFund = MutableStateFlow<Map<String, List<Transaction>>>(emptyMap())
+    val mapTransByFund: StateFlow<Map<String, List<Transaction>>> = _mapTransByFund
+
     private val _transByPar = MutableStateFlow<List<Transaction>>(emptyList())
     val transByPar: StateFlow<List<Transaction>> = _transByPar
 
@@ -316,9 +319,11 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(IO) {
             getTransByFund(fundId).collect {
                 it?.let { listTransDto ->
-                    _transByFund.value = listTransDto.map { transDto ->
+                     val listTrans = listTransDto.map { transDto ->
                         transDto.toTransaction()
                     }.sortedByDescending { trans -> trans.date }
+                    _transByFund.value = listTrans
+                    _mapTransByFund.value = listTrans.groupBy { getFormattedDate(it.date) }
                 }
 
             }
@@ -520,9 +525,11 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(IO) {
             getTransByFund(fundId).collect {
                 it?.let { listTransDto ->
-                    _transByFund.value = listTransDto.map { transDto ->
+                    val listTrans = listTransDto.map { transDto ->
                         transDto.toTransaction()
                     }.sortedByDescending { trans -> trans.date }
+                    _transByFund.value = listTrans
+                    _mapTransByFund.value = listTrans.groupBy { getFormattedDate(it.date) }
                 }
 
             }

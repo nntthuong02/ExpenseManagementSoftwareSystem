@@ -88,6 +88,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
 
 @Composable
 fun EditFundScreen(
@@ -465,7 +467,20 @@ fun TransactionContent(
 
                 itemsIndexed(transWithPar) { index, (trans, participant) ->
                     val category = getCategory(trans.category)
-
+                    
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        Text(
+                            text = getFormattedDate(trans.date),
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Start
+                        )
+                    }
+                    Spacer(modifier = Modifier.padding(5.dp))
                     TransItem(
                         transaction = trans,
                         category = category,
@@ -482,6 +497,9 @@ fun TransactionContent(
     }
 }
 
+private  fun getFormattedDate(date: Date): String {
+    return SimpleDateFormat("yyyy-MM-dd").format(date)
+}
 //@Preview(showSystemUi = true)
 //@Composable
 //fun EditFundScreenPreview() {
