@@ -110,11 +110,8 @@ fun EditFundScreen(
     val showContent = remember { mutableStateOf(false) }
     val childCheckedStates = homeViewModel.childCheckedStates
     val showSnackbarText = remember{ mutableStateOf("") }
-    val openParDialog = remember { mutableStateOf(false) }
 
     val context = LocalContext.current
-    var visible by remember { mutableStateOf(false) }
-    val density = LocalDensity.current
     val fundTitle by remember { mutableStateOf(homeViewModel.fundName) }
     val fundNameFieldValue = TextFieldValue(fundTitle.collectAsState().value)
     LaunchedEffect(fundId) {
@@ -130,15 +127,7 @@ fun EditFundScreen(
 
     val initialPars = participantsInFund
     coroutineScope.launch { homeViewModel.initializeStates(allParticipant, participantsInFund) }
-    if (transByFund != null) {
-        var sum = 0.0
-        transByFund.forEach { trans ->
-            if (trans.transactionType == Constants.EXPENSE) {
-                sum += trans.amount
-            }
-        }
-        homeViewModel.setExpense(sum)
-    }
+
     if (fundById != null) {
         showContent.value = true
     }
@@ -162,13 +151,10 @@ fun EditFundScreen(
                     DialogName(
                         onDismissRequest = { openAlertDialog.value = false },
                         onConfirmation = {
-
                             if (fundNameFieldValue.text.isEmpty()) {
                                 openAlertDialog.value = false
                                 showSnackbarText.value = "Please enter name"
                                 showSnack.value = true
-//                                snackbarHostState.showSnackbar("Please enter name")
-
                             } else {
                                 openAlertDialog.value = false
                                 coroutineScope.launch {
@@ -209,11 +195,9 @@ fun EditFundScreen(
                                     homeViewModel.eraseFundByFundId(fundId)
                                 }
                             } else {
-
-                                coroutineScope.launch {
-                                    snackbarHostState.showSnackbar("Cannot delete default fund!")
-//                            Toast.makeText(context, "Cannot delete default fund!", Toast.LENGTH_SHORT).show()
-                                }
+                                openDelelteDialog.value = false
+                                showSnackbarText.value = "Cannot delete default fund!"
+                                showSnack.value = true
                             }
                         },
                         dialogTitle = "Confirm deletion",
@@ -251,7 +235,6 @@ fun EditFundScreen(
                                         if (selectedParticipants.isEmpty()) {
                                             showSnackbarText.value = "You must select at least one participant"
                                                 showSnack.value = true
-//                                            snackbarHostState.showSnackbar("You must select at least one participant")
                                         } else {
                                             homeViewModel.addParticipantToFund(
                                                 allParticipant,
@@ -274,25 +257,6 @@ fun EditFundScreen(
                                     homeViewModel.updateCheckedState(index, check)
 
                                 }
-//                            deleteFund = {
-//                                if (fundId != 1) {
-//                                    coroutineScope.launch {
-//                                        homeViewModel.eraseFundByFundId(fundId)
-//                                    }
-//
-//                                    navController.navigateUp()
-//                                    Toast.makeText(
-//                                        context,
-//                                        "erase successfully",
-//                                        Toast.LENGTH_SHORT
-//                                    ).show()
-//                                } else {
-//                                    coroutineScope.launch {
-//                                        snackbarHostState.showSnackbar("Cannot delete default fund!")
-////                            Toast.makeText(context, "Cannot delete default fund!", Toast.LENGTH_SHORT).show()
-//                                    }
-//                                }
-//                            }
                             ){ index, check ->
                                 homeViewModel.updateCheckedState(index, check)
                             }
@@ -320,12 +284,6 @@ fun EditFundScreen(
 
 @Composable
 fun FundContent(
-//    fundNameFieldValue: TextFieldValue,
-//    snackbarHostState: SnackbarHostState,
-//    onChange: (String) -> Unit,
-//    onSave: () -> Unit,
-//    deleteFund: () -> Unit,
-
     allParticipant: List<Participant>,
     saveParticipant: () -> Unit,
     childCheckedStates: List<Boolean>,
@@ -333,27 +291,13 @@ fun FundContent(
     onchangeCheck: (Int, Boolean) -> Unit,
 ) {
     val openParDialog = remember { mutableStateOf(false) }
-//    val childCheckedStates = remember { mutableStateListOf<Boolean>() }
     LaunchedEffect(allParticipant.size) {
-//        childCheckedStates.addAll(List(allParticipant.size) { false })
-//        allParticipant.forEachIndexed { index, participant ->
-//            if (participantsInFund.contains(participant)) {
-//                childCheckedStates[index] = true
-//            } else {
-//                childCheckedStates[index] = false
-//            }
-//        }
     }
     val parentState = when {
         childCheckedStates.all { it } -> ToggleableState.On
         childCheckedStates.none { it } -> ToggleableState.Off
         else -> ToggleableState.Indeterminate
     }
-//    Column(
-//        modifier = Modifier
-//            .fillMaxWidth(),
-//        verticalArrangement = Arrangement.SpaceBetween
-//    ) {
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -371,16 +315,6 @@ fun FundContent(
                 icon = Icons.Filled.Info
             )
         }
-//        EditNameEntity(
-//            nameEntity = "Fund",
-//            name = fundNameFieldValue.text,
-//            onNameChange = onChange
-////                {
-////                    homeViewModel.setFundName(it)
-////                }
-//        ) {
-//            onSave()
-//        }
 
         Column(
             modifier = Modifier
@@ -392,22 +326,19 @@ fun FundContent(
             Box(
                 modifier = Modifier
                     .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
-//                        .background(Color.LightGray) // Màu nền cho văn bản
-                    .padding(0.dp) // Khoảng cách giữa văn bản và viền nền
+                    .padding(0.dp)
                     .fillMaxWidth()
             ) {
                 Text(
                     text = "Add paritcipant",
                     modifier = Modifier
-
                         .align(Alignment.Center)
-                        .padding(8.dp), // Tạo khoảng cách giữa văn bản và đường viền
+                        .padding(8.dp),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
             }
-//                Text("Add participant")
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -473,7 +404,6 @@ fun FundContent(
                 .padding(16.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-//            SnackbarHost(hostState = snackbarHostState)
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
@@ -495,11 +425,9 @@ fun TransactionContent(
     currencyCode: String,
     transByFund: List<Transaction>,
     transWithPar: List<Pair<Transaction, Participant>>,
-    homeViewModel: HomeViewModel = hiltViewModel(),
     onItemClick: (Int) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
-//    val parId by homeViewModel.parById.collectAsState()
     Surface(
         color = MaterialTheme.colorScheme.background,
         modifier = Modifier.padding(
@@ -510,8 +438,7 @@ fun TransactionContent(
             Box(
                 modifier = Modifier
                     .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
-//                        .background(Color.LightGray) // Màu nền cho văn bản
-                    .padding(0.dp) // Khoảng cách giữa văn bản và viền nền
+                    .padding(0.dp)
                     .fillMaxWidth()
             ) {
                 Text(
@@ -519,7 +446,7 @@ fun TransactionContent(
                     modifier = Modifier
 
                         .align(Alignment.Center)
-                        .padding(8.dp), // Tạo khoảng cách giữa văn bản và đường viền
+                        .padding(8.dp),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -535,21 +462,8 @@ fun TransactionContent(
                     end = 5.dp
                 )
             ) {
-//                item {
-//                    Text(
-//                        text = "Not Transaction",
-//                        textAlign = TextAlign.Center,
-//                        color = MaterialTheme.colorScheme.onBackground,
-//                        style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Normal),
-//                    )
-//
-//                }
 
                 itemsIndexed(transWithPar) { index, (trans, participant) ->
-
-//                    coroutineScope.launch {
-//                        homeViewModel.getParById(trans.participantId)
-//                    }
                     val category = getCategory(trans.category)
 
                     TransItem(

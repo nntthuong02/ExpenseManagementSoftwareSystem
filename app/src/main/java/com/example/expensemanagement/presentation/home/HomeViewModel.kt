@@ -10,6 +10,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.expensemanagement.common.Constants
+import com.example.expensemanagement.common.TransactionType
 import com.example.expensemanagement.data.local.entity.FundDto
 import com.example.expensemanagement.data.local.entity.GroupDto
 import com.example.expensemanagement.data.local.entity.ParticipantDto
@@ -170,6 +171,9 @@ class HomeViewModel @Inject constructor(
 
     private val _numberTransOfParticipant = MutableStateFlow<List<Pair<Participant, Int>>>(emptyList())
     val numberTransOfParticipant: StateFlow<List<Pair<Participant, Int>>> = _numberTransOfParticipant
+
+    private val _categoryAndExpenseByPar = MutableStateFlow<List<Pair<Category, Double>>>(emptyList())
+    val categoryAndExpenseByPar: StateFlow<List<Pair<Category, Double>>> = _categoryAndExpenseByPar
 
     var expense = MutableStateFlow(0.0)
         private set
@@ -532,6 +536,7 @@ class HomeViewModel @Inject constructor(
             eraseAllTransaction()
         }
     }
+
     fun eraseTransById(Id: Int){
         viewModelScope.launch(IO){
             eraseTransactionById(Id)
@@ -562,6 +567,22 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun getExpenseCategoryByPar(parId: Int){
+        viewModelScope.launch(IO){
+            val listTrans = getTransactionByParticipant(parId).firstOrNull()
+            listTrans?.let {
+                val listCategory = listTrans
+                    .filter { it.transactionType == TransactionType.EXPENSE.title }
+                    .groupBy { getCategory(it.category) }
+                    .map {(category, listTrans) ->
+                    val sum = listTrans.sumOf { it.amount }
+                        category to formatDouble(sum/1000)
+                }
+                _categoryAndExpenseByPar.value = listCategory
+
+            }
+        }
+    }
     fun getTransWithParByFund() {
         viewModelScope.launch(IO) {
             _transByFund.collect {
@@ -768,7 +789,6 @@ class HomeViewModel @Inject constructor(
                 eraseFundById(id)
             }
         }
-
     }
 
 

@@ -10,12 +10,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
@@ -39,20 +42,27 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.example.expensemanagement.R
 import com.example.expensemanagement.common.Constants
 import com.example.expensemanagement.domain.models.Fund
 import com.example.expensemanagement.domain.models.Participant
 import com.example.expensemanagement.domain.models.Transaction
+import com.example.expensemanagement.presentation.common.Category
 import com.example.expensemanagement.presentation.common.TabContent
+import com.example.expensemanagement.presentation.home.component.CategoryChart
+import com.example.expensemanagement.presentation.home.component.CenterAlignedTopAppBar
+import com.example.expensemanagement.presentation.home.component.DialogName
 import com.example.expensemanagement.presentation.home.component.EditNameEntity
 import com.example.expensemanagement.presentation.home.component.TabBar
 import com.example.expensemanagement.presentation.home.component.TransItem
+import com.example.expensemanagement.presentation.insight_screen.component.AlertDialogComponent
 import com.example.expensemanagement.presentation.insight_screen.component.getCategory
 import com.example.expensemanagement.presentation.navigation.Route
 import kotlinx.coroutines.launch
@@ -66,231 +76,192 @@ fun EditParticipantScreen(
 ) {
     val selectedTab by homeViewModel.tabPar.collectAsState()
     val parById by homeViewModel.parById.collectAsState()
-//    val allPars by homeViewModel.allParticipant.collectAsState()
     val transByPar by homeViewModel.transByPar.collectAsState()
     val currencyCode by homeViewModel.selectedCurrencyCode.collectAsState()
     val transWithFund by homeViewModel.transWithFund.collectAsState()
+    val categoryAndExpense by homeViewModel.categoryAndExpenseByPar.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val parTitle by remember { mutableStateOf(homeViewModel.parName) }
+    val showSnack = remember { mutableStateOf(false) }
+    val showSnackbarText = remember { mutableStateOf("") }
+    val openAlertDialog = remember { mutableStateOf(false) }
+    val openDelelteDialog = remember { mutableStateOf(false) }
     val parNameFieldValue = TextFieldValue(parTitle.collectAsState().value)
+    val showContent = remember { mutableStateOf(false) }
+
 
     LaunchedEffect(parId) {
         homeViewModel.apply {
             getParById(parId)
             getTransactionByPar(parId)
-//            getAllPars()
             getTransWithFundByPar()
+            getExpenseCategoryByPar(parId)
         }
     }
-    if (transByPar != null) {
-        var sum = 0.0
-        transByPar.forEach { trans ->
-            if (trans.transactionType == Constants.EXPENSE) {
-                sum += trans.amount
-            }
-        }
-        homeViewModel.setExpense(sum)
+    if (parById != null) {
+        showContent.value = true
     }
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        // Row with buttons to switch between tabs
-        TabBar(tab1 = TabContent.PARTICIPANT, tab2 = TabContent.TRANSACTION, selectedTab = selectedTab) { tabContent ->
-            homeViewModel.setTabPar(tabContent)
-        }
-
-        // Content below changes based on the content variable
-//        content()
-        AnimatedContent(targetState = selectedTab) { targetTab ->
-            when (targetTab) {
-                TabContent.PARTICIPANT -> ParticipantContent(
-                    parNameFieldValue = parNameFieldValue,
-                    snackbarHostState = snackbarHostState,
-                    onChange = {
-                        homeViewModel.setParName(it)
-                    },
-                    onSave = {
-                        if (parNameFieldValue.text.isEmpty()) {
-                            // Hiển thị Snackbar thông báo lỗi
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar("Please enter name")
-                            }
-                        } else {
-                            coroutineScope.launch {
-                                homeViewModel.apply {
-                                    updateParticipantById(parId, parName.value)
-                                    navController.navigateUp()
-                                    navController.navigate("${Route.EditParticipantScreen.route}/${parById!!.participantId}")
+    AnimatedContent(targetState = showContent.value, label = "VisibilityAnimation") { isVisible ->
+        if (isVisible) {
+            CenterAlignedTopAppBar(
+                showSnackbarText = showSnackbarText.value,
+                name = parById!!.participantName,
+                rightIcon1 = R.drawable.edit_square_24px,
+                rightIcon2 = R.drawable.delete_24px,
+                iconOnclick1 = { openAlertDialog.value = true },
+                iconOnlick2 = { openDelelteDialog.value = true },
+                showIconRight1 = true,
+                showIconRight2 = true,
+                showIconLeft = true,
+                navController = navController,
+                showSnackbar = showSnack
+            ) { innerPadding ->
+                if (openAlertDialog.value == true) {
+                    DialogName(
+                        onDismissRequest = { openAlertDialog.value = false },
+                        onConfirmation = {
+                            if (parNameFieldValue.text.isEmpty()) {
+                                openAlertDialog.value = false
+                                showSnackbarText.value = "Please enter name"
+                                showSnack.value = true
+                            } else {
+                                openAlertDialog.value = false
+                                coroutineScope.launch {
+                                    homeViewModel.apply {
+                                        updateParticipantById(parId, parName.value)
+                                        navController.navigate("${Route.EditParticipantScreen.route}/${parById!!.participantId}")
+                                        Toast.makeText(
+                                            context,
+                                            "Participant name updated successfully",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
                                 }
                             }
-                        }
-                    },
-//                    allParticipant = allPars,
-//                    saveParticipant = { listChecked ->
-//                        val selectedParticipants = allPars.filterIndexed { index, _ ->
-//                            listChecked[index]
-//                        }
-//                        coroutineScope.launch{
-//                            homeViewModel.addParticipantToFund(selectedParticipants, parId)
-//                            Toast.makeText(context, "save participant successfully", Toast.LENGTH_SHORT).show()
-//                        }
-//
-//                    },
-                    deletePar = {
-                        if (parId != 1){
-                            coroutineScope.launch {
-                                homeViewModel.eraseParById(parId)
-                            }
-//                        navController.navigate("${Route.ListFundScreen.route}")
 
-                            navController.navigateUp()
-                            Toast.makeText(context, "erase successfully", Toast.LENGTH_SHORT).show()
-                        } else{
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar("Cannot delete default participant!")
-//                            Toast.makeText(context, "Cannot delete default fund!", Toast.LENGTH_SHORT).show()
+                        },
+                        name = parNameFieldValue.text,
+                        onNameChange = { text ->
+                            homeViewModel.setParName(text)
+                        },
+                        dialogTitle = "Enter the name of the participnat you want to create!",
+                        dialogText = "participant",
+                        iconId = R.drawable.post_add_24px
+                    )
+                }
+
+                if (openDelelteDialog.value) {
+                    AlertDialogComponent(
+                        onDismissRequest = { openDelelteDialog.value = false },
+                        onConfirmation = {
+                            if (parId != 1) {
+                                openDelelteDialog.value = false
+                                navController.navigateUp()
+                                Toast.makeText(context, "erase successfully", Toast.LENGTH_SHORT)
+                                    .show()
+                                coroutineScope.launch {
+                                    homeViewModel.eraseParById(parId)
+                                }
+                            } else {
+                                openDelelteDialog.value = false
+                                showSnackbarText.value = "Cannot delete default participant!"
+                                showSnack.value = true
+                            }
+                        },
+                        dialogTitle = "Confirm deletion",
+                        dialogText = "Are you sure you want to delete this participant?",
+                        icon = Icons.Filled.Delete
+                    )
+                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues = innerPadding)
+
+                ) {
+                    TabBar(
+                        tab1 = TabContent.PARTICIPANT,
+                        tab2 = TabContent.TRANSACTION,
+                        selectedTab = selectedTab
+                    ) { tabContent ->
+                        homeViewModel.setTabPar(tabContent)
+                    }
+//        content()
+                    AnimatedContent(
+                        targetState = selectedTab,
+                        label = "Participant Content"
+                    ) { targetTab ->
+                        when (targetTab) {
+                            TabContent.PARTICIPANT -> ParticipantContent(
+                                categoryChart = categoryAndExpense,
+                            )
+
+                            else -> {
+                                TransactionContent2(
+                                    currencyCode = currencyCode,
+                                    transByPar = transByPar,
+                                    transWithFund = transWithFund,
+                                    onItemClick = {}
+                                )
                             }
                         }
                     }
-                )
-
-                else -> {
-                    TransactionContent2(
-                        currencyCode = currencyCode,
-                        transByPar = transByPar,
-                        transWithFund = transWithFund,
-                        onItemClick = {}
-                    )
                 }
+                //Column
             }
         }
     }
+
 }
 
 @Composable
 fun ParticipantContent(
-    parNameFieldValue: TextFieldValue,
-    snackbarHostState: SnackbarHostState,
-    onChange: (String) -> Unit,
-    onSave: () -> Unit,
-    deletePar: () -> Unit,
-//    allParticipant: List<Participant>,
-//    saveParticipant: (List<Boolean>) -> Unit,
+    categoryChart: List<Pair<Category, Double>>
 ) {
-//    val childCheckedStates = remember { mutableStateListOf<Boolean>() }
-//    LaunchedEffect(allParticipant.size) {
-//        childCheckedStates.addAll(List(allParticipant.size) { false })
-//    }
-//    val parentState = when {
-//        childCheckedStates.all { it } -> ToggleableState.On
-//        childCheckedStates.none { it } -> ToggleableState.Off
-//        else -> ToggleableState.Indeterminate
-//    }
-//    Column(
-//        modifier = Modifier
-//            .fillMaxWidth(),
-//        verticalArrangement = Arrangement.SpaceBetween
-//    ) {
+
     Column(
         modifier = Modifier
             .fillMaxSize(),
-        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        EditNameEntity(
-            nameEntity = "Participant",
-            name = parNameFieldValue.text,
-            onNameChange = onChange,
-            onSaveClick = onSave
-        )
-//        {
-//            onSave()
-//        }
-
-//        Column(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(start = 5.dp, end = 5.dp),
-//            horizontalAlignment = Alignment.CenterHorizontally
-//        ) {
-//            // Parent TriStateCheckbox
-//            Box(
-//                modifier = Modifier
-//                    .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
-////                        .background(Color.LightGray) // Màu nền cho văn bản
-//                    .padding(0.dp) // Khoảng cách giữa văn bản và viền nền
-//                    .fillMaxWidth()
-//            ) {
-//                Text(
-//                    text = "Add paritcipant",
-//                    modifier = Modifier
-//
-//                        .align(Alignment.Center)
-//                        .padding(8.dp), // Tạo khoảng cách giữa văn bản và đường viền
-//                    style = MaterialTheme.typography.titleSmall,
-//                    fontWeight = FontWeight.Bold,
-//                    color = MaterialTheme.colorScheme.onSurface,
-//
-//                    )
-//            }
-////                Text("Add participant")
-//            Row(
-//                verticalAlignment = Alignment.CenterVertically,
-//            ) {
-//                Text("Select all        ")
-//                TriStateCheckbox(
-//                    state = parentState,
-//                    onClick = {
-//                        val newState = parentState != ToggleableState.On
-//                        childCheckedStates.forEachIndexed { index, _ ->
-//                            childCheckedStates[index] = newState
-//                        }
-//                    }
-//                )
-//            }
-//            LazyColumn {
-//                itemsIndexed(childCheckedStates) { index, checked ->
-//                    Row(
-//                        verticalAlignment = Alignment.CenterVertically,
-//                    ) {
-//                        Text("${allParticipant[index].participantName}     ")
-//                        Checkbox(
-//                            checked = checked,
-//                            onCheckedChange = { isChecked ->
-//                                childCheckedStates[index] = isChecked
-//                            }
-//                        )
-//                    }
-//                }
-//            }
-//
-//        }
-//            }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            SnackbarHost(hostState = snackbarHostState)
-//            Button(
-//                modifier = Modifier.fillMaxWidth(),
-//                onClick = { saveParticipant(childCheckedStates) }
-//            ) {
-//                Text(text = "Save participant")
-//            }
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = deletePar
+        if (categoryChart.isNotEmpty()) {
+            CategoryChart(oxLabel = "Category", oyLabel = "Money", chartData = categoryChart)
+            Spacer(modifier = Modifier.padding(10.dp))
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, end = 20.dp, top = 10.dp),
+                horizontalArrangement = Arrangement.Center,
             ) {
-                Text(text = "Delete participant")
+                Text(
+                    text = "The chart shows the total amount of expenses (Unit: thousands)",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Normal,
+                        fontFamily = FontFamily.SansSerif
+                    )
+                )
+            }
+        } else {
+            CategoryChart(oxLabel = "Category", oyLabel = "Money", chartData = categoryChart)
+            Spacer(modifier = Modifier.padding(10.dp))
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, end = 20.dp, top = 10.dp),
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                Text(
+                    text = "The chart shows the total amount of expenses (Unit: thousands)",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Normal,
+                        fontFamily = FontFamily.SansSerif
+                    )
+                )
             }
         }
 
     }
-//    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -299,23 +270,19 @@ fun TransactionContent2(
     currencyCode: String,
     transByPar: List<Transaction>,
     transWithFund: List<Pair<Transaction, Fund>>,
-//    homeViewModel: HomeViewModel = hiltViewModel(),
     onItemClick: (Int) -> Unit
 ) {
-    val coroutineScope = rememberCoroutineScope()
-//    val parId by homeViewModel.parById.collectAsState()
     Surface(
         color = MaterialTheme.colorScheme.background,
         modifier = Modifier.padding(
             top = 5.dp
         )
     ) {
-        if(transByPar.isEmpty()) {
+        if (transByPar.isEmpty()) {
             Box(
                 modifier = Modifier
                     .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
-//                        .background(Color.LightGray) // Màu nền cho văn bản
-                    .padding(0.dp) // Khoảng cách giữa văn bản và viền nền
+                    .padding(0.dp)
                     .fillMaxWidth()
             ) {
                 Text(
@@ -323,7 +290,7 @@ fun TransactionContent2(
                     modifier = Modifier
 
                         .align(Alignment.Center)
-                        .padding(8.dp), // Tạo khoảng cách giữa văn bản và đường viền
+                        .padding(8.dp),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -331,7 +298,7 @@ fun TransactionContent2(
                     )
             }
 
-        } else{
+        } else {
             LazyColumn(
                 contentPadding = PaddingValues(
                     start = 5.dp,
@@ -339,21 +306,7 @@ fun TransactionContent2(
                     end = 5.dp
                 )
             ) {
-//                item {
-//                    Text(
-//                        text = "Not Transaction",
-//                        textAlign = TextAlign.Center,
-//                        color = MaterialTheme.colorScheme.onBackground,
-//                        style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Normal),
-//                    )
-//
-//                }
-
                 itemsIndexed(transWithFund) { index, (trans, fund) ->
-
-//                    coroutineScope.launch {
-//                        homeViewModel.getParById(trans.participantId)
-//                    }
                     val category = getCategory(trans.category)
 
                     TransItem(
@@ -374,22 +327,12 @@ fun TransactionContent2(
 
 @Preview(showSystemUi = true)
 @Composable
-fun ParticipantContentPreview(){
-    val parNameFieldValue = TextFieldValue("")
-    val snackbarHostState = remember { SnackbarHostState() }
-    val fakeParticipants = listOf(
-        Participant(1, participantName = "Participant 1"),
-        Participant(2, participantName = "Participant 2"),
-        Participant(3, participantName = "Participant 3")
+fun ParticipantContentPreview() {
+    val category = listOf(
+        Pair(Category.CLOTHES, 10.0)
     )
 
     ParticipantContent(
-        parNameFieldValue = parNameFieldValue,
-        snackbarHostState = snackbarHostState,
-        onChange = {},
-        onSave = { /*TODO*/ },
-        deletePar = { /*TODO*/ },
-//        allParticipant = fakeParticipants,
-//        saveParticipant = {}
+        categoryChart = category,
     )
 }
