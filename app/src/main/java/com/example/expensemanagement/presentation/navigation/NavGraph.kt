@@ -79,7 +79,7 @@ fun NavGraph(
             EditParticipantScreen(parId = parId, navController = navController)
         }
         composable(route = Route.ListTransaction.route){
-            ListTransactionScreen()
+            ListTransactionScreen(navController)
         }
         composable(route = Route.StatisticsScreen.route){
             StatisticsScreen()

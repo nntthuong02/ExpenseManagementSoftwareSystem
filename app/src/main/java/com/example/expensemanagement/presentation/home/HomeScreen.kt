@@ -218,7 +218,7 @@ fun HomeScreen(
         }
 
         if (fundExpenseUnPaid.isNotEmpty() && parExpenseUnPaid.isNotEmpty()) {
-            AnimatedContent(targetState = selectedTab) { targetTab ->
+            AnimatedContent(targetState = selectedTab, label = "Unpaid Chart") { targetTab ->
 
                 when (targetTab) {
                     TabContent.FUND -> FundBarChart(

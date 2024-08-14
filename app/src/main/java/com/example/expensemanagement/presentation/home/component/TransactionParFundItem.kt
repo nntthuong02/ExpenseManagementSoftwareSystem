@@ -17,25 +17,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.expensemanagement.common.Constants
 import com.example.expensemanagement.domain.models.Transaction
 import com.example.expensemanagement.presentation.common.Category
-import com.example.expensemanagement.presentation.home.HomeViewModel
-import com.example.expensemanagement.presentation.insight_screen.InsightViewModel
-import com.example.expensemanagement.presentation.insight_screen.component.getCategory
 import com.example.expensemanagement.ui.theme.Blue1
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
@@ -44,13 +38,13 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransItem(
+fun TransactionParFundItem(
     transaction: Transaction,
     category: Category,
     currencyCode: String,
+    fundName: String,
     parName: String,
 ) {
-
     Card(
         onClick = {  },
         colors = CardDefaults.cardColors(Color.DarkGray.copy(alpha = 0.1f)),
@@ -93,11 +87,13 @@ fun TransItem(
                 )
                 Text(
                     text = parName,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .background(
-                            color = Blue1,
+                            color = Color.Blue.copy(0.5f),
                             shape = RoundedCornerShape(24.dp)
                         )
                         .padding(
@@ -116,7 +112,7 @@ fun TransItem(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.weight(0.7f)
+                    modifier = Modifier.weight(0.6f)
                 ) {
                     Icon(
                         painter = painterResource(id = category.iconRes),
@@ -155,15 +151,32 @@ fun TransItem(
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.weight(0.3f)
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.weight(0.4f)
+                        .padding(end = 5.dp)
                 ){
+//                    Text(
+//                        text = if (transaction.isPaid) "Paid" else "Unpaid",
+//                        style = MaterialTheme.typography.titleMedium,
+//                        color = if (transaction.isPaid) Color.Green else Color.Red,
+//                        maxLines = 1,
+//                        overflow = TextOverflow.Ellipsis
+//                    )
                     Text(
-                        text = if (transaction.isPaid) "Paid" else "Unpaid",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = if (transaction.isPaid) Color.Green else Color.Red,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        text = fundName,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .background(
+                                color = Blue1,
+                                shape = RoundedCornerShape(24.dp)
+                            )
+                            .padding(
+                                vertical = 5.dp,
+                                horizontal = 10.dp
+                            ),
+                        color = Color.White,
+                        letterSpacing = TextUnit(1.1f, TextUnitType.Sp)
                     )
                 }
 
@@ -196,18 +209,14 @@ private fun formatAmount(value: Double): String {
 }
 @Preview(showSystemUi = true)
 @Composable
-fun TransactionItemPreview(){
-    val transaction = Transaction(
-        transactionId = 1,
-        date = Date(),
-        dateOfEntry = "Test",
-        category = "FOOD_DRINK",
-        title = "Grocery shopping",
-        amount = 50.0,
-        transactionType = Constants.INCOME,
-        isPaid = false,
-        participantId = 1,
-        fundId = 1
+fun PreviewTranParFund(){
+    val date = Date(345)
+    val transaction = Transaction(1, "", date, "", 1.0, "false", false, "", 1, 1)
+    TransactionParFundItem(
+        transaction = transaction,
+        category = Category.CLOTHES,
+        currencyCode = "VND",
+        fundName = "Quy 2",
+        parName = "Thuong"
     )
-    TransItem(transaction, Category.CLOTHES, "VND", "Thuong")
 }

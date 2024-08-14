@@ -7,5 +7,6 @@ enum class TabContent(val title: String) {
     PAYMENT("Payment"),
     HISTORY("History"),
     ALLTRANSACTIONS("All Transactions"),
-    UNPAID("UnPaid")
+    UNPAID("UnPaid"),
+    Paid("Paid")
 }

@@ -119,8 +119,8 @@ class HomeViewModel @Inject constructor(
     private val _allParticipant = MutableStateFlow<List<Participant>>(emptyList())
     val allParticipant: StateFlow<List<Participant>> = _allParticipant
 
-    private val _unpaidTransactions = MutableStateFlow<List<Transaction>>(emptyList())
-    val unpaidTransactions: StateFlow<List<Transaction>> = _unpaidTransactions
+//    private val _unpaidTransactions = MutableStateFlow<List<Transaction>>(emptyList())
+//    val unpaidTransactions: StateFlow<List<Transaction>> = _unpaidTransactions
 
     private val _transByFundAndPar = MutableStateFlow<List<Transaction>>(emptyList())
     val transByFundAndPar: StateFlow<List<Transaction>> = _transByFundAndPar
@@ -143,9 +143,17 @@ class HomeViewModel @Inject constructor(
     private val _allTransaction = MutableStateFlow<List<Transaction>>(emptyList())
     val allTransaction: StateFlow<List<Transaction>> = _allTransaction
 
-    private val _unpaidTrans = MutableStateFlow<List<Transaction>>(emptyList())
-    val unpaidTrans: StateFlow<List<Transaction>> = _unpaidTrans
+    private val _unpaidTrans = MutableStateFlow<List<Pair<Transaction, Pair<Participant, Fund>>>>(emptyList())
+    val unpaidTrans: StateFlow<List<Pair<Transaction, Pair<Participant, Fund>>>> = _unpaidTrans
 
+    private val _mapUnpaidTrans = MutableStateFlow<Map<String, List<Pair<Transaction, Pair<Participant, Fund>>>>>(emptyMap())
+    val mapUnpaidTrans: StateFlow<Map<String, List<Pair<Transaction, Pair<Participant, Fund>>>>> = _mapUnpaidTrans
+
+    private val _mapPaidTrans = MutableStateFlow<Map<String, List<Pair<Transaction, Pair<Participant, Fund>>>>>(emptyMap())
+    val mapPaidTrans: StateFlow<Map<String, List<Pair<Transaction, Pair<Participant, Fund>>>>> = _mapPaidTrans
+
+    private val _paidTrans = MutableStateFlow<List<Transaction>>(emptyList())
+    val paidTrans: StateFlow<List<Transaction>> = _paidTrans
 
 
     private val _numberPar = MutableStateFlow(0)
@@ -196,6 +204,9 @@ class HomeViewModel @Inject constructor(
     var tabPar = MutableStateFlow(TabContent.PARTICIPANT)
         private set
     var tabPaid = MutableStateFlow(TabContent.ALLTRANSACTIONS)
+        private set
+
+    var tabPaidTrans = MutableStateFlow(TabContent.UNPAID)
         private set
     var childCheckedStates = mutableStateListOf<Boolean>()
         private set
@@ -556,16 +567,63 @@ class HomeViewModel @Inject constructor(
 
     fun fetchUnpaidTransactions() {
         viewModelScope.launch(IO) {
-            val listTrans = getAllTransactions().first()
-            _unpaidTrans.value = listTrans
-                .filter { transDto ->
-                    !transDto.isPaid
-                }.map { transDto ->
+            val listTransDto = getAllTransactions().first()
+            val listTrans = listTransDto
+                .map { transDto ->
                     transDto.toTransaction()
                 }
+                .filter { transDto -> !transDto.isPaid }
+                .sortedByDescending { it.date }
+            val listTransDeferred = listTrans.map { trans ->
+                async {
+                    val par = getParticipantById(trans.participantId).first().toParticipant()
+                    val fund = getFundById(trans.fundId).first().toFund()
+                    trans to (par to fund)
+                }
+            }
+            val listTransAndParFund = listTransDeferred.awaitAll()
+            _mapUnpaidTrans.value = listTransAndParFund.groupBy { (trans, entity) ->
+                getFormattedDate(trans.date)
+            }
 
         }
     }
+
+    fun fetchPaidTransactions() {
+        viewModelScope.launch(IO) {
+            val listTransDto = getAllTransactions().first()
+            val listTrans = listTransDto
+                .map { transDto ->
+                    transDto.toTransaction()
+                }
+                .filter { transDto -> transDto.isPaid }
+                .sortedByDescending { it.date }
+            val listTransDeferred = listTrans.map { trans ->
+                async {
+                    val par = getParticipantById(trans.participantId).first().toParticipant()
+                    val fund = getFundById(trans.fundId).first().toFund()
+                    trans to (par to fund)
+                }
+            }
+            val listTransAndParFund = listTransDeferred.awaitAll()
+            _mapPaidTrans.value = listTransAndParFund.groupBy { (trans, entity) ->
+                getFormattedDate(trans.date)
+            }
+
+        }
+    }
+//    fun fetchPaidTransactions() {
+//        viewModelScope.launch(IO) {
+//            val listTrans = getAllTransactions().first()
+//            _paidTrans.value = listTrans
+//                .filter { transDto ->
+//                    transDto.isPaid
+//                }.map { transDto ->
+//                    transDto.toTransaction()
+//                }
+//
+//        }
+//    }
 
     fun getExpenseCategoryByPar(parId: Int){
         viewModelScope.launch(IO){
@@ -756,6 +814,27 @@ class HomeViewModel @Inject constructor(
     }
     }
 
+    fun erasePaidTrans() {
+        viewModelScope.launch(IO) {
+            val listPaidTransDto = getAllTransactions().first()
+            listPaidTransDto.forEach { transDto ->
+                if (transDto.isPaid){
+                    eraseTransById(transDto.transactionId)
+                }
+            }
+        }
+    }
+    fun eraseUnpaidTrans() {
+        viewModelScope.launch(IO) {
+            val listPaidTransDto = getAllTransactions().first()
+            listPaidTransDto.forEach { transDto ->
+                if (!transDto.isPaid){
+                    eraseTransById(transDto.transactionId)
+                }
+            }
+        }
+    }
+
     fun eraseParticipantToFund(parId: Int, fundId: Int) {
         viewModelScope.launch(IO) {
             getParFundByParAndFund(parId, fundId).collect { parFundDto ->
@@ -857,6 +936,10 @@ class HomeViewModel @Inject constructor(
 
     fun setTabPaid(tab: TabContent) {
         tabPaid.value = tab
+    }
+
+    fun setTabPaidTrans(tab: TabContent) {
+        tabPaidTrans.value = tab
     }
 
     fun setExpense(amount: Double) {

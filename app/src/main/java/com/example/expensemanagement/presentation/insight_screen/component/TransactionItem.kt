@@ -35,7 +35,10 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import com.example.expensemanagement.common.Constants
 import com.example.expensemanagement.presentation.common.Category
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 import java.util.Date
+import java.util.Locale
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -123,7 +126,7 @@ fun TransactionItem(
                     }
 
                     Text(
-                        text = currencyCode + "  ${transaction.amount}",
+                        text = "$currencyCode  " + formatAmount(transaction.amount),
                         color = if (transaction.transactionType == Constants.INCOME) Color.Green
                         else Color.Red.copy(alpha = 0.75f),
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.W600),
@@ -145,6 +148,18 @@ fun TransactionItem(
     }
 }
 
+private fun formatAmount(value: Double): String {
+    if (value == 0.0) {
+        return "0,0"
+    }
+    val symbols = DecimalFormatSymbols(Locale.US).apply {
+        decimalSeparator = ','
+        groupingSeparator = '.'
+    }
+    val format = DecimalFormat("#,###.0", symbols)
+
+    return format.format(value)
+}
 fun getCategory(title: String): Category {
     var result: Category = Category.FOOD_DRINK
     Category.values().forEach {
