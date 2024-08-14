@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
@@ -35,6 +36,7 @@ import com.example.expensemanagement.presentation.common.Category
 import com.example.expensemanagement.presentation.home.HomeViewModel
 import com.example.expensemanagement.presentation.insight_screen.InsightViewModel
 import com.example.expensemanagement.presentation.insight_screen.component.getCategory
+import com.example.expensemanagement.ui.theme.Blue1
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -92,7 +94,7 @@ fun TransItem(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .background(
-                            color = Color.Yellow,
+                            color = Blue1,
                             shape = RoundedCornerShape(24.dp)
                         )
                         .padding(
@@ -106,44 +108,63 @@ fun TransItem(
 
             Spacer(modifier = Modifier.height(10.dp))
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(0.7f)
+                ) {
+                    Icon(
+                        painter = painterResource(id = category.iconRes),
+                        contentDescription = "transaction",
+                        tint = Color.Black,
+                        modifier = Modifier
+                            .background(
+                                Color.DarkGray.copy(alpha = 0.2f),
+                                RoundedCornerShape(8.dp)
+                            )
+                            .padding(18.dp)
+                    )
+                    Spacer(modifier = Modifier.padding(5.dp))
+                    Column(verticalArrangement = Arrangement.SpaceBetween) {
+                        if (transaction.title.isNotEmpty()) {
+                            Text(
+                                text = transaction.title,
+                                style = MaterialTheme.typography.titleMedium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
 
-                Icon(
-                    painter = painterResource(id = category.iconRes),
-                    contentDescription = "transaction",
-                    tint = Color.Black,
-                    modifier = Modifier
-                        .background(
-                            Color.DarkGray.copy(alpha = 0.2f),
-                            RoundedCornerShape(8.dp)
-                        )
-                        .padding(18.dp)
-                )
+                            Spacer(modifier = Modifier.height(5.dp))
+                        }
 
-                Column(verticalArrangement = Arrangement.SpaceBetween) {
-                    if (transaction.title.isNotEmpty()) {
                         Text(
-                            text = transaction.title,
-                            style = MaterialTheme.typography.titleMedium,
+                            text = currencyCode + "  ${transaction.amount}",
+                            color = if (transaction.transactionType == Constants.INCOME) Color.Green
+                            else Color.Red.copy(alpha = 0.75f),
+                            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.W600),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-
-                        Spacer(modifier = Modifier.height(5.dp))
                     }
+                }
 
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.weight(0.3f)
+                ){
                     Text(
-                        text = currencyCode + "  ${transaction.amount}",
-                        color = if (transaction.transactionType == Constants.INCOME) Color.Green
-                        else Color.Red.copy(alpha = 0.75f),
-                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.W600),
+                        text = if (transaction.isPaid) "Paid" else "Unpaid",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = if (transaction.isPaid) Color.Green else Color.Red,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
+
+
             }
         }
     }
