@@ -1,10 +1,14 @@
 package com.example.expensemanagement.presentation.transaction_screen.component
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -13,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -39,7 +44,19 @@ fun ParDropdownMenu(
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = { expanded = !expanded }) {
-            Text(text = selectedPar?.participantName ?: "Select Participant")
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    text = selectedPar?.participantName ?: "Select Participant",
+                    modifier = Modifier.align(Alignment.Center)
+                )
+                Icon(
+                    Icons.Default.KeyboardArrowDown, contentDescription = "Localized description",
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
+            }
+
         }
         DropdownMenu(
             modifier = Modifier.fillMaxWidth(),
@@ -63,7 +80,7 @@ fun ParDropdownMenu(
 
 @Preview(showSystemUi = true)
 @Composable
-fun ParDropMenuPreview(){
+fun ParDropMenuPreview() {
     val fakeParticipants = listOf(
         Participant(1, participantName = "Participant 1"),
         Participant(2, participantName = "Participant 2"),

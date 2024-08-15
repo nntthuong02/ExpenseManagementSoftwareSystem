@@ -37,6 +37,9 @@ import com.example.expensemanagement.domain.models.Participant
 import com.example.expensemanagement.presentation.insight_screen.InsightViewModel
 import com.example.expensemanagement.ui.theme.AcidLime
 import com.example.expensemanagement.ui.theme.Adonis
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -124,7 +127,7 @@ fun FundItem(
                                     color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary)
                                 )
                             ) {
-                                append(fundAmount.toString())
+                                append(formatAmount(fundAmount))
                             }
                         })
                     }
@@ -134,7 +137,18 @@ fun FundItem(
     }
 }
 
+private  fun formatAmount(value: Double): String {
+    if (value == 0.0) {
+        return "0,0"
+    }
+    val symbols = DecimalFormatSymbols(Locale.US).apply {
+        decimalSeparator = ','
+        groupingSeparator = '.'
+    }
+    val format = DecimalFormat("#,###.0", symbols)
 
+    return format.format(value)
+}
 @Preview(showSystemUi = true)
 @Composable
 fun FundItemPreview(){

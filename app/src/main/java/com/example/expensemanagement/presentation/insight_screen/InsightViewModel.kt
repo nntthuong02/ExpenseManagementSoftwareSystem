@@ -35,6 +35,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.Collator
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -97,8 +99,8 @@ class InsightViewModel @Inject constructor(
 
     private val _fundAndExpense = MutableStateFlow<List<Pair<Fund, Double>>>(emptyList())
     val fundAndExpense: StateFlow<List<Pair<Fund, Double>>> = _fundAndExpense
-    private val _parAndExpense = MutableStateFlow<List<Pair<Participant, Double>>>(emptyList())
-    val parAndExpense: StateFlow<List<Pair<Participant, Double>>> = _parAndExpense
+    private val _parAndExpense = MutableStateFlow<List<Pair<Participant, Pair<Double, Int>>>>(emptyList())
+    val parAndExpense: StateFlow<List<Pair<Participant, Pair<Double, Int>>>> = _parAndExpense
 
     private val _expenseByFund = MutableStateFlow(0.0)
     val expenseByFund: StateFlow<Double> = _expenseByFund
@@ -173,7 +175,8 @@ class InsightViewModel @Inject constructor(
             val parFundExpenseDeferred = participants.map { par ->
                 async {
                     val expense = getExpenseByParAndFund(fundId, par.participantId)
-                    par to expense
+                    val count = getTransByFundAndPar(fundId, par.participantId).first().size
+                    par to (expense to count)
                 }
             }
             val parFundExpense = parFundExpenseDeferred.awaitAll()
@@ -194,6 +197,21 @@ class InsightViewModel @Inject constructor(
         return totalExpense
     }
 
+    fun formatDouble(value: Double): Double {
+        return String.format(Locale.US, "%.1f", value).toDouble()
+    }
+    fun formatAmount(value: Double): String {
+        if (value == 0.0) {
+            return "0,0"
+        }
+        val symbols = DecimalFormatSymbols(Locale.US).apply {
+            decimalSeparator = ','
+            groupingSeparator = '.'
+        }
+        val format = DecimalFormat("#,###.0", symbols)
+
+        return format.format(value)
+    }
 
     //    fun getFormattedDate(date: Date): String {
 //        val dayOfWeek = DateFormat.format("EEE", date)

@@ -36,40 +36,20 @@ import com.example.expensemanagement.domain.models.Participant
 import com.example.expensemanagement.presentation.insight_screen.InsightViewModel
 import com.example.expensemanagement.ui.theme.Abigail
 import com.example.expensemanagement.ui.theme.Adonis
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ParticipantItem(
     participant: Participant,
-    fundId: Int,
+//    fundId: Int,
     currency: String,
     expense: Double,
-    insightViewModel: InsightViewModel = hiltViewModel(),
+    transByFundAndPar: Int,
     onItemClick: (Int) -> Unit
 ) {
-    val transByFundAndPar by insightViewModel.transByFundAndPar.collectAsState()
-//    val expense by insightViewModel.expense.collectAsState()
-//    val income by insightViewModel.income.collectAsState()
-//    val balance by insightViewModel.balance.collectAsState()
-
-    LaunchedEffect(transByFundAndPar){
-
-            insightViewModel.getTransactionByParAndFund(fundId, participant.participantId)
-//        var incomeTotal = 0.0
-//        var expenseTotal = 0.0
-//        transByFundAndPar.forEach {trans ->
-//            if(trans.transactionType == Constants.EXPENSE){
-//                expenseTotal += trans.amount
-//            } else{
-//                incomeTotal += trans.amount
-//            }
-//        }
-//        insightViewModel.setExpense(expenseTotal)
-//        insightViewModel.setIncome(incomeTotal)
-//        insightViewModel.setBalance(incomeTotal - expenseTotal)
-
-    }
-
     Card(
         onClick = {
             onItemClick(participant.participantId)
@@ -106,8 +86,8 @@ fun ParticipantItem(
             Text(text = buildAnnotatedString {
                 withStyle(
                     SpanStyle(
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 10.sp,
+                        fontWeight = FontWeight.ExtraLight,
+                        fontSize = 14.sp,
                         letterSpacing = 0.2.sp
                     )
                 ){
@@ -118,7 +98,7 @@ fun ParticipantItem(
                         fontWeight = FontWeight.ExtraLight
                     )
                 ){
-                    append(transByFundAndPar.size.toString())
+                    append(transByFundAndPar.toString())
                 }
             },
                 modifier = Modifier.padding(start = 5.dp)
@@ -201,7 +181,7 @@ fun ParticipantItem(
                                     color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary)
                                 )
                             ) {
-                                append(expense.toString())
+                                append(formatAmount(expense))
                             }
                         },
                             modifier = Modifier.padding(
@@ -235,10 +215,21 @@ fun ParticipantItem(
         }
     }
 }
+private  fun formatAmount(value: Double): String {
+    if (value == 0.0) {
+        return "0,0"
+    }
+    val symbols = DecimalFormatSymbols(Locale.US).apply {
+        decimalSeparator = ','
+        groupingSeparator = '.'
+    }
+    val format = DecimalFormat("#,###.0", symbols)
 
+    return format.format(value)
+}
 @Preview(showSystemUi = true)
 @Composable
 fun ParticipantItemPreview(){
     val thuong = Participant(1, "Thuong")
-    ParticipantItem(participant = thuong, 1, currency = "VND", 1.0, onItemClick = {})
+    ParticipantItem(participant = thuong,  currency = "VND", 1.0, 1, onItemClick = {})
 }

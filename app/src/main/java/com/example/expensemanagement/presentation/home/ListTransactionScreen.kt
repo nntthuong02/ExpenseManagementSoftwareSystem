@@ -120,7 +120,7 @@ fun ListTransactionScreen(
                 AlertDialogComponent(
                     onDismissRequest = { deletePaidDialog.value = false },
                     onConfirmation = {
-                        if (unpaidTrans.isEmpty()){
+                        if (paidTrans.isEmpty()){
                             Toast.makeText(context, "There are no transactions to delete!", Toast.LENGTH_SHORT).show()
                         } else {
                             navController.navigate(Route.ListTransaction.route)

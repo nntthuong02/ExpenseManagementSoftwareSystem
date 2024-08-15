@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -25,6 +26,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.expensemanagement.domain.models.Participant
+import com.example.expensemanagement.presentation.home.component.CenterAlignedTopAppBar
 import com.example.expensemanagement.presentation.insight_screen.component.FundItem
 import com.example.expensemanagement.presentation.insight_screen.component.ParticipantItem
 import com.example.expensemanagement.presentation.navigation.Route
@@ -49,54 +51,40 @@ fun ParticipantScreen(
             }
         }
     }
-
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
-        LazyColumn {
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "List Participant",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.W700),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                start = 5.dp,
-                                end = 5.dp,
-                                top = 5.dp
-                            ),
-                        textAlign = TextAlign.Center
-                    )
+    CenterAlignedTopAppBar(
+        showSnackbarText = "",
+        name = "List Participant",
+        rightIcon1 = 0,
+        rightIcon2 = 0,
+        iconOnclick1 = { },
+        iconOnlick2 = {},
+        showIconRight1 = false,
+        showIconRight2 = false,
+        showIconLeft = true,
+        showSnackbar = mutableStateOf(false),
+        navController = navController
+    ) { innerPadding ->
+        Surface(
+            modifier = Modifier.fillMaxSize()
+                .padding(paddingValues = innerPadding),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            LazyColumn {
+                itemsIndexed(expenseAndPar) { index, (par, pair) ->
+                    ParticipantItem(
+                        participant = par,
+//                        fundId = fundId,
+                        transByFundAndPar = pair.second,
+                        currency = currency,
+                        expense = pair.first
+                    ) { parId ->
+                        navController.navigate("${Route.TransactionDetailScreen.route}/$parId?fundId=${fundId}")
+                    }
                 }
 
             }
-//            parByFundId.keys.forEach { key ->
-//                if(key == fundId){
-//                    val participants = parByFundId[key]
-//                    if (participants != null){
-//                        itemsIndexed(participants) { index, par ->
-//                            ParticipantItem(par, fundId, currency) {parId ->
-//                                navController.navigate("${Route.TransactionDetailScreen.route}/$parId?fundId=${fundId}")
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-            itemsIndexed(expenseAndPar){index, (par, expense) ->
-                ParticipantItem(participant = par, fundId = fundId, currency = currency, expense ){parId ->
-                    navController.navigate("${Route.TransactionDetailScreen.route}/$parId?fundId=${fundId}")
-                }
-            }
-
+            //LazyColumn
         }
-        //LazyColumn
-
     }
 }
 

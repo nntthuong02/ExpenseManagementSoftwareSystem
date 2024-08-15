@@ -189,11 +189,10 @@ fun EditTransactionScreen(
                             // Add logic here to handle confirmation.
                             coroutineScope.launch {
                                 try {
-//                                navController.navigateUp()
-
-                                    insightViewModel.eraseTransaction(transactionId)
-                                    delay(300L)
+//
                                     navController.navigate(Route.InsightScreen.route)
+                                    Toast.makeText(context, "Erased!", Toast.LENGTH_SHORT).show()
+                                    insightViewModel.eraseTransaction(transactionId)
 //                                    {
 //                                        popUpTo(Route.EditTransactionScreen.route) {
 //                                            inclusive = true
@@ -202,7 +201,6 @@ fun EditTransactionScreen(
 
 //                                delay(300L) // Thời gian để màn hình chuyển đến HomeScreen
 
-                                    Toast.makeText(context, "Erased!", Toast.LENGTH_SHORT).show()
 //                                insightViewModel.eraseTransaction(transactionId)
                                 } catch (e: Exception) {
                                     // Handle exception if needed

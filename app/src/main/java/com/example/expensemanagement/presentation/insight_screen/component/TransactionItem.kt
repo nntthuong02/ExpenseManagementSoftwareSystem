@@ -45,13 +45,13 @@ import java.util.Locale
 @Composable
 fun TransactionItem(
     transaction: Transaction,
-    insightViewModel: InsightViewModel = hiltViewModel(),
+    category: Category,
+    currencyCode: String,
+//    insightViewModel: InsightViewModel = hiltViewModel(),
     onItemClick: (Int) -> Unit
 ) {
-    val category = getCategory(transaction.category)
-    val currencyCode by insightViewModel.selectedCurrencyCode.collectAsState()
-
-
+//    val category = getCategory(transaction.category)
+//    val currencyCode by insightViewModel.selectedCurrencyCode.collectAsState()
     Card(
         onClick = { onItemClick(transaction.transactionId) },
         colors = CardDefaults.cardColors(Color.DarkGray.copy(alpha = 0.1f)),
@@ -95,41 +95,63 @@ fun TransactionItem(
             }
 
             Spacer(modifier = Modifier.height(10.dp))
+
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(0.7f)
+                ) {
+                    Icon(
+                        painter = painterResource(id = category.iconRes),
+                        contentDescription = "transaction",
+                        tint = Color.Black,
+                        modifier = Modifier
+                            .background(
+                                Color.DarkGray.copy(alpha = 0.2f),
+                                RoundedCornerShape(8.dp)
+                            )
+                            .padding(18.dp)
+                    )
 
-                Icon(
-                    painter = painterResource(id = category.iconRes),
-                    contentDescription = "transaction",
-                    tint = Color.Black,
-                    modifier = Modifier
-                        .background(
-                            Color.DarkGray.copy(alpha = 0.2f),
-                            RoundedCornerShape(8.dp)
-                        )
-                        .padding(18.dp)
-                )
 
-                Column(verticalArrangement = Arrangement.SpaceBetween) {
-                    if (transaction.title.isNotEmpty()) {
+                    Column(
+                        Modifier.padding(start = 5.dp),
+                        verticalArrangement = Arrangement.SpaceBetween,
+                       ) {
+                        if (transaction.title.isNotEmpty()) {
+                            Text(
+                                text = transaction.title,
+                                style = MaterialTheme.typography.titleMedium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+
+                            Spacer(modifier = Modifier.height(5.dp))
+                        }
+
                         Text(
-                            text = transaction.title,
-                            style = MaterialTheme.typography.titleMedium,
+                            text = "$currencyCode  " + formatAmount(transaction.amount),
+                            color = if (transaction.transactionType == Constants.INCOME) Color.Green
+                            else Color.Red.copy(alpha = 0.75f),
+                            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.W600),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-
-                        Spacer(modifier = Modifier.height(5.dp))
                     }
+                }
 
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.weight(0.3f)
+                ){
                     Text(
-                        text = "$currencyCode  " + formatAmount(transaction.amount),
-                        color = if (transaction.transactionType == Constants.INCOME) Color.Green
-                        else Color.Red.copy(alpha = 0.75f),
-                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.W600),
+                        text = if (transaction.isPaid) "Paid" else "Unpaid",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = if (transaction.isPaid) Color.Green else Color.Red,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -185,6 +207,8 @@ fun TransactionItemPreview(){
         fundId = 1
     )
     TransactionItem(
+        currencyCode = "VND",
+        category = Category.CLOTHES,
         transaction = transaction,
         onItemClick = {}
     )
