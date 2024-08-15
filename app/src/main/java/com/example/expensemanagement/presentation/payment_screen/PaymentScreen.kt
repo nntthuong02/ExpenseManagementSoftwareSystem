@@ -4,6 +4,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -54,6 +55,7 @@ import com.example.expensemanagement.presentation.home.component.TabBar
 import com.example.expensemanagement.presentation.insight_screen.component.AlertDialogComponent
 import com.example.expensemanagement.presentation.navigation.Route
 import com.example.expensemanagement.presentation.payment_screen.component.RowItem
+import com.example.expensemanagement.ui.theme.Blue1
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -170,6 +172,7 @@ fun PaymentContent(
                             Column {
                                 Box(
                                     modifier = Modifier
+                                        .background(Blue1)
                                         .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
                                         .padding(0.dp)
                                         .fillMaxWidth()
@@ -226,12 +229,13 @@ fun PaymentContent(
                             Column { // Đặt Box và RowItem vào Column
                                 Box(
                                     modifier = Modifier
+                                        .background(Color.Blue.copy(0.5f))
                                         .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
                                         .fillMaxWidth()
                                         .padding(8.dp) // Đảm bảo khoảng cách hợp lý
                                 ) {
                                     Text(
-                                        text = "Payment Schedule",
+                                        text = "Participant Fee Schedule",
                                         modifier = Modifier.align(Alignment.Center),
                                         style = MaterialTheme.typography.titleSmall,
                                         fontWeight = FontWeight.Bold,
@@ -306,6 +310,7 @@ fun HistoryPayment(
                 item {
                     Box(
                         modifier = Modifier
+                            .background(Color.Green)
                             .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
 //                        .background(Color.LightGray) // Màu nền cho văn bản
                             .padding(0.dp) // Khoảng cách giữa văn bản và viền nền

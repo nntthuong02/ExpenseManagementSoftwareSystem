@@ -153,6 +153,10 @@ class DatabaseRepositoryImpl @Inject constructor(
         return databaseDao.eraseFundById(fundId)
     }
 
+    override suspend fun eraseAllFunds() {
+        return databaseDao.eraseAllFunds()
+    }
+
     //ParticipantFund
     override suspend fun insertParticipantFund(parFund: ParticipantFundDto) {
         return databaseDao.insertParticipantFund(parFund)
@@ -191,6 +195,11 @@ class DatabaseRepositoryImpl @Inject constructor(
     override suspend fun eraseParticipantById(parId: Int) {
         return databaseDao.eraseParticipantById(parId)
     }
+
+    override suspend fun eraseAllParticipants() {
+        return databaseDao.eraseAllParticipants()
+    }
+
     override fun getParticipantByName(participantName: String): Flow<ParticipantDto> {
         return databaseDao.getParticipantByName(participantName)
     }

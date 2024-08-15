@@ -16,6 +16,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -45,6 +47,7 @@ import com.example.expensemanagement.presentation.home.component.CenterAlignedTo
 import com.example.expensemanagement.presentation.home.component.DetailEntityItem
 import com.example.expensemanagement.presentation.home.component.DialogName
 import com.example.expensemanagement.presentation.home.component.EntityItem
+import com.example.expensemanagement.presentation.insight_screen.component.AlertDialogComponent
 import com.example.expensemanagement.presentation.navigation.Route
 import com.example.expensemanagement.ui.theme.Blue1
 import kotlinx.coroutines.launch
@@ -61,6 +64,7 @@ fun ListFundScreen(
 
     val coroutineScope = rememberCoroutineScope()
     val openAlertDialog = remember { mutableStateOf(false) }
+    val openDeleteDialog = remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val fundTitle by remember { mutableStateOf(homeViewModel.fundName) }
@@ -76,11 +80,11 @@ fun ListFundScreen(
         showSnackbarText = "Please enter name",
         name = "Fund",
         rightIcon1 = R.drawable.add_24px,
-        rightIcon2 = 0,
+        rightIcon2 = R.drawable.delete_24px,
         iconOnclick1 = { openAlertDialog.value = true },
-        iconOnlick2 = {},
+        iconOnlick2 = { openDeleteDialog.value = true},
         showIconRight1 = true,
-        showIconRight2 = false,
+        showIconRight2 = true,
         showIconLeft = true,
         showSnackbar = showSnack,
         navController = navController
@@ -118,6 +122,22 @@ fun ListFundScreen(
                     dialogTitle = "Enter the name of the fund you want to create!",
                     dialogText = "fund",
                     iconId = R.drawable.post_add_24px
+                )
+            }
+            if (openDeleteDialog.value){
+                AlertDialogComponent(
+                    onDismissRequest = { openDeleteDialog.value = false},
+                    onConfirmation = {
+                        openDeleteDialog.value = false
+                        coroutineScope.launch {
+                            homeViewModel.eraseAllFund()
+                        }
+                        navController.navigate(Route.ListFundScreen.route)
+                        Toast.makeText(context, "Deleted successfully!", Toast.LENGTH_SHORT).show()
+                                     },
+                    dialogTitle = "Confirm deletion!",
+                    dialogText = "This action will delete all funds except the default fund!",
+                    icon = Icons.Filled.Delete
                 )
             }
 

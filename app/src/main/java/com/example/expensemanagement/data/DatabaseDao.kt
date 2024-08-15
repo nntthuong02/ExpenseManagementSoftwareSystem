@@ -120,6 +120,9 @@ interface DatabaseDao {
     @Query("DELETE FROM FUND_TABLE WHERE _id = :fundId")
     suspend fun eraseFundById(fundId: Int)
 
+    @Query("DELETE FROM FUND_TABLE WHERE _id != 1")
+    suspend fun eraseAllFunds()
+
     //ParticipantFund
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertParticipantFund(parFund: ParticipantFundDto)
@@ -163,4 +166,7 @@ interface DatabaseDao {
 
     @Query("DELETE FROM PARTICIPANT_TABLE WHERE _id = :transactionId")
     suspend fun eraseParticipantById(transactionId: Int)
+
+    @Query("DELETE FROM PARTICIPANT_TABLE WHERE _id != 1")
+    suspend fun eraseAllParticipants()
 }

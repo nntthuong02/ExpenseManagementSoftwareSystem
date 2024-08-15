@@ -34,6 +34,8 @@ import com.example.expensemanagement.domain.usecase.read_database.GetTransByFund
 import com.example.expensemanagement.domain.usecase.read_database.GetTransactionById
 import com.example.expensemanagement.domain.usecase.read_database.GetTransactionByParticipant
 import com.example.expensemanagement.domain.usecase.read_datastore.GetCurrencyUseCase
+import com.example.expensemanagement.domain.usecase.write_database.EraseAllFunds
+import com.example.expensemanagement.domain.usecase.write_database.EraseAllParticipants
 import com.example.expensemanagement.domain.usecase.write_database.EraseFundById
 import com.example.expensemanagement.domain.usecase.write_database.EraseParFundById
 import com.example.expensemanagement.domain.usecase.write_database.EraseParticipantById
@@ -78,6 +80,8 @@ class HomeViewModel @Inject constructor(
     private val getAllParticipants: GetAllParticipants,
     private val getCurrencyUseCase: GetCurrencyUseCase,
     private val getAllGroups: GetAllGroups,
+    private val eraseAllFunds: EraseAllFunds,
+    private val eraseAllParticipants: EraseAllParticipants,
     private val getAllTransactions: GetAllTransactions,
     private val getFundByGroupId: GetFundByGroupId,
     private val getTransactionByParticipant: GetTransactionByParticipant,
@@ -552,6 +556,18 @@ class HomeViewModel @Inject constructor(
     fun eraseAllTransactions() {
         viewModelScope.launch(IO) {
             eraseAllTransaction()
+        }
+    }
+
+    fun eraseAllFund() {
+        viewModelScope.launch(IO) {
+            eraseAllFunds()
+        }
+    }
+
+    fun eraseAllPars(){
+        viewModelScope.launch(IO){
+            eraseAllParticipants()
         }
     }
 

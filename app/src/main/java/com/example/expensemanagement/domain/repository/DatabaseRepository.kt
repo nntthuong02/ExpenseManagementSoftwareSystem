@@ -71,6 +71,8 @@ interface DatabaseRepository {
 
     suspend fun eraseFundById(fundId: Int)
 
+    suspend fun eraseAllFunds()
+
     //ParticipantFund
     suspend fun insertParticipantFund(parFund: ParticipantFundDto)
 
@@ -99,4 +101,6 @@ interface DatabaseRepository {
 
     suspend fun updateParticipant(participant: ParticipantDto)
     suspend fun eraseParticipantById(parId: Int)
+
+    suspend fun eraseAllParticipants()
 }
