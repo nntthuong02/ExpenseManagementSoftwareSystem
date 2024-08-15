@@ -69,7 +69,7 @@ fun ListTransactionScreen(
     val coroutineScope = rememberCoroutineScope()
 
 
-    LaunchedEffect(Unit){
+    LaunchedEffect(Unit) {
         launch { homeViewModel.fetchAllTransactions() }
         launch { homeViewModel.fetchUnpaidTransactions() }
         launch { homeViewModel.fetchPaidTransactions() }
@@ -87,7 +87,7 @@ fun ListTransactionScreen(
         showIconLeft = true,
         navController = navController,
         showSnackbar = mutableStateOf(false)
-    ) {innerPadding ->
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -95,39 +95,55 @@ fun ListTransactionScreen(
 //            verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (deleteUnpaidDialog.value){
+            if (deleteUnpaidDialog.value) {
                 AlertDialogComponent(
                     onDismissRequest = { deleteUnpaidDialog.value = false },
                     onConfirmation = {
-                        if (unpaidTrans.isEmpty()){
-                            Toast.makeText(context, "There are no transactions to delete!", Toast.LENGTH_SHORT).show()
+                        if (unpaidTrans.isEmpty()) {
+                            Toast.makeText(
+                                context,
+                                "There are no transactions to delete!",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         } else {
                             navController.navigate(Route.ListTransaction.route)
                             coroutineScope.launch {
                                 homeViewModel.eraseUnpaidTrans()
                             }
-                            Toast.makeText(context, "Successfully deleted unpaid transactions", Toast.LENGTH_SHORT)
+                            Toast.makeText(
+                                context,
+                                "Successfully deleted unpaid transactions",
+                                Toast.LENGTH_SHORT
+                            )
                         }
                         deleteUnpaidDialog.value = false
-                                     },
+                    },
                     dialogTitle = "Delete unpaid transaction",
                     dialogText = "Are you sure you want to delete unpaid transactions?",
                     icon = Icons.Filled.Delete
                 )
             }
 
-            if (deletePaidDialog.value){
+            if (deletePaidDialog.value) {
                 AlertDialogComponent(
                     onDismissRequest = { deletePaidDialog.value = false },
                     onConfirmation = {
-                        if (paidTrans.isEmpty()){
-                            Toast.makeText(context, "There are no transactions to delete!", Toast.LENGTH_SHORT).show()
+                        if (paidTrans.isEmpty()) {
+                            Toast.makeText(
+                                context,
+                                "There are no transactions to delete!",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         } else {
                             navController.navigate(Route.ListTransaction.route)
                             coroutineScope.launch {
                                 homeViewModel.erasePaidTrans()
                             }
-                            Toast.makeText(context, "Successfully deleted paid transactions", Toast.LENGTH_SHORT)
+                            Toast.makeText(
+                                context,
+                                "Successfully deleted paid transactions",
+                                Toast.LENGTH_SHORT
+                            )
                         }
                         deletePaidDialog.value = false
                     },
@@ -137,19 +153,26 @@ fun ListTransactionScreen(
                 )
             }
 
-            TabBar(tab1 = TabContent.UNPAID, tab2 = TabContent.Paid, selectedTab = selectedTab, onTabSelected = {
-                tabContent ->
-                homeViewModel.setTabPaidTrans(tabContent)
-            })
+            TabBar(
+                tab1 = TabContent.UNPAID,
+                tab2 = TabContent.Paid,
+                selectedTab = selectedTab,
+                onTabSelected = { tabContent ->
+                    homeViewModel.setTabPaidTrans(tabContent)
+                })
 
-            AnimatedContent(targetState = selectedTab, label = "Transaction") {targetState ->
-                when(targetState){
+            AnimatedContent(targetState = selectedTab, label = "Transaction") { targetState ->
+                when (targetState) {
                     TabContent.UNPAID -> TransContent(
                         currencyCode = currencyCode,
                         listTrans = unpaidTrans,
                         onItemClick = {}
                     )
-                    else -> TransContent(currencyCode = currencyCode, listTrans = paidTrans, onItemClick = {})
+
+                    else -> TransContent(
+                        currencyCode = currencyCode,
+                        listTrans = paidTrans,
+                        onItemClick = {})
                 }
             }
         }
@@ -166,9 +189,10 @@ fun TransContent(
     val coroutineScope = rememberCoroutineScope()
     Surface(
         color = MaterialTheme.colorScheme.background,
-        modifier = Modifier.padding(
-            top = 5.dp
-        )
+        modifier = Modifier
+            .padding(
+                top = 5.dp
+            )
             .fillMaxWidth()
     ) {
         if (listTrans.isEmpty()) {
@@ -200,8 +224,8 @@ fun TransContent(
                     end = 5.dp
                 )
             ) {
-                listTrans.forEach{(date, listPair) ->
-                    stickyHeader{
+                listTrans.forEach { (date, listPair) ->
+                    stickyHeader {
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth(),
@@ -218,7 +242,7 @@ fun TransContent(
 
 
 
-                    itemsIndexed(listPair){index, (trans, parFund) ->
+                    itemsIndexed(listPair) { index, (trans, parFund) ->
                         val category = getCategory(trans.category)
 
                         TransactionParFundItem(

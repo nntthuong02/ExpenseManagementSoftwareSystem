@@ -3,17 +3,21 @@ package com.example.expensemanagement.presentation.payment_screen
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.Text
@@ -26,6 +30,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -39,6 +44,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.expensemanagement.domain.models.Fund
@@ -66,7 +72,7 @@ fun PaymentScreen(
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    LaunchedEffect(Unit){
+    LaunchedEffect(Unit) {
         paymentViewModel.getPaidTransactionCountsByDate()
     }
     Column(
@@ -75,7 +81,7 @@ fun PaymentScreen(
         TabBar(tab1 = TabContent.PAYMENT, tab2 = TabContent.HISTORY, selectedTab = selectedTab) {
             paymentViewModel.setTabBar(it)
         }
-        AnimatedContent(targetState = selectedTab) { targetTab ->
+        AnimatedContent(targetState = selectedTab, label = "Payment") { targetTab ->
             when (targetTab) {
                 TabContent.PAYMENT -> PaymentContent(
                     fundAndExpense = fundAndExpense,
@@ -84,25 +90,18 @@ fun PaymentScreen(
                         // Add logic here to handle confirmation.
                         coroutineScope.launch {
                             try {
-//                                navController.navigateUp()
                                 val time = paymentViewModel.convertDate(Calendar.getInstance().time)
-
-
                                 paymentViewModel.paymentExpense(time)
-//                                paymentViewModel.eraseTransaction(transactionId)
-//                                delay(300L)
                                 navController.navigate(Route.PayScreen.route)
-//
-
-                                Toast.makeText(context, "Payment success!", Toast.LENGTH_SHORT).show()
-//                                insightViewModel.eraseTransaction(transactionId)
+                                Toast.makeText(context, "Payment success!", Toast.LENGTH_SHORT)
+                                    .show()
                             } catch (e: Exception) {
-                                // Handle exception if needed
                                 Log.e("YourComposable", "Error Payment ", e)
                             }
                         }
                     }
                 )
+
                 else -> HistoryPayment(
                     transAndNumber = transByDate,
                     confirmClick = {
@@ -110,8 +109,9 @@ fun PaymentScreen(
                             try {
                                 paymentViewModel.undoPay()
                                 navController.navigate(Route.PayScreen.route)
-                                Toast.makeText(context, "Undo payment success!", Toast.LENGTH_SHORT).show()
-                            }catch (e: Exception){
+                                Toast.makeText(context, "Undo payment success!", Toast.LENGTH_SHORT)
+                                    .show()
+                            } catch (e: Exception) {
                                 Log.e("YourComposable", "Error Undo ", e)
                             }
                         }
@@ -123,6 +123,7 @@ fun PaymentScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PaymentContent(
     fundAndExpense: List<Pair<Fund, Double>>,
@@ -130,14 +131,14 @@ fun PaymentContent(
     confirmClick: () -> Unit,
 ) {
     val openAlertDialog = remember { mutableStateOf(false) }
-    val item1 = (1..5).toList()
-    val item2 = (1..5).toList()
-    val listFund = listOf(
-        Fund(1, "Quy 2", 1),
-        Fund(1, "Quy 2", 1),
-        Fund(1, "Quy 2", 1),
-        Fund(1, "Quy 2", 1),
-    )
+//    val item1 = (1..5).toList()
+//    val item2 = (1..5).toList()
+//    val listFund = listOf(
+//        Fund(1, "Quy 2", 1),
+//        Fund(1, "Quy 2", 1),
+//        Fund(1, "Quy 2", 1),
+//        Fund(1, "Quy 2", 1),
+//    )
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween
@@ -157,30 +158,43 @@ fun PaymentContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f) // Chiếm phần không gian còn lại
-                ){
-                    item {
-                        Box(
+                ) {
+                    stickyHeader {
+                        Surface(
                             modifier = Modifier
-                                .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
-//                        .background(Color.LightGray) // Màu nền cho văn bản
-                                .padding(0.dp) // Khoảng cách giữa văn bản và viền nền
-                                .fillMaxWidth()
+                                .wrapContentHeight()
+                                .zIndex(1f)
+                                .fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.background
                         ) {
-                            Text(
-                                text = "Fund Fee Schedule",
-                                modifier = Modifier
+                            Column {
+                                Box(
+                                    modifier = Modifier
+                                        .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
+                                        .padding(0.dp)
+                                        .fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = "Fund Fee Schedule",
+                                        modifier = Modifier
 
-                                    .align(Alignment.Center)
-                                    .padding(8.dp), // Tạo khoảng cách giữa văn bản và đường viền
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                        }
+                                            .align(Alignment.Center)
+                                            .padding(8.dp),
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                    )
+                                }
 //                    Spacer(modifier = Modifier.padding(15.dp))
-                        RowItem(name = "Fund", expense = "Expense")
+                                RowItem(name = "Fund", expense = "Expense")
+                            }
+
+                        }
                     }
-                    itemsIndexed(fundAndExpense){index, (fund, expense) ->
+                    item {
+
+                    }
+                    itemsIndexed(fundAndExpense) { index, (fund, expense) ->
                         RowItem(name = fund.fundName, expense = expense.toString())
                     }
                     item {
@@ -196,36 +210,42 @@ fun PaymentContent(
             ) {
 
 
-
-
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f) // Chiếm phần không gian còn lại
-                ){
+                ) {
 
-                    item {
-                        Box(
+                    stickyHeader {
+                        Surface(
                             modifier = Modifier
-                                .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
-//                        .background(Color.LightGray) // Màu nền cho văn bản
-                                .padding(0.dp) // Khoảng cách giữa văn bản và viền nền
-                                .fillMaxWidth()
+                                .height(IntrinsicSize.Min)
+                                .fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.background
                         ) {
-                            Text(
-                                text = "Payment Schedule",
-                                modifier = Modifier
-                                    .align(Alignment.Center)
-                                    .padding(8.dp), // Tạo khoảng cách giữa văn bản và đường viền
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
+                            Column { // Đặt Box và RowItem vào Column
+                                Box(
+                                    modifier = Modifier
+                                        .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
+                                        .fillMaxWidth()
+                                        .padding(8.dp) // Đảm bảo khoảng cách hợp lý
+                                ) {
+                                    Text(
+                                        text = "Payment Schedule",
+                                        modifier = Modifier.align(Alignment.Center),
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                    )
+                                }
+                                RowItem(name = "Participant", expense = "Payment Amount")
+                            }
                         }
-//                    Spacer(modifier = Modifier.padding(15.dp))
-                        RowItem(name = "Participant", expense = "Payment Amount")
                     }
-                    itemsIndexed(parAndExpense){index, (par, amount) ->
+                    item {
+
+                    }
+                    itemsIndexed(parAndExpense) { index, (par, amount) ->
                         RowItem(name = par.participantName, expense = amount.toString())
                     }
                 }
@@ -237,7 +257,7 @@ fun PaymentContent(
                 onConfirmation = {
                     openAlertDialog.value = false
                     confirmClick()
-                                 },
+                },
                 dialogTitle = "Payment Confirmation",
                 dialogText = "Are you sure you want to pay?",
                 icon = Icons.Default.Info
@@ -260,22 +280,6 @@ fun PaymentContent(
     }
 }
 
-//    LazyVerticalGrid(
-//        columns = GridCells.Fixed(2), // Số cột cố định
-//        modifier = Modifier.padding(16.dp)
-//    ) {
-//        items(item1.size) { item ->
-//            Box(modifier = Modifier
-//                .border(1.dp, Color.Black)
-//            ){
-//                Text(
-//                    text = "Item ${item1[item]}",
-//                    modifier = Modifier.padding(8.dp)
-//                )
-//            }
-//
-//        }
-//    }
 @Composable
 fun HistoryPayment(
 
@@ -298,7 +302,7 @@ fun HistoryPayment(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f) // Chiếm phần không gian còn lại
-            ){
+            ) {
                 item {
                     Box(
                         modifier = Modifier
@@ -321,7 +325,7 @@ fun HistoryPayment(
 //                    Spacer(modifier = Modifier.padding(15.dp))
                     RowItem(name = "Trans number ", expense = "Date of payment")
                 }
-                itemsIndexed(transAndNumber){index, (date, number) ->
+                itemsIndexed(transAndNumber) { index, (date, number) ->
                     RowItem(name = number.toString(), expense = date)
                 }
                 item {
@@ -366,7 +370,7 @@ fun HistoryPayment(
 @Preview(showBackground = true)
 @Composable
 fun PreviewPaymentContent() {
-   
+
     val fund = Fund(1, "Quy 2", 1)
     val par = Participant(1, "Thuong")
     val fundAndExpense = listOf(

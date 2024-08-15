@@ -125,18 +125,6 @@ fun EditTransactionScreen(
             LaunchedEffect(initialAmount) {
                 transactionViewModel.setTransaction(initialAmount)
             }
-//            transactionViewModel.setTransactionTitle(initialTitle)
-//        if(trans.transactionType == Constants.INCOME){
-//            initialType.value = TabButton.INCOME
-//        } else{
-//            initialType.value = TabButton.EXPENSE
-//        }
-
-//            transactionViewModel.setTransaction(initialAmount)
-//        val category = Category.fromTitle(trans.category)
-//        category?.let {
-//            transactionViewModel.selectCategory(it)
-//        }
 
             initialCategory?.let {
                 val category = Category.fromTitle(it)
@@ -189,19 +177,10 @@ fun EditTransactionScreen(
                             // Add logic here to handle confirmation.
                             coroutineScope.launch {
                                 try {
-//
-                                    navController.navigate(Route.InsightScreen.route)
-                                    Toast.makeText(context, "Erased!", Toast.LENGTH_SHORT).show()
                                     insightViewModel.eraseTransaction(transactionId)
-//                                    {
-//                                        popUpTo(Route.EditTransactionScreen.route) {
-//                                            inclusive = true
-//                                        }
-//                                    }
+                                    navController.navigateUp()
+                                    Toast.makeText(context, "Erased!", Toast.LENGTH_SHORT).show()
 
-//                                delay(300L) // Thời gian để màn hình chuyển đến HomeScreen
-
-//                                insightViewModel.eraseTransaction(transactionId)
                                 } catch (e: Exception) {
                                     // Handle exception if needed
                                     Log.e("YourComposable", "Error deleting transaction", e)
@@ -333,9 +312,6 @@ fun EditTransactionScreen(
                 Category()
             }
             SnackbarHost(hostState = snackbarHostState)
-//        Button(onClick = { transactionViewModel.createEntity()}) {
-//        Text(text = "create")
-//        }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -390,15 +366,6 @@ fun EditTransactionScreen(
                                 }
                             }
 
-
-//                        coroutineScope.launch {
-//                            snackbarHostState.showSnackbar(
-//                                message = "Update successfully",
-//                                duration = SnackbarDuration.Short
-//                            )
-//                        }
-//                navController.navigate("${Route.HomeScreen.route}")
-                            //xu ly xoa het du lieu dang hien thi sau khi nhan "Save"
                         }
                     },
                     shape = MaterialTheme.shapes.small,
