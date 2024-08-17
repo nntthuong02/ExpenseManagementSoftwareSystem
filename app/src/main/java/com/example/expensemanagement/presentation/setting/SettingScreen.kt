@@ -69,6 +69,7 @@ fun SettingScreen (
     context: Context
 
 ) {
+    val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/octet-stream")
     ) { uri: Uri? ->
@@ -100,7 +101,7 @@ fun SettingScreen (
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Backup Database")
+            Text("Backup Data")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -111,11 +112,19 @@ fun SettingScreen (
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Restore Database")
+            Text("Restore Data")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
 
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = {
+                settingViewModel.shareDatabaseFile(context)
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Share Data")
+        }
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn {
 
