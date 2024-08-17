@@ -149,8 +149,7 @@ fun NavGraph(
             PaymentScreen(navController = navController)
         }
         composable(route = Route.SettingScreen.route){
-            val context = LocalContext.current
-            SettingScreen(context = context)
+            SettingScreen()
         }
 
     }

@@ -27,7 +27,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingViewModel @Inject constructor(
-    private val getAllTransactions: GetAllTransactions,
     private val appDatabase: AppDatabase
 ) : ViewModel() {
     /**
@@ -37,26 +36,12 @@ class SettingViewModel @Inject constructor(
         if (uri == null) return -1
         var result = -99
         val dbFile = context.getDatabasePath("transactionDB")
-//        val dbWalFile = File(dbFile.path + "-wal")
-//        val dbShmFile = File(dbFile.path + "-shm")
         Log.d("dbFile.path", dbFile.path + "-wal")
-//        Log.d("dbWalFile.path", dbWalFile.path)
-//        Log.d("dbShmFile.path", dbShmFile.path)
         checkpoint()
         try {
             context.contentResolver.openOutputStream(uri)?.use { outputStream ->
                 dbFile.inputStream().copyTo(outputStream)
             }
-//            if (dbWalFile.exists()) {
-//                context.contentResolver.openOutputStream(uri)?.use { outputStream ->
-//                    dbWalFile.inputStream().copyTo(outputStream)
-//                }
-//            }
-//            if (dbShmFile.exists()) {
-//                context.contentResolver.openOutputStream(uri)?.use { outputStream ->
-//                    dbShmFile.inputStream().copyTo(outputStream)
-//                }
-//            }
             result = 0
         } catch (e: IOException) {
             e.printStackTrace()
@@ -86,11 +71,7 @@ class SettingViewModel @Inject constructor(
         val dbpath = appDatabase.openHelper.readableDatabase.path
         Log.d("dbpath", dbpath.toString())
         val dbFile = File(dbpath)
-//        val dbWalFile = File(dbFile.path + "-wal")
-//        val dbShmFile = File(dbFile.path + "-shm")
         val bkpFile = File(dbFile.path + "-bkp")
-//        val bkpWalFile = File(bkpFile.path + "-wal")
-//        val bkpShmFile = File(bkpFile.path + "-shm")
         try {
             val inputStream = context.contentResolver.openInputStream(uri)
             inputStream?.use { sourceStream ->
@@ -100,21 +81,7 @@ class SettingViewModel @Inject constructor(
                     Log.d("dbFile",dbFile.toString())
                 }
             }
-            ///
-//            val walUri = uri.buildUpon().path(uri.path + "-wal").build()
-//            val shmUri = uri.buildUpon().path(uri.path + "-shm").build()
-//            if (walUri != null) {
-//                val shmUri = uri.buildUpon().path(uri.path + "-shm").build()
-//                val shmInputStream = context.contentResolver.openInputStream(shmUri)
-//                shmInputStream?.use { sourceStream ->
-//                    dbShmFile.outputStream().use { destStream ->
-//                        sourceStream.copyTo(destStream)
-//                    }
-//                }
-//            }
-//            if(shmUri != null){
-//
-//            }
+
             checkpoint()
         } catch (e: IOException) {
             e.printStackTrace()
@@ -127,48 +94,12 @@ class SettingViewModel @Inject constructor(
         }
     }
 
-//    fun startFileShareIntent(context: Context) { // pass the file path where the actual file is located.
-//        var result = -99
-//        val dbFile = context.getDatabasePath("transactionDB")
-////        val dbWalFile = File(dbFile.path + "-wal")
-////        val dbShmFile = File(dbFile.path + "-shm")
-//        Log.d("dbFile.path", dbFile.path + "-wal")
-////        Log.d("dbWalFile.path", dbWalFile.path)
-////        Log.d("dbShmFile.path", dbShmFile.path)
-//        checkpoint()
-//
-//        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-//            type = "*/*"  // "*/*" will accepts all types of files, if you want specific then change it on your need.
-//            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-////            putExtra(
-////                Intent.EXTRA_SUBJECT,
-////                "Sharing file from the AppName"
-////            )
-////            putExtra(
-////                Intent.EXTRA_TEXT,
-////                "Sharing file from the AppName with some description"
-////            )
-//            val fileURI = FileProvider.getUriForFile(
-//                context!!, context!!.packageName + ".provider",
-//                context.getDatabasePath("transactionDB")
-//            )
-//            putExtra(Intent.EXTRA_STREAM, fileURI)
-//        }
-//        context.startActivity(shareIntent)
-//    }
-
     fun shareDatabaseFile(context: Context) {
         val dbFile = File(context.filesDir, "shared_transactionDB")
         val originalDbFile = context.getDatabasePath("transactionDB")
         originalDbFile.copyTo(dbFile, overwrite = true)
 
         val dbUri: Uri = FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.provider",
-            dbFile
-        )
-
-        val fileUri = FileProvider.getUriForFile(
             context,
             "${context.packageName}.provider",
             dbFile
@@ -181,7 +112,6 @@ class SettingViewModel @Inject constructor(
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
 
-        // Sử dụng Context để bắt đầu Intent
         context.startActivity(Intent.createChooser(shareIntent, "Share database"))
     }
     private fun checkpoint() {

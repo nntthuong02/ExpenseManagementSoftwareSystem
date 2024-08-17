@@ -1,8 +1,8 @@
 package com.example.expensemanagement.presentation.setting
 
-import android.content.Context
-import android.content.Intent
+
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -42,6 +42,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,9 +66,7 @@ import com.example.expensemanagement.presentation.home.component.ScrollContent
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingScreen (
-    settingViewModel: SettingViewModel = hiltViewModel(),
-    context: Context
-
+    settingViewModel: SettingViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(
@@ -85,13 +84,27 @@ fun SettingScreen (
             settingViewModel.restoreDatabase(context, it)
         }
     }
+
+    CenterAlignedTopAppBar(
+        showSnackbarText = "",
+        name = "Setting",
+        rightIcon1 = 0,
+        rightIcon2 = 0,
+        iconOnclick1 = { },
+        iconOnlick2 = {},
+        showIconRight1 = false,
+        showIconRight2 = false,
+        showIconLeft = false,
+        showSnackbar = mutableStateOf(false),
+        navController = rememberNavController()
+    ) {innerPadding ->
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .padding(paddingValues = innerPadding)
     ) {
 
-        Text(text = "Hello World!")
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -119,6 +132,7 @@ fun SettingScreen (
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
+                Toast.makeText(context, "Preparing data", Toast.LENGTH_LONG).show()
                 settingViewModel.shareDatabaseFile(context)
             },
             modifier = Modifier.fillMaxWidth()
@@ -130,6 +144,7 @@ fun SettingScreen (
 
         }
     }
+}
 }
 
 //@Preview(showSystemUi = true)
