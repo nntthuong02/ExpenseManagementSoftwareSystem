@@ -1,9 +1,11 @@
 package com.example.expensemanagement.presentation.navigation
 
+import android.content.Context
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -147,7 +149,8 @@ fun NavGraph(
             PaymentScreen(navController = navController)
         }
         composable(route = Route.SettingScreen.route){
-            SettingScreen()
+            val context = LocalContext.current
+            SettingScreen(context = context)
         }
 
     }

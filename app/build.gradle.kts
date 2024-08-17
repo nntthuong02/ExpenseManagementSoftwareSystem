@@ -22,6 +22,7 @@ android {
             useSupportLibrary = true
         }
         //
+
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments.put(
