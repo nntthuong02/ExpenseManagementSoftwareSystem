@@ -36,7 +36,6 @@ class SettingViewModel @Inject constructor(
         if (uri == null) return -1
         var result = -99
         val dbFile = context.getDatabasePath("transactionDB")
-        Log.d("dbFile.path", dbFile.path + "-wal")
         checkpoint()
         try {
             context.contentResolver.openOutputStream(uri)?.use { outputStream ->
@@ -67,18 +66,14 @@ class SettingViewModel @Inject constructor(
                 filePath = it.getString(columnIndex)
             }
         }
-        Log.d("filePath", filePath.toString())
         val dbpath = appDatabase.openHelper.readableDatabase.path
-        Log.d("dbpath", dbpath.toString())
         val dbFile = File(dbpath)
         val bkpFile = File(dbFile.path + "-bkp")
         try {
             val inputStream = context.contentResolver.openInputStream(uri)
             inputStream?.use { sourceStream ->
                 dbFile.outputStream().use { destStream ->
-                    Log.d("destStream", destStream.toString())
                     sourceStream.copyTo(destStream)
-                    Log.d("dbFile",dbFile.toString())
                 }
             }
 

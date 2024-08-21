@@ -147,8 +147,8 @@ fun SettingScreen (
 }
 }
 
-//@Preview(showSystemUi = true)
-//@Composable
-//fun Preview(){
-//    SettingScreen()
-//}
+@Preview(showSystemUi = true)
+@Composable
+fun Preview(){
+    SettingScreen()
+}
