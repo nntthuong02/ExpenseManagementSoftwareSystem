@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">ExpenseManagement</string>
+<!--    <string name="t_onboarding1">Expense Tracking</string>-->
+<!--    <string name="t_onboarding2">Uncontrolled Spending</string>-->
+<!--    <string name="t_onboarding3">Budget Management</string>-->
+<!--    <string name="d_onboarding1">Monitor spending, categorize expenses, and stay on budget</string>-->
+<!--    <string name="d_onboarding2">The burden of overspending due to poor management</string>-->
+<!--    <string name="d_onboarding3">Control finances, allocate funds effortlessly</string>-->
 </resources>

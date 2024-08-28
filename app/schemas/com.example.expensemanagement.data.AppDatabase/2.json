@@ -1,0 +1,308 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "d94a87942cea750fde4e03f40d4eb10f",
+    "entities": [
+      {
+        "tableName": "transaction_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `dateOfEntry` TEXT NOT NULL, `amount` REAL NOT NULL, `category` TEXT NOT NULL, `isPaid` INTEGER NOT NULL, `transactionType` TEXT NOT NULL, `participantId` INTEGER NOT NULL, FOREIGN KEY(`participantId`) REFERENCES `participant_table`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "transactionId",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateOfEntry",
+            "columnName": "dateOfEntry",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "amount",
+            "columnName": "amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "category",
+            "columnName": "category",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isPaid",
+            "columnName": "isPaid",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "transactionType",
+            "columnName": "transactionType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "participantId",
+            "columnName": "participantId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_transaction_table_participantId",
+            "unique": false,
+            "columnNames": [
+              "participantId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_transaction_table_participantId` ON `${TABLE_NAME}` (`participantId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "participant_table",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "participantId"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "participant_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `participantName` TEXT NOT NULL, `income` REAL NOT NULL, `expense` REAL NOT NULL, `balance` REAL NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "participantId",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "participantName",
+            "columnName": "participantName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "income",
+            "columnName": "income",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expense",
+            "columnName": "expense",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "balance",
+            "columnName": "balance",
+            "affinity": "REAL",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "_id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "group_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `groupName` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "groupId",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groupName",
+            "columnName": "groupName",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "_id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "fund_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `fundName` TEXT NOT NULL, `totalAmount` REAL NOT NULL, `groupId` INTEGER NOT NULL, FOREIGN KEY(`groupId`) REFERENCES `group_table`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "fundId",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fundName",
+            "columnName": "fundName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "totalAmount",
+            "columnName": "totalAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groupId",
+            "columnName": "groupId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_fund_table_groupId",
+            "unique": false,
+            "columnNames": [
+              "groupId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_fund_table_groupId` ON `${TABLE_NAME}` (`groupId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "group_table",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "groupId"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "ParticipantFund_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `participantId` INTEGER NOT NULL, `fundId` INTEGER NOT NULL, FOREIGN KEY(`participantId`) REFERENCES `participant_table`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`fundId`) REFERENCES `fund_table`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "parFundId",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "participantId",
+            "columnName": "participantId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fundId",
+            "columnName": "fundId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_ParticipantFund_table_participantId",
+            "unique": false,
+            "columnNames": [
+              "participantId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ParticipantFund_table_participantId` ON `${TABLE_NAME}` (`participantId`)"
+          },
+          {
+            "name": "index_ParticipantFund_table_fundId",
+            "unique": false,
+            "columnNames": [
+              "fundId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ParticipantFund_table_fundId` ON `${TABLE_NAME}` (`fundId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "participant_table",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "participantId"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          },
+          {
+            "table": "fund_table",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "fundId"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          }
+        ]
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd94a87942cea750fde4e03f40d4eb10f')"
+    ]
+  }
+}
