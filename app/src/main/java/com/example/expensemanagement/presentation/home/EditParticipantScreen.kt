@@ -134,6 +134,7 @@ fun EditParticipantScreen(
                                 coroutineScope.launch {
                                     homeViewModel.apply {
                                         updateParticipantById(parId, parName.value)
+                                        navController.navigateUp()
                                         navController.navigate("${Route.EditParticipantScreen.route}/${parById!!.participantId}")
                                         Toast.makeText(
                                             context,

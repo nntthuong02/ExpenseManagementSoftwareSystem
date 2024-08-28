@@ -58,6 +58,8 @@ import com.example.expensemanagement.presentation.payment_screen.component.RowIt
 import com.example.expensemanagement.ui.theme.Blue1
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 import java.util.Calendar
 import java.util.Locale
 
@@ -198,7 +200,8 @@ fun PaymentContent(
 
                     }
                     itemsIndexed(fundAndExpense) { index, (fund, expense) ->
-                        RowItem(name = fund.fundName, expense = expense.toString())
+                        val amount = formatAmount(expense)
+                        RowItem(name = fund.fundName, expense = amount)
                     }
                     item {
                         Spacer(modifier = Modifier.padding(5.dp))
@@ -250,7 +253,8 @@ fun PaymentContent(
 
                     }
                     itemsIndexed(parAndExpense) { index, (par, amount) ->
-                        RowItem(name = par.participantName, expense = amount.toString())
+                        val amountFormat = formatAmount(amount)
+                        RowItem(name = par.participantName, expense = amountFormat)
                     }
                 }
             }
@@ -371,7 +375,18 @@ fun HistoryPayment(
         }
     }
 }
+fun formatAmount(value: Double): String {
+    if (value == 0.0) {
+        return "0,0"
+    }
+    val symbols = DecimalFormatSymbols(Locale.US).apply {
+        decimalSeparator = ','
+        groupingSeparator = '.'
+    }
+    val format = DecimalFormat("#,###.0", symbols)
 
+    return format.format(value)
+}
 @Preview(showBackground = true)
 @Composable
 fun PreviewPaymentContent() {

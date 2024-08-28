@@ -163,7 +163,19 @@ fun EditFundScreen(
                                     homeViewModel.apply {
                                         updateFundById(fundId, fundName.value, 1)
 //                                    navController.navigateUp()
-                                        navController.navigate("${Route.EditFundScreen.route}/${fundById!!.fundId}")
+//                                        navController.navigate("${Route.EditFundScreen.route}/${fundById!!.fundId}")
+//                                        navController.navigate("edit_fund_screen/${fundId}") {
+//                                            popUpTo(navController.graph.startDestinationId) {
+//                                                saveState = true
+//                                            }
+//                                            restoreState = true
+//                                            launchSingleTop = true
+//                                        }
+                                        navController.navigate("${Route.EditFundScreen.route}/${fundById!!.fundId}") {
+                                            popUpTo("${Route.EditFundScreen.route}/${fundById!!.fundId}") {
+                                                inclusive = true
+                                            }
+                                        }
                                         Toast.makeText(
                                             context,
                                             "Fund name updated successfully",

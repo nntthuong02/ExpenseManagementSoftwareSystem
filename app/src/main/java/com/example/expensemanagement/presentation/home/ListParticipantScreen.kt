@@ -103,6 +103,7 @@ fun ListParticipantScreen(
                                 }else {
                                     openAlertDialog.value = false
                                     homeViewModel.insertParticipant(parTitle.value)
+                                    navController.navigateUp()
                                     navController.navigate(Route.ListParticipantScreen.route)
                                     Toast.makeText(context, "Additional participant successfully", Toast.LENGTH_SHORT)
                                 }

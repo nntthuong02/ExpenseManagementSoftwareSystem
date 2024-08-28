@@ -110,6 +110,7 @@ fun ListFundScreen(
                             openAlertDialog.value = false
                             homeViewModel.insertFund(fundTitle.value, 1)
 //
+                            navController.navigateUp()
                             navController.navigate("${Route.ListFundScreen.route}")
                             Toast.makeText(context, "Additional funds successfully", Toast.LENGTH_SHORT).show()
                         }
@@ -159,7 +160,6 @@ fun ListFundScreen(
                             numberTransaction = numberTrans,
                             amount = homeViewModel.formatAmount(expense),
                             itemOnClick = {
-
                                 navController.navigate("${Route.EditFundScreen.route}/${fund!!.fundId}")
 
                                           },

@@ -173,6 +173,7 @@ class PaymentViewModel @Inject constructor(
             updatePayTransactions(dateOfEntry)
         }
     }
+
     fun getPaidTransactionCountsByDate() {
         viewModelScope.launch(IO) {
             getAllTransactions().collect { transactionList ->
